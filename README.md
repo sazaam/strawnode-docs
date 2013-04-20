@@ -29,10 +29,10 @@ The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 
 	Included in the Straw Project :
 
-	- strawnode : Framework for Node environnment simulation
-	- strawexpress : Framework for solving Front-End common issues
-	- strawjade : Jade Templating Engine Front-End Parser
-	...
+		- strawnode : Framework for Node environnment simulation
+		- strawexpress : Framework for solving Front-End common issues
+		- strawjade : Jade Templating Engine Front-End Parser
+		- ...
 	
 - Pre-requisites
 	
