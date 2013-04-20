@@ -49,14 +49,14 @@ taking in consideration cross-browser coding, and once again, do with the limits
 Some theorical classes will be portable with ease, but some more practical and evironment-related 
 will fail in seeing a good portage in browser context.
 
-For example, we have no interest now on porting the Node.js 'Class: dgram.Socket' class into Straw (why not?), 
+For example, we have no interest now on porting the Node.js 'Class: dgram.Socket' class into Straw (why not? but not now), 
 but implementing the URL, Path, Module Classes seems far more compatible and yet useful.
 
 
 On the other hand, Node.js isn't prepare for front-end issues such as cross-browsing Class inheritance, in-page events,
 deeplinking matched with live AJAX sections, etc... where Straw tries to find a workaround keeping Node's spirit and structure.
 
-Express in Node, achieves quickly handful things, so does StrawExpress, they're just rarely the same things.
+Express in Node, achieves quickly handful things, so does StrawExpress, they're just won't really do the same things.
 
 StrawNode is emulation of Node system bases.
 StrawExpress is a promotion to webpage context (and features) of Express, to ease and quicken things up,
@@ -71,7 +71,7 @@ please enjoy some examples of what you can see in Straw usual practices :
 
 
 
-Starting from a Node.js app base,
+Starting from a Node.js app base, (let's anticipate when Node will be present)
 within a Node package looking like this :
 	
 	
