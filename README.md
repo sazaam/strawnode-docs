@@ -33,11 +33,6 @@ The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 	- strawexpress : Framework for solving Front-End common issues
 	- strawjade : Jade Templating Engine Front-End Parser
 
-	
-	
-	
-	
-	
 - Pre-requisites
 	
 	As a project still in development, one must be indulgent with things that look unstable/unsubtle, 
