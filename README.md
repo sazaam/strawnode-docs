@@ -1,14 +1,12 @@
 StrawNode Docs
 ==============
 
-All Documentation for StrawNode
-
-
-
-
+All Documentation for 
 The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 
-- What does StrawNode do ?
+
+What does StrawNode do ?
+=
 
 	StrawNode attempts to take a primordial place in front-end development of applications, 
 	providing a concrete framework to start apps as quickly as possible.
@@ -29,13 +27,14 @@ The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 
 	Included in the Straw Project :
 
-		- strawnode : Framework for Node environnment simulation
-		- strawexpress : Framework for solving Front-End common issues
-		- strawjade : Jade Templating Engine Front-End Parser
-		- ...
-	
-- Pre-requisites
-	
+	- strawnode : Framework for Node environnment simulation
+	- strawexpress : Framework for solving Front-End common issues
+	- strawjade : Jade Templating Engine Front-End Parser
+	- ...
+
+
+Pre-requisites
+=	
 	As a project still in development, one must be indulgent with things that look unstable/unsubtle, 
 	and understand the further goal of Straw Project yet with some abstraction.
 	First Node.js has no need to be cross-browser since not evolving in browser environment.
@@ -61,13 +60,10 @@ The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 	StrawNode is emulation of Node system bases.
 	StrawExpress is a promotion to webpage context (and features) of Express, to ease and quicken things up,
 	and StrawJade is eventually just a portage of the parsing original tool for in-page and without-node context.
-	
-	
-	
-	
-	
-	
-- Overview
+
+
+Overview
+=
 	
 	Assuming here that you're used to Node and curious of Straw, 
 	please enjoy some examples of what you can see in Straw usual practices :
@@ -193,7 +189,7 @@ The STRAW Project (StrawNode, StrawExpress, StrawJade & extra toolkits)
 			}) ;
 
 
-
-- Getting Started with StrawNode
+Getting Started with StrawNode
+=
 
 ... to be continued real soon.
