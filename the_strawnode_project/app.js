@@ -12,7 +12,7 @@ var app = express() ;
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000) ;
-  app.set('views', path.join(__dirname, 'jade')) ;
+  app.set('views', path.join(__dirname, 'public/jade')) ;
   app.set('view engine', 'jade') ;
   app.use(express.favicon()) ;
   app.use(express.logger('dev')) ;
@@ -29,7 +29,6 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index) ;
-app.get('/artists/', routes.artists) ;
 
 http
 	.createServer(app)

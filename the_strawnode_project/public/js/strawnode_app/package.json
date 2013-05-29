@@ -1,5 +1,5 @@
 {
-	"name" : "strawnode_app",
+	"name" : "The Strawnode Project",
 	"version" : "0.0.1",
 	"description" : "Strawnode's example app",
 	"index" : "./index.js",
@@ -7,6 +7,6 @@
 		"strawexpress.js",
 		"strawexpress-address.js",
 		"strawjade.js",
-		"betweenjs.js"
+		"betweenjs.min.js"
 	]
 }

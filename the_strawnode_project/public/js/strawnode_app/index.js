@@ -2,19 +2,17 @@
 // necessary for full app feature
 var express = require('Express') ;
 var routes = require('./routes') ;
-// var routes = require('Routes') ;
 
-
-
+ 
 var WindowProxy = new Proxy.Class(window, {
 	statics:{
 		initialize:function(){
-			trace('initing WindowProxy class', this) ;
+			// trace('initing WindowProxy class', this) ;
 			return this ;
 		}
 	},
 	constructor:WindowProxy = function WindowProxy(over){
-		trace('window proxy init') ;
+		// trace('window proxy init') ;
 		return this ;
 	},
 	// rewrite custom addEventListener
@@ -34,7 +32,7 @@ var WindowProxy = new Proxy.Class(window, {
 	}
 }) ;
 
-/* creates an instance of that class , no need to re-assign proxy's target in constructor params */
+// creates an instance of that class , no need to re-assign proxy's target in constructor params 
 var wproxy = new WindowProxy() ;
 
 var loadclosure ;
@@ -42,20 +40,21 @@ wproxy.bind('load', loadclosure = function loadclosure(e){ // will call wproxy's
 	
 	wproxy.unbind('load',  loadclosure) ;
 	
-	trace(new Proxy(location))
-	trace(e.type) ;
+	// trace(new Proxy(location))
+	// trace(e.type) ;
 	
 	wproxy.setTimeout(function(){
 		
-		var box = $('<div id="proxyexample">').addClass('abs zindex10 right0 left0 padding darkBG lightest').appendTo('.frame').css({'top':0})[0] ;
+		new Proxy($('<div id="topnav">').addClass('abs borderbottom zindex10 sizeSm top0 right0 left0 padding lightest').appendTo('.frame')[0])
+			.innerHTML('The StrawNode <sup class="sizeXSm">TM</sup>  Project') ;
 		
-		var s = new Proxy(box) ;
-		trace(s)
-		s.innerHTML('!!! SUCCESS !!!') ;
+		new Proxy($('<div id="bottomnav">').addClass('abs bordertop zindex10 bottom0 right0 sizeSm txtR left0 padding lightest').appendTo('.frame')[0])
+			.innerHTML('A Creative Commons licensed project') ;
 		
 	}, 30) ;
 })
 
+/* */
 
 
 
@@ -76,7 +75,9 @@ var app = express() ;
 	// PAGE LOAD
 	.listen('load', function siteload(e){
 		app.discard('load', siteload) ;
-		// WHEN REALLY STARTS
+		
+		
+		// WHEN ADDRESS SYSTEM REALLY STARTS
 		if(app.isReady())
 			app
 				.createClient()
