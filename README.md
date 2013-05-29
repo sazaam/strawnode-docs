@@ -109,9 +109,13 @@ but from the StrawNode point of view,
 front-end apps are to reside in public/js/
 where a StrawNode's package.json system awaits.
 
-	public/
+	public/			// your webvisible/public dir
 		|
-		js/
+		css/		// styles
+		|
+		views/		// future browser-jade templates
+		|
+		js/			// scripts
 			|
 			strawnode.js
 			|
@@ -174,19 +178,18 @@ Deeper in the example, once dependancies are loaded in my_app_index.js :
 
 	var express = require('Express') ; // strawexpress is now aliased as Express
 	
-	// PAGE LOAD
-	express
+	var app = express() ;
+	
+	// PAGE LOAD / UNLOAD EVENTS
+	app
 		.listen('load', function siteload(e){
-			express.discard('load', siteload) ;
-			
-			// WHEN REALLY STARTS
+			app.discard('load', siteload) ;
 			// Your Initing code here, as page load event fires...
 		})
 		
 		.listen('unload', function siteunload(e){
-			// PAGE UNLOAD
-			express.discard('load', siteunload) ;
-			express.destroy() ;
+			app.discard('load', siteunload) ;
+			// Your Destroying code here, as page load event fires...
 		}) ;
 
 
