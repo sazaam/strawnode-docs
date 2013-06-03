@@ -45,7 +45,7 @@
 			
 				about.index = function about_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '/jade/artists/section_desc.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
