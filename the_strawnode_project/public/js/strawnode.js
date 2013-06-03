@@ -1,16 +1,30 @@
 'use strict' ;
+
 (function(included){
+	var sl = [].slice ;
 	var trace = window.trace = function trace(){
 		if(window.console === undefined) return arguments[arguments.length - 1] ;
 		if('apply' in console.log) console.log.apply(console, arguments) ;
-		else console.log([].concat([].slice.call(arguments))) ;
+		else console.log([].concat(sl.call(arguments))) ;
 		return arguments[arguments.length - 1] ;
 	},
-	name_r = /function([^\(]+)/, pkg_r = /::(.+)$/, abs_r = /^\//, sl = Array.prototype.slice, DEFS = {}, PKG_SEP = '::',
+	name_r = /function([^\(]+)/, pkg_r = /::(.+)$/, abs_r = /^\//, DEFS = {}, PKG_SEP = '::',
 	getctorname = function(cl, name){ return (cl = cl.match(name_r))? cl[1].replace(' ', ''):'' },
 	keep_r = /constructor|hashCode|hashcode|toString|model/,
 	retrieve = function retrieve(from, prop, p){ try { p = from[prop] ; return p } finally { if(prop != 'constructor') from[prop] = undefined , delete from[prop] }},
-	merge = function(from, into, nocheck){ for(var s in from) if(s != 'constructor' || nocheck === true){ into[s] = from[s]; if(nocheck !== true) delete from[s]} ; return into ;},
+	merge = function(from, into, nocheck){ 
+		for(var s in from) {
+			
+			if(s !== 'constructor' || nocheck === true) {
+				into[s] = from[s]; 
+				if(nocheck !== true) {
+					if(!!!window.opera) delete from[s] ;
+					else from[s] = undefined ;
+				}
+			} ;
+		}
+		return into ;
+	},
 	toArray = function toArray(arr, p, l){	p = p || [], l = arr.length ; while(l--) p.unshift(arr[l]) ; return p },
 	PKG = {} , Type, Pkg;
 	
@@ -22,9 +36,9 @@
 			if(!type) return type ; // cast away undefined & null
 			if(!!type.slot) return type ; // cast away custom classes
 			if(!!type.hashcode) return Type.getDefinitionByHash(type) ; // is a slot object
-			if(typeof type == 'number') return Type.getDefinitionByHash(type) ;
-			if(typeof type == 'string') return Type.getDefinitionByName(type) ;
-			if(!!type.slice && type.slice === sl) for(var i = 0, l = type.length ; i < l ; i++) type[i] = format(type[i]) ;
+			if(Type.of(type, 'number')) return Type.getDefinitionByHash(type) ;
+			if(Type.of(type, 'string')) return Type.getDefinitionByName(type) ;
+			if(Type.is(type, Array)) for(var i = 0, l = type.length ; i < l ; i++) type[i] = format(type[i]) ;
 			return type ;
 		},
 		hash:function hash(qname){
@@ -33,7 +47,7 @@
 		},
 		define:function define(properties){
 			var model = merge(properties, {}, true) ;
-			if(typeof properties == 'function') {
+			if(Type.of(properties, 'function')) {
 				var m = properties() ;
 				model = merge(m, {}, true) ;
 				return Type.define(m) ;
@@ -52,10 +66,17 @@
 			}
 			var name = def == Object ? '' : (def.name || getctorname(def.toString())).replace(/Constructor$/, '') ;
 			
+			
+			
 			if(pkg_r.test(pkg)) pkg = pkg.replace(pkg_r, function(){name = arguments[1]; return ''}) ;
+			
 			if(!!Type.hackpath) pkg = abs_r.test(pkg) ? pkg.replace(abs_r, '') : pkg !='' ? Type.hackpath +(pkg.indexOf('.') == 0 ? pkg : '.'+ pkg) : Type.hackpath ;
 			if(name == '' ) name = 'Anonymous'+(++Type.guid) ;
-			if(def == Object) def = Function('return function '+name+'(){\n\t\n}')() ;
+			// trace(name, def == Object)
+			if(def == Object) 
+			def = Function('return function '+name+'(){\n\t \n}')() ;
+			// trace(name)
+			// trace(def)
 			
 			// set defaults
 			var writable = !!domain ;
@@ -76,6 +97,8 @@
 				isinterface:isinterface,
 				toString:function toString(){ return 'Type@'+qname+'Definition'}
 			} ;
+			
+			
 			def.toString = function toString(){ return '[' + ( isinterface ? "interface " : "class " ) + qname + ']' }
 			writable && (domain[name] = def) ; // Alias checks, we don't want our anonymous classes to endup in window or else
 			(!!Type.hackpath) && Pkg.register(qname, def) ;
@@ -84,17 +107,23 @@
 				def.base = superclass ;
 				def.factory = superclass.prototype ;
 				// write overrides
-				merge(properties, this) ;
+				merge(properties, this, false) ;
 				this.constructor = def ;
 			}
+			
+			
 			T.prototype = superclass.prototype ;
 			def.prototype = new T() ;
 			def.model = model ;
+			
+			
 			// protoinit 
 			if (!!protoinit) protoinit.apply(def.prototype, [def, domain]) ;
+			
+			
 			if (!!statics) {
 				staticinit = retrieve(statics, 'initialize') ;
-				merge(statics, def) ;
+				merge(statics, def, false) ;
 			}
 			// static initialize
 			if(!!staticinit) staticinit.apply(def, [def, domain]) ;
@@ -102,12 +131,12 @@
 			return def ;
 		},
 		implement:function implement(definition, interfaces){
-			// trace(definition, interfaces)
+			
 			var c, method, cname, ints = definition.slot.interfaces = definition.slot.interfaces || [] ;
-			if(!!interfaces.slice && interfaces.slice === sl) {
+			if(!!Type.is(interfaces, Array)) {
 				for(var i = 0, l = interfaces.length ; i < l ; i++) {
 					var f = interfaces[i] ;
-					// trace(f)
+					
 					c = f.prototype , cname = f.slot.fullqualifiedclassname ;
 					
 					for (method in c) {
@@ -121,6 +150,7 @@
 			return definition ;
 		},
 		is:function is(instance, definition){ return instance instanceof definition },
+		of:function of(instance, typestr){ return (!!typestr) ? (typeof instance === typestr) : (typeof instance) },
 		definition:function definition(qobj, domain){return Type.getDefinitionByName(qobj, domain)},
 		getType:function getType(type){ return (!!type.constructor && !!type.constructor.slot) ? type.constructor.slot : type.slot || 'unregistered_type'},
 		getQualifiedClassName:function getQualifiedClassName(type){ return Type.getType(type).toString() },
@@ -136,7 +166,7 @@
 	Pkg = {
 		register:function register(path, definition){
 			if(arguments.length > 2){
-				var args = [].slice.call(arguments) ;
+				var args = sl.call(arguments) ;
 				var pp = args.shift(), ret, qq ;
 				
 				for(var i = 0, l = args.length ; i < l ; i++){
@@ -159,17 +189,17 @@
 			Type.hackpath = !!oldpath && !abs_r.test(path) ? oldpath + '.' +path : path.replace(abs_r, '') ;
 			try{
 				// if obj is an Array
-				if(obj.slice === sl) {
+				if(Type.is(obj, Array)) {
 					for(var i = 0 , arr = [], l = obj.length ; i < l ; i ++)
 						// if is an anonymous object, but with named References to write
 						arr[arr.length] = write(path, obj[i]) ;
 					return arr[arr.length - 1] ;
 				}
 				// if a function is passed
-				else if(typeof obj == 'function'){
+				else if(Type.of(obj, 'function')){
 					if(!!obj.slot) return Pkg.register(path, obj) ;
 					var o = new (obj)(path) ;
-					if(o.slice === sl){
+					if(Type.is(obj, Array)){
 						for(var i = 0 ; i < o.length ; i++){
 							var oo = o[i] ;
 							if(!!oo.slot) write(path, oo) ;
@@ -195,6 +225,7 @@
 	window.Pkg = Pkg ;
 	// FIRST STRAW REAL CORE CLASSES
 	Pkg.write('org.libspark.straw.core', function(){
+		var unfound = true ;
 		var urlresolve = function urlresolve(from, to){
 			var resolved  = '' ;
 			resolved = from.replace(/\/?$/, '/') + to ;
@@ -203,7 +234,7 @@
 				return ($2 == 0) ? $1 : '' ;
 			}) ;
 			return resolved ;
-	}
+		}
 		var checkBase = function checkBase(){
 			var scripts ;
 			var scriptsH = toArray(document.getElementsByTagName("head")[0].getElementsByTagName("script")) ;
@@ -216,15 +247,29 @@
 			
 			var l = scripts.length ;
 			var scr, root ;
+			
 			while(l--){
 				var scr = scripts[l] ;
-				root = scr.getAttribute('src') ;
-				if(/strawnode.js\?[^\?]+$/.test(root)) break ;
+				
+				if(/strawnode.js\?[^\?]+$/.test(scr.getAttribute('src'))) {
+					unfound = false ;
+					root = scr.getAttribute('src') ;
+					break ;
+				}
+			}
+			
+			if(unfound){
+				
+				return {
+					root:'./js/',
+					app:'',
+					base:location.protocol + '//' + location.host + location.pathname
+				} ;
 			}
 			
 			return {
 				root:root.replace(/strawnode.js\?[^\?]+$/, ''),
-				app:root.replace(/[^\?]+\?(starter)=/, ''),
+				app:root.replace(/[^\?]+(\?starter=)?/, ''),
 				base:location.protocol + '//' + location.host + location.pathname
 			}
 		}
@@ -237,14 +282,19 @@
 			ModuleLoader.packed.push(resp) ;
 			var dirname = module.dirname = ModuleLoader.root ;
 			var filename = module.filename = urlresolve(ModuleLoader.root, url.replace(/.+(?=\/)\//, '')) ;
+			var file = 'with(module){' + resp + '};\nreturn module;' ;
 			
-			return new Function('module', '__filename', '__dirname', '__parameters', 'with(module){' + resp + '};return module;')(module, filename, dirname, ModuleLoader.params) ;
+			// trace(file)
+			return new Function('module', '__filename', '__dirname', '__parameters', file)(module, filename, dirname, ModuleLoader.params) ;
 		} ;
 		
 		var pathes = checkBase() ;
+		
+		
 		var base = pathes.base ;
 		var app = pathes.app ;
 		var root = pathes.root ;
+		
 		var main = app.indexOf('./') == 0 ? app : './'+app ;
 		
 		main += '?base='+ base ;
@@ -395,6 +445,7 @@
 		}) ;
 		
 		var as_file = function as_file(filename){
+			if(unfound) return ;
 			var url = filename.replace(/([.]js)?$/, '.js') ;
 			var old = ModuleLoader.root ;
 			var oldpath = Type.hackpath ;
@@ -417,6 +468,8 @@
 		}
 		
 		var as_dir = function as_dir(filename){
+			if(unfound) return ;
+			
 			var baseurl = filename.replace(/\/?$/, '/') ;
 			var url = baseurl + 'package.json' ;
 			var old = ModuleLoader.root ;
@@ -430,7 +483,9 @@
 				mod.load(url, false) ;
 				resp = mod.response ;
 				
-				if(mod.failed) throw new Error('ModuleNotFoundError', url) ;
+				if(mod.failed) {
+					throw new Error('ModuleNotFoundError', url) ;
+				}
 				
 				ModuleLoader.setModuleRoot(ModuleLoader.root, baseurl) ;
 				Type.hackpath = '' ;
@@ -449,7 +504,10 @@
 			var params = new Function('return '+resp)() ;
 			url = baseurl + (params.main || params.index);
 			mod.load(url, false) ;
-			if(mod.failed) throw new Error('ModuleNotFoundError', url) ;
+			
+			if(mod.failed) {
+				throw new Error('ModuleNotFoundError', url) ;
+			}
 			
 			resp = mod.response ;
 			
@@ -475,6 +533,8 @@
 		}
 		
 		var as_node_mods = function as_node_mods(filename){
+			if(unfound) return ;
+			
 			var baseurl = 'node_modules/' ;
 			var url = baseurl + filename ;
 			var old = ModuleLoader.root ;
@@ -482,7 +542,10 @@
 			var mod, resp, r ;
 			
 			mod = new ModuleLoader(url).load(undefined, false) ;
-			if(mod.failed) throw new Error('ModuleNotFoundError', url) ;
+			
+			if(mod.failed) {
+				throw new Error('ModuleNotFoundError', url) ;
+			}
 			
 			resp = mod.response ;
 			
@@ -499,15 +562,18 @@
 		}
 		// REQUIRE
 		var require = window.require = function require(id){ // id is always string
+			
+			if(unfound) return window[id.replace(/([.]+\w*\/|[.]\w+)/g, '')] ;
+			
 			var s ;
 			// cache checks
-			if(!!(s = cache[id])) return s instanceof Module ? s.exports : s ;
+			if(!!(s = cache[id])) return Type.is(s, Module) ? s.exports : s ;
 			// if id is core module [ended inevitabely in window]
-			if(!!(s = window[id])) return s instanceof Module ? s.exports : s ;
+			if(!!(s = window[id])) return Type.is(s, Module) ? s.exports : s ;
 			
-			if(!!(s = Type.getDefinitionByName(id))) return s instanceof Module ? s.exports : s ;
+			if(!!(s = Type.getDefinitionByName(id))) return Type.is(s, Module) ? s.exports : s ;
 			// if is present as name/id in Type definitions
-			else if(!!(s = Type.getDefinitionByName(id))) return s instanceof Module ? s.exports : s ; 
+			else if(!!(s = Type.getDefinitionByName(id))) return Type.is(s, Module) ? s.exports : s ; 
 			
 			// query string to parameters
 			var params ;
@@ -538,10 +604,11 @@
 				ModuleLoader.setModuleRoot(old) ;
 			
 			cache[id] = s ;
-			return s instanceof Module ? s.exports : s ;
+			return Type.is(s, Module) ? s.exports : s ;
 		}
 		
 		require.cache = cache ;
+		if(app == '') return ;
 		require(main) ;
 		
 	}) ;
