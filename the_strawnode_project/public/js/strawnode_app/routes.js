@@ -30,12 +30,21 @@
 					res.userData.urljade = '/jade/artists/index.jade' ;
 					res.userData.urljson = 'json/index' ;
 					res.userData.parameters = {response:res.parentStep} ;
-					return res ;
 				}
+				return res ;
 			} ;
 			
 			index['@focus'] = focus ;
 			index['@toggle'] = toggle ;
+			
+			// index['@step_open'] = function(e){
+				// alert(e.type)
+			// } ;
+			
+			// index['@step_close'] = function(e){
+				// alert(e.type)
+			// } ;
+			
 			return index ;
 		})(),
 		/////////// ABOUT
@@ -174,6 +183,7 @@
 					}
 					return res ;
 				} ;
+				
 				download.index['@focus'] = focus ;
 				download.index['@toggle'] = toggle ;
 			
