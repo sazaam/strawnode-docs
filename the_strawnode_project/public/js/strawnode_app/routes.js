@@ -37,14 +37,6 @@
 			index['@focus'] = focus ;
 			index['@toggle'] = toggle ;
 			
-			// index['@step_open'] = function(e){
-				// alert(e.type)
-			// } ;
-			
-			// index['@step_close'] = function(e){
-				// alert(e.type)
-			// } ;
-			
 			return index ;
 		})(),
 		/////////// ABOUT

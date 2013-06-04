@@ -16,7 +16,6 @@
 
 	return {
 		focus : function(e){
-			alert(e.type)
 			var res = e.target ;
 			
 			var color = res.userData.color ;
@@ -34,7 +33,6 @@
 			coltw.play() ;
 		},
 		toggle : function(e){
-			alert('toggle : '+ e.type)
 			var res = e.target ;
 			var color = res.userData.color = res.userData.color || {h:Math.random() * 360,s:100,v:60} ;
 			

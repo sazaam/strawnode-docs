@@ -6,28 +6,26 @@ Type.customDefinitionChecks(function(properties, def){
 }) ;
 
 var Toto ;
-trace((new (Type.getDefinitionByHash((Type.define({
+new (Type.define({
 	constructor:Toto = function Toto(){
 		trace('Toto is here !!!') ;
 		
 		Toto.slot.model.mixins[0].apply(this ) ;
+		
 		var t = this ;
 		// ready as an EventListener
-		this.bind('toto', function(e){
-			t.unbind('toto', arguments.callee) ;
-			t.faisPlouf() ;
-			trace('LOAD', e.type)
+		this.bind('toto', function closure1(e){
+			this.unbind('toto', arguments.callee) ;
+			trace('LOAD ORIGINAL', e.type)
 		})
 		
-		this.bind('toto', function(e){
-			t.faisPlouf() ;
+		this.bind('toto', function closure2(e){
 			trace('LOAD', e.type)
 		})
 		
 		this.trigger('toto') ;
+		this.trigger('toto') ;
+		this.trigger('toto') ;
+		this.trigger('toto') ;
 	}
-}, EventDispatcher, {
-	faisPlouf:function faisPlouf(){
-		return trace("Jte casse la gueuele") ;
-	}
-})).slot.hashcode))) instanceof EventDispatcher)
+}, EventDispatcher)) ;
