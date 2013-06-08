@@ -31,6 +31,7 @@
 				}) ;
 		})
 		.listen('load', function(e){
+			
 			app.discard('load', arguments.callee) ;
 			
 			// WHEN ADDRESS SYSTEM REALLY STARTS
