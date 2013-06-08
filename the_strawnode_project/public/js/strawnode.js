@@ -1,3 +1,26 @@
+/*
+ * StrawNode (StrawNode Core feature, including Type and a nodeless 'require()' implementation)
+ * Base Webapp-oriented Framework, along with StrawNode
+ * attempting to reproduce Node and Express features and idioms,
+ * in the restricted context of a web-page with Javascript.
+ * 
+ * V 1.0.0
+ * 
+ * Dependancies : 
+ *  Only if haschange feature is needed, requires
+ * 	 jQuery 1.6.1+ 
+ * 	 jquery-ba-hashchange (cross-browser hashchange event handling)
+ * 
+ * 
+ * authored under Spark Project License
+ * 
+ * by saz aka True
+ * sazaam[(at)gmail.com]
+ * 2011-2013
+ * 
+ * 
+ */
+
 'use strict' ;
 
 (function(name, definition){
