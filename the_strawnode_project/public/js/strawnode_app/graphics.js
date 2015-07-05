@@ -10,6 +10,7 @@
 
 })('graphics', function(){
 	
+	// require() ;
 	
 	var container = '.zoneall' ;
 	var coltw ;
@@ -34,19 +35,20 @@
 		},
 		toggle : function(e){
 			var res = e.target ;
-			var color = res.userData.color = res.userData.color || {h:Math.random() * 360,s:100,v:60} ;
+			var color = res.userData.color = res.userData.color || {h:Math.random() * 255,s:70,v:60} ;
 			
 			var dims = res.userData.dims = res.userData.dims || {
-				start:{ 'margin-top':150},
-				end:{'margin-top':0}
+				start:{ 'margin-top':150, 'alpha':0},
+				end:{'margin-top':0, 'alpha':100}
 			} ;
 			
 			if(res.opening){
 				BetweenJS.tween(
 					res.render(res.userData.urljade, res.fetch(res.userData.urljson, res.userData.parameters))
-						.addClass('zindex'+(10 - res.depth)).css(dims.start)
-						.appendTo(container)
-					,dims.end, dims.start, .15, Expo.easeOut
+						.template
+							.addClass('zindex'+(10 - res.depth)).css(dims.start)
+							.appendTo(container)
+					,dims.end, dims.start, .15, Quint.easeOut
 				).play().onComplete = function(){
 					res.ready() ;
 				} ;
@@ -54,7 +56,7 @@
 			}else{
 				BetweenJS.tween(
 					res.template
-					,dims.start, dims.end, .15, Expo.easeIn
+					,dims.start, dims.end, .15, Quint.easeIn
 				).play().onComplete = function(){
 					res.template.remove() ;
 					res.ready() ;

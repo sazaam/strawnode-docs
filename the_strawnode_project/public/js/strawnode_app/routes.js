@@ -27,7 +27,7 @@
 			
 			var index = function index (req, res){
 				if(res.opening){
-					res.userData.urljade = '/jade/artists/index.jade' ;
+					res.userData.urljade = '../jade/artists/index.jade' ;
 					res.userData.urljson = 'json/index' ;
 					res.userData.parameters = {response:res.parentStep} ;
 				}
@@ -46,7 +46,7 @@
 			
 				about.index = function about_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section_desc.jade' ;
+						res.userData.urljade = '../jade/artists/section_desc.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
@@ -57,7 +57,7 @@
 				
 				about.intro = function about_intro(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '../jade/artists/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -75,7 +75,7 @@
 			
 				docs.index = function docs_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '../jade/artists/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
@@ -86,7 +86,7 @@
 				
 				docs.guide = function docs_guide(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '../jade/artists/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -97,7 +97,7 @@
 
 				docs.api = function docs_api(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '../jade/artists/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -111,9 +111,9 @@
 				
 					docs.examples.index = function docs_examples_index(req, res){
 						if(res.opening){
-							res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
+							res.userData.urljade = '../jade/artists/section_choose_item.jade' ;
 							res.userData.urljson = 'json/section_choose_item' ;
-							res.userData.parameters = {response:res} ;
+							res.userData.parameters = {response:res.parentStep} ;
 						}
 						return res ;
 					} ;
@@ -126,9 +126,9 @@
 						docs.examples[/[0-9]+/].index = function docs_examples_numeric_index(req, res){
 							if(res.opening){
 								res.userData.autoremove = true ;
-								res.userData.urljade = '/jade/artists/section_item_numeric.jade' ;
+								res.userData.urljade = '../jade/artists/section_item_numeric.jade' ;
 								res.userData.urljson = 'json/section' ;
-								res.userData.parameters = {response:res} ;
+								res.userData.parameters = {response:res.parentStep} ;
 							}
 							return res ;
 						} ;
@@ -139,9 +139,9 @@
 					
 							docs.examples[/[0-9]+/].detail.index = function docs_examples_numeric_detail_index(req, res){
 								if(res.opening){
-									res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
+									res.userData.urljade = '../jade/artists/section_choose_item.jade' ;
 									res.userData.urljson = 'json/section_choose_item' ;
-									res.userData.parameters = {response:res} ;
+									res.userData.parameters = {response:res.parentStep} ;
 								}
 								return res ;
 							} ;
@@ -152,9 +152,9 @@
 								
 								docs.examples[/[0-9]+/].detail[/[0-9]+/].index = function docs_examples_numeric_deep_index(req, res){
 									if(res.opening){
-										res.userData.urljade = '/jade/artists/section.jade' ;
+										res.userData.urljade = '../jade/artists/section.jade' ;
 										res.userData.urljson = 'json/section' ;
-										res.userData.parameters = {response:res} ;
+										res.userData.parameters = {response:res.parentStep} ;
 									}
 									return res ;
 								} ;
@@ -169,7 +169,7 @@
 				
 				download.index = function download_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '../jade/artists/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}

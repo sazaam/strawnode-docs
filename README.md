@@ -147,7 +147,7 @@ where a StrawNode's package.json system awaits.
 In /views/index.jade,
 all initialization is called from one js call :
 	
-	script(type="text/javascript", src="./js/straw.js?starter=./my_app_index.js")
+	script(type="text/javascript", src="./js/strawnode.js?starter=./strawnode_app/")
 
 This will load strawnode's base in the page
 your app's index will be passed as argument to the strawnode module, which will take care of 
@@ -188,7 +188,7 @@ Deeper in the example, once dependancies are loaded in my_app_index.js :
 		})
 		
 		.listen('unload', function siteunload(e){
-			app.discard('load', siteunload) ;
+			app.discard('unload', siteunload) ;
 			// Your Destroying code here, as page load event fires...
 		}) ;
 

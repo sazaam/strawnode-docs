@@ -11,47 +11,36 @@
 
 })('app', (function(){
 
-
 	// necessary for full app feature
 	var express = require('Express') ;
 	var routes = require('./routes') ;
 
-	// PAGE LOAD
 	var app = express() ;
-	
-	app
-		.configure(function(){
-			app
-				.set('view engine', 'jade')
-				.set('views', '/js/jade/')
-				.set('address', {
-					home:'',
-					base:'undefined' !== typeof __parameters ? __parameters.base : location.protocol + '//' + location.host + location.pathname,
-					useLocale:true
-				}) ;
+
+	return app
+		.set('view_engine', 'jade')
+		.set('views', __public_root + '/jade/')
+		.set('address', {
+			home:'',
+			base:'undefined' !== typeof __parameters ? __parameters.base : location.protocol + '//' + location.host + location.pathname,
+			useLocale:true
 		})
 		.listen('load', function(e){
-			
 			app.discard('load', arguments.callee) ;
+			// PAGE LOAD HANDLING
 			
-			// WHEN ADDRESS SYSTEM REALLY STARTS
-			if(app.isReady())
-				app
-					.createClient()
-					.get('/', routes)
-					.initJSAddress() ;
-				
-			else // WHEN REAL DEEPLINK ARRIVES WITHOUT HASH, RELOAD W/ HASH
-				app.createClient() ;
+			// INIT APP-DEEPLINKED STEPS & BEHAVIORS
+			app
+				.createClient()
+				.get('/', routes)
+				.initAddress() ;
 			
 		})
 		.listen('unload', function(e){
-			// PAGE UNLOAD
-			// app.discard('load',arguments.callee) ;
-			app.destroy() ;
+			app.discard('unload',arguments.callee) ;
+			// PAGE UNLOAD HANDLING
+			app = app.destroy() ;
+			// CLEANING FOR BROWSER'S SAKE, WHO KNOWS
 		}) ;
-		
-	
 
-	return app ;
 })()) ;
