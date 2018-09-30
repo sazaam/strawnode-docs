@@ -4,5 +4,8 @@
   "dependencies": {
     "express": "*",
     "jade": "*"
+  },
+  "scripts": {
+      "start": "app.js"
   }
 }
