@@ -6,6 +6,6 @@
     "jade": "*"
   },
   "scripts": {
-      "start": "app.js"
+      "start": "node ./app.js"
   }
 }
