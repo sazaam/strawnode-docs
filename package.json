@@ -2,7 +2,7 @@
   "name": "the-strawnode-project",
   "version": "0.0.1",
   "dependencies": {
-    "express": "3.6.1",
+    "express": "*",
     "jade": "*"
   }
 }
