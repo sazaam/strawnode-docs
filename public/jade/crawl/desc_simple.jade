@@ -1,0 +1,19 @@
+.sizeR.pad(class="max-w-80")
+    - var loc = lang ;
+    - var id = response.id == '' ? response.parentStep.id : response.id ; 
+    - if(id == 'about'){
+        p.txtL.Hpadding
+            | Award-winning <span class="bold">friendly</span><br>guesthouse  :<br><br>- Comfortable Dormitory Rooms beds<br>- Convenient Twin Room beds<br>- Common kitchen and living-room<br><br>in <span class="green">most </span>of cases.
+        .flex.Vmar.LmarXSm.RmarXXLg(class="gap-[2px]")
+            a.block.none.padding.white.bolder(class="w.16 rounded bg-black hover:bg-red-500" href="/#{loc}/about/")= "<"
+            a.block.padding.white.bolder(class="grow rounded bg-black hover:bg-red-500" href="/#{loc}/about/intro/") Continue
+        
+    - } else if(id == 'intro'){
+        p.txtL.Hpadding
+            | Award-winning <span class="bold">friendly</span><br>guesthouse  :<br><br>- Comfortable Dormitory Rooms beds<br>- Convenient Twin Room beds<br>- Common kitchen and living-room<br><br>in <span class="green">most </span>of cases.
+        .flex.Vmar.LmarXSm.RmarXXLg(class="gap-[2px]")
+            a.block.padding.white.bolder(class="w-10 rounded bg-black hover:bg-red-500" href="/#{loc}/about/")= "<"
+            a.block.padding.white.bolder(class="grow rounded bg-black hover:bg-red-500" href="/#{loc}/about/intro/") Continue
+    - } else{
+        div.txtL [...]
+    - }

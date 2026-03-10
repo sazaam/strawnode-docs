@@ -1,0 +1,39 @@
+extends ./layout
+include ./artists/mixins 
+block content
+	script. 
+		window.debug = true ;
+	#back.back.abs.left0.top0.right0.bottom0.fullW.fullH.lightBG.coloraddict.context(class="flex content-center")
+		//- +videoblock
+	
+	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.context.black
+		.toprightlinks.lh2.txtC.mar.padSm.abs.right0.languages(style="z-index:300")
+			- var url = response.path.replace(/^\//, '').replace(/\/$/, '/') ;
+			+log('URL >> ' + url)
+			ul(class="flex flex-row")
+				li
+					a.inline-block.padding.white(href="/html/en/" + url class="en") EN
+				li
+					a.inline-block.padding.white(href="/html/fr/" + url class="fr") FR
+				li
+					a.inline-block.padding.white(href="/html/ko/" + url class="kr") KR
+		
+		include ./pipe
+		
+		.zoneallcontain.fullW.fullH.zi3.context
+			.zoneall(class="h-full flex flex-col md:flex-row")
+				//- here should include the correct template along section
+				
+
+
+	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/jade.js") 
+	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/marked.js") 
+	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/") 
+	//- here loading in relative breaks the direct deeplinking feature coming from url with no /#/en/...
+	
+	script(type="text/javascript").
+		
+		//- var ajaxified = true ;
+		//- let sections_JSON = !{JSON.stringify(topsections)} ;
+		//- window.Data = sections_JSON ;
+		//- Express.app.fire('JSAddress') ;

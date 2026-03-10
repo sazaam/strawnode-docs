@@ -1,0 +1,15 @@
+{
+	"name" : "metavagrant",
+	"version" : "0.0.1",
+	"description" : "Strawnode's example app",
+	"dependencies":
+	{
+		"trace": "trace.js",
+		"type": "type.js",
+		"Express": "strawexpress.js",
+		"Jade": "strawjade.js",
+		"BetweenJS": "betweenjs.js",
+		"jquery": "strawnode_modules/jquery-1.8.1.min.js",
+		"hashchange": "strawnode_modules/jquery.ba-hashchange.min.js"
+	}
+}

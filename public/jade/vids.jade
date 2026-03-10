@@ -1,0 +1,23 @@
+extends ./layout
+include ./artists/mixins 
+block content
+	#back.back.abs.left0.top0.right0.bottom0.fullW.fullH.coloraddict.context(class="flex content-center" style="background:#000")
+		- let vidpath = req.path.replace(/\//gm, '') ;
+		- console.log(req.path, vidpath) ; 
+		.vidcont.abs.left0.top0.right0.bottom0.typo(class="flex h-screen place-items-center justify-center")
+			.vidcontinside.rel(class="w-full context whitetransp outline-2 md:rounded-md" style="min-height:100px;max-width:960px;max-height:540px;outline-color:rgba(250, 235, 215, .1)")
+				.fullH.fullW
+					.abs 
+						+loading
+					+yt(vidpath, null, 1, 1)
+
+
+
+				//- .controls.abs.bottom0.left0.right0 
+					.flex(class="")
+						a.block.padXXLg.VpadXLg(href='javascript:void(0)')!= '>'
+						a.block.padXXLg.VpadXLg(href='javascript:void(0)')!= '||'
+				.quit.abs.top0.left0.right0
+					.flex(class="justify-end")
+						a.block.padXXLg(href="javascript:window.close('','_parent','')")!= 'X'
+

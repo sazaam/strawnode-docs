@@ -1,31 +1,42 @@
-// necessary for full app feature
-var express = require('Express') ;
+
+
+(function(){
+
+require('./strawnode_modules/strawexpress') ;
+var express = Express ; 
 var routes = require('./routes') ;
 
 var app = express() ;
 
-module.exports = app
-	.set('view_engine', 'jade')
-	.set('views', __public_root + '/jade/')
+app
+	.set('view engine', 'jade')
+	.set('views', '/js/jade/')
 	.set('address', {
-		home:'',
-		base:'undefined' !== typeof __parameters ? __parameters.base : location.protocol + '//' + location.host + location.pathname,
-		useLocale:true
-	})
-	.listen('load', function(e){
-		app.discard('load', arguments.callee) ;
-		// PAGE LOAD HANDLING
+		home: '',
+		base: location.protocol + '//' + location.host + location.pathname,
+		// base: 'undefined' !== typeof __parameters ? __parameters.base : location.protocol + '//' + location.host + location.pathname,
+		useLocale:true,
+		defaultLocale:document.documentElement.getAttribute('lang')
+}) ;
+
+app
+	.listen('JSAddress', function(e){
 		
-		// INIT APP-DEEPLINKED STEPS & BEHAVIORS
+		// trace("DATA : ", window.Data) ;		
+
 		app
 			.createClient()
+			// .get('/', router(window.Data))
 			.get('/', routes)
-			.initAddress() ;
-		
+			.initJSAddress() ;
+			
 	})
-	.listen('unload', function(e){
-		app.discard('unload',arguments.callee) ;
-		// PAGE UNLOAD HANDLING
-		app = app.destroy() ;
-		// CLEANING FOR BROWSER'S SAKE, WHO KNOWS
+	.listen('load', function(e){
+		// PAGE LOAD
+		app.discard('load', arguments.callee) ;
+		
+		trace('window Fully Loaded') ;
 	}) ;
+
+})()
+

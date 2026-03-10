@@ -1,0 +1,64 @@
+div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-items-center self-center")
+	include ./mixins 
+	- var res = response ;
+	
+	.project_zone.rel.padded.unselectable( class="h-full w-full flex justify-start justify-items-center")
+		.abs.project_section_panes.topped.bottommed(style="left:0;right:0;")
+			
+			.innerpane.mainimagepane.abs.top1.right1.bottom1.left1.context.whitetransp(class="box-border border-1" style="background:rgb(255, 255, 255, .85)") 
+				.innerback.abs.fullW.fullH.cover(style="background-image:url(/img/dummy.jpg);opacity:1")
+				.imgpanecont.abs.fullW.fullH(style="opacity:0")
+				.gridtransp.abs.fullW.fullH(style="background:url(/css/skin/grid_transp.png) repeat left top;opacity:1")
+				
+				.none.imageslinks
+					for el, i in res.userData.slides
+						- var xpos = el.x || '50%' ;
+						- var loaded = el['loaded'] ;
+						
+						- if(loaded){
+							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + '/img/' + el.url + ");background-position-x:" + xpos + ";")
+						- }else{
+							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:none;background-position-x:" + xpos + ";")
+								+lazyimg("/img/" + el.url)
+						- }
+		
+		.scrollzone.abs.fullW.fullH.top0.right0.bottom0(class="self-start")
+			.scrollingzone.abs.left0.right0.bottommed.topped.flowYauto(style="margin:100px 0 100px;")
+				.innerdesc.mist.BmarginXXXXXLg.HmarXXLg.txtR.marked(style="z-index:1200;" i18n=res.id + '.desc' md=1)
+					| !{marked.marked(t(res.id + '.desc_00',  { defaultValue: "" } ))}
+		.whitetransp.context(style="bottom:2px;" class="border-l-1 grow justify-start justify-items-start self-end")
+			.textes.txtL.mist.marXXXXXLg.VpadXXLg
+				+lr_arrows('r', 'b', 'projectsectionpanesnav BmarXXXXXLg white sizeM RmarXLg Rpad bottommed')
+				.HmarLg.montserrat
+					//- .info.Bmar.rel(style="height:1em")
+						a.block.abs.fullH.floatL.clear(href="javascript:void(0)")
+							+svg_info()
+					- var sect = 'sections.' + res.id ; 
+					
+					.rel(style="bottom:-80px")
+						h4.BmarXXSm(i18n=res.id + '.cat$' style="opacity:.3") #{t(res.id + '.cat')}
+						
+						h5.desc.sizeM.ls-2(i18n=res.id + '.slide'  md=1) 
+							| !{marked.marked(t(res.id + '.slide_00',  t(res.id + '.slide_00') ))}
+					.logo.rel(style="left:-70px;width:240px;z-index:400;bottom:-65px") 
+						+project_pane(res)
+		.abs.left0.project_ud_arrows(style="display:none;bottom:18px;z-index:500")
+			+ud_arrows('mist left0 whitetranspTXT')
+
+		
+
+	- var idP = res.id == '' ? res.parentStep.parentStep : res.parentStep ;
+	- var chPrev = res.index - 1 < 0 ? idP.children[idP.children.length - 1] : idP.children[res.index - 1]
+	- var chNext = res.index + 1 >= idP.children.length ? idP.children[0] : idP.children[res.index + 1]
+	.prev_section.abs.top0.left0.context.heighted
+		a.test.block.rel.fullH(href="#/"+ lang + chPrev.path + '/' style="bottom:-25px;left:0")
+			+project_pane(chPrev, false)
+	.next_section.abs.bottom0.left0.context.heighted
+		a.test.block.rel.fullH(href="#/"+ lang + chNext.path + '/' style="top:-25px;left:0")
+			+project_pane(chNext, false)
+
+	.framenav.mist.abs.top0.left0.right0.montserrat.marged
+		.abs.top0.left0.back_project  
+			a.block.mar.TmarSm.sizeLg(href='#/#{lang}' + res.parentStep.path + '/') &larr;
+		.abs.top0.right0.close_project 
+			a.block.marXXXLg(href='#/#{lang}' + res.parentStep.path + '/') X

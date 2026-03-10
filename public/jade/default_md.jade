@@ -1,0 +1,49 @@
+extends ./layout
+block content
+	include ./artists/mixins
+	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.darkBG.coloraddict.context
+		.zoneall.fullW.fullH(class="")
+			.zoneallflex(class="h-full flex flex-col md:flex-row")
+				.navzone.darkestBG.HmarXLg(class="md:w-80 grid shrink-0 content-center justify-center")
+					.nav.HpadXSm(class="sizeXLg VpadXXXLg")
+						a.saz.sizeR
+							| We all live in a brand new world <span class="bold" style="color:lightblue">indeed and for a very, very long time</span>.
+				.contentzone.context(class="anthraciteBG grow grid content-end md:content-center h-full")
+					.content.fullH.flowYscroll.VpadXLg
+						//- .scrollerzone
+						+article()
+						+article()
+						+article()
+						+article()
+						+article()
+						+article()
+			//- .fullW.fullH(class="flex content-center justify-center")
+			
+			
+	
+	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/") 
+	
+	script(type="text/javascript").
+		Express.app.listen('load', function(e){
+			trace('LOADED')
+			
+			var str = 'a.sazaam(class="coucou", href="#/en/") toto' ;
+			var md = 
+			`.box.VpadXLg
+				:md
+					# Marked in browser
+					Rendered by **marked**.
+			` ;
+			var html = jade.render(md) ;
+			$('.saz').html(html) ;
+			
+			//- var saz = $('.saz') ;
+			
+
+
+
+
+
+
+
+		})

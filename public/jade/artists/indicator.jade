@@ -1,1 +1,25 @@
-.indicator.rel.Vpadding.Vmargin.active.unclickable	- var TITLE = 'The StrawNode <sup class="sizeXSm">TM</sup>  Project' ;	- var isHome = response instanceof Unique ;	h4.sizeR.#{isHome ? "txtC" : "txtL"}		span.item			b.bold.uppercase= isHome ? TITLE : response.id == '' ? response.parentStep.id : response.id		- if(response.path != '') {			a.abs.close.right0.top0.typox.padding(href="#/en#{response.id == "" ? response.parentStep.parentStep.path : response.parentStep.path}/")				span.closebtn x				span.upwardsbtn.dispNone &uarr;		- }		
+.indicator.rel.Vmargin.unclickable.nowactive.whitetransp.unselectable
+	- var ttt = 'MetaVagrant'
+	- var isHome = response.id == '@' ;
+	+log("isHome >> " + isHome) 
+
+	h4.Vpadding.sizeR(class=isHome ? "txtC" : "txtL")
+		- var resid = response.id == '' ? response.parentStep.id : response.id ;
+		
+		if isHome
+			+svg_mv()
+		else
+			span.item
+				- if(response.isLiveStep()){
+					span.uppercase !{resid}
+				- }else{
+					span.uppercase(i18='sections.' + resid) !{t('sections.' + resid)}
+				- }
+		- if(response.path != '') {
+			include ./randomizer
+			- var parent = response.id == '' ? response.parentStep.parentStep : response.parentStep ;
+			a.abs.fullH.close.right0.top0.typo.padding(href="#/#{lang}#{parent.path}/")
+				span.closebtn(style="margin-left:-11px") x
+				span.upwardsbtn.dispNone(style="margin-left:-14px") &uarr;
+		- }
+		

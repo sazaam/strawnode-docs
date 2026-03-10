@@ -1,0 +1,7 @@
+//- .contentzone.context(class="grow grid content-start md:content-center h-full")
+- var id = response.id ;
+- var clblock = /(projects|studies)/.test(id) ? '' : ' grid' ;
+.contentzone.context(class="grow content-start md:content-center h-full" + clblock)
+	include ./mixins 
+	.content.rel.fullH.flowYauto.flowXhidden.whitetransp(class="border-t md:border-l md:border-t-0")
+		block content

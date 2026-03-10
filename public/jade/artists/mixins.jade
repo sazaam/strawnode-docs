@@ -1,0 +1,203 @@
+
+- var safeCircReplace = () => {
+	- const visited = new WeakSet() ;
+	- return (key, value) => {
+		- if (typeof value === "object" && value !== null) {
+		- if (visited.has(value)) {
+			- return ;
+		- }
+		- visited.add(value) ;
+		- }
+		- return value ;
+	- } ;
+- } ;
+
+
+include ./shaders
+include ./svgs
+
+mixin log(msg)
+	script.
+		//- if('debug' in window)
+		console.log('LOG >', !{JSON.stringify(msg, safeCircReplace())})
+
+mixin videoblock()
+	.fullW(class="h-64 rounded flex content-center" style="background-color:#0b0b0b;")
+		//
+		.vid(class="flex p-8 justify-center")
+			video(width="200" height="200" autoplay loop)
+				source(src="/vids/mv.mp4" type="video/mp4")
+				//- source(src="/vids/mv.ogg" type="video/ogg")
+				| Your browser does not support the video tag.
+
+
+
+
+mixin article_about(right)
+	article.article_about.context
+		p!= t('about.intro_text')
+
+		.context.txtR.TmarginLg.Bmargin(class="")
+			if(right)
+				+gen_alpha_link_r(t('about.intro_read'), '#/' + lang + '/about/intro/')
+			else 
+				+gen_alpha_link(t('about.intro_read'), '#/' + lang + '/about/intro/')
+
+
+
+mixin gen_link(txt, href, cl)
+	a.block.padding.white(class="rounded whitetranspBG " + cl, href=href)= txt
+	
+mixin gen_simple_link(txt, href, cl)
+	a.item.rel.dispBlock(class=" "+ cl, href=href)= txt
+		span.typo.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
+
+mixin gen_alpha_link(txt, href, cl)
+	- if(!!!href) href = 'javascript:void(0);'
+	a.block.floatL.clear.item.padding.HpadXLg.rel.dispBlock(class="rounded whitetranspBG "+ cl, href=href)= txt
+		span.typo.Vpadding.RpadSm.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
+
+mixin gen_alpha_link_r(txt, href, cl)
+	a.block.floatR.clear.item.padding.HpadXLg.rel.dispBlock(class="rounded whitetranspBG "+ cl, href=href)= txt
+		span.typo.Vpadding.RpadSm.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
+
+mixin lr_arrows(lr, tb, extra)
+	- cl = lr == 'r' ? 'right0 RmarSm' : 'left0 LmarSm' ;
+	- cl += ' ' + (tb == 't' ? 'top0' : 'bottom0') ;
+	- cl += ' ' + extra ;
+	.abs.lr_arrows.flex-row.typo(class=cl)
+		a.prev.transp.unselectable(href="javascript:void(0)")= "<"
+		span.unselectable= "     "
+		a.next.unselectable(href="javascript:void(0)")= ">"
+
+
+mixin lr_arrows_justtransp(lr, tb, extra)
+	- var cl = lr == 'r' ? 'right0 RmarSm' : 'left0 LmarSm' ;
+	- cl += ' ' + (tb == 't' ? 'top0' : 'bottom0') ;
+	- cl += ' ' + extra ;
+	.abs.lr_arrows.flex-row.typo(class=cl)
+		a.prev.justtransp.unselectable(href="javascript:void(0)")= "<"
+		span.unselectable= "     "
+		a.next.unselectable(href="javascript:void(0)")= ">"
+
+mixin ud_arrows(extra)
+	- var cl = extra || 'right0' ;
+	- var st = !!extra ? 'margin-left:20px;bottom:20px' : 'margin-right:13px;top:40px;' ;
+	.updownarr.abs.typo(class=cl style=st)
+		a.block.bef.unselectable(href="javascript:void(0)")!= "&uarr;"
+		a.block.aft.unselectable(href="javascript:void(0)")!= "&darr;"
+
+
+
+
+
+//- STATIC Versions for CRAWLERS
+
+
+
+mixin static_section()
+	+static_toplinks()
+	+static_navlinks()
+	+static_pagetitle()
+	+static_nav_content()
+	
+mixin static_toplinks()
+	nav.top.TpadLg
+		
+		//- QUICK FIX FOR LINKS
+		- oldlang = lang 
+		- lang = 'html/' + lang 
+
+		ul.topsections(class="flex")
+			- var ch = Unique.getInstance().children ;
+			- var l = response.path == '/' ? 1 : ch.length ;
+			- for(var i = 0 ; i < l ; i ++){
+				- var s = ch[i] ;
+				
+				li 
+					- if(i == 0){
+						a.block.padLg(href="/" + lang + "/") The Strawnode Project
+					- }else{
+						- var isChild = response.path.indexOf(s.path) == 0 ;
+						- var chcl = isChild ? 'dark' : '' ;
+						a.block.padLg(class=chcl href="/" + lang + s['path'] + '/')= s['name']
+					- }
+			- }
+	
+
+mixin static_navlinks()
+	- var ch = response.parentStep.children || [] ; 
+	- if(!!ch && ch.length && !!ch[0] && ch[0].name == '') ch.shift() ;
+	hr.darkBG.Vmar
+	nav.children
+		ul.childrensections(class="flex")
+			li.rel
+				- if(!!response.parentStep.parentStep){
+					- var p = response.id == '' ? response.parentStep.parentStep : response.parentStep ;
+					a.block.padLg(href=("/" + lang + p.path).replace(/\/$/, '') + '/') &uarr;
+				- }
+			- for(var i = 0, l = ch.length ; i < l ; i ++){
+				- var child = ch[i] ;
+				- if(child.name == '@') continue ;
+				li 
+					+log(child.id + '' + response.id)
+					- var rid = response.id == '' ? response.parentStep.id : response.id ;
+					- var chid = child.id == '' ? child.parentStep.id : child.id ;
+					- var cl = rid == chid ? 'disabled' : '' ;
+					a.block.padLg(class=cl href="/" + lang + child['path'].replace(/\/$/, '') + '/')= child['name']
+			- }
+
+mixin static_pagetitle()
+	hr.darkBG.VmarXLg.pad
+	- var tt = response.name == '@' ? "The StrawNode Project" : response.name ;
+	h1.sizeXLg.txtL.padLg(href="/" + lang + response.path)= tt
+
+mixin static_nav_content()
+	hr.darkBG.VmarXLg.pad
+	include ../crawl/desc_simple
+
+mixin static_content()
+	//- +log()
+	//- RESPONSE SHOULD NOW BE A REAL STRAW RESPONSE, NOT THE SECTION DEFINING OBJECT 
+
+
+mixin project_pane(response, back)
+	.fullW.fullH
+		case response.id
+			when 'europa'
+				+svg_europa(back)
+			when 'smythson'
+				+svg_smythson(back)
+			when 'metavagrant'
+				+svg_mv(back)
+			default
+				+svg_infinite(back)
+
+mixin extra_panes(response)
+	- var slides = response.userData.slides ;
+	- if(!!slides){
+		for el, i in slides
+			- var left = (i + 1 ) *  100 ; 
+			.innerpane.abs.fullW.fullH(style="left:" + left + "%;top:0")
+				div.abs.cover.left0.right0.whitetransp(class="border-1" style="top:0px;bottom:0px;background:transparent no-repeat center")
+					+lazyimg("/img/" + el.url)
+	- }
+			//- +yt("TJORWNcMoU8", "PHa7_EzqBICBXSi5&amp", 0, 1)
+
+
+mixin lazyimg(url)
+	span.abs.sizeLg.HpadXXXXLg.top50.left0.right0.fullW.lazy(lazy=url data-lazy-function='load')
+		hr.backindic(style="height:1px;width:0px;background:rgba(255, 255, 255, .3)")
+		hr.indic(style="height:1px;width:0px;background:white;margin-top:-1px")
+
+
+mixin loading()
+	.loading
+		each i in [1,1,1,1,1,1]
+			span
+
+mixin yt(id, si, ap, lp)
+	.ytholder.fullW.fullH.flowhidden
+		//- width="560" height="315"
+		iframe(src="https://www.youtube-nocookie.com/embed/" + id + "?si=" + si + "&autoplay=" + ap + "&loop=" + lp + "&mute=1&controls=1&color=white&modestbranding=0&rel=0&wmode=transparent&playsinline=1&enablejsapi=1&playlist="+id title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen)
+

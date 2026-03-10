@@ -233,6 +233,12 @@ body {
 .marginXXXLg {
     margin: 50px !important;
 }
+.marginXXXXLg {
+    margin: 60px !important;
+}
+.marginXXXXXLg {
+    margin: 70px !important;
+}
 .VmarginSm, .TmarginSm {
     margin-top: 5px !important;
 }
@@ -302,9 +308,36 @@ body {
 .HmarginXXXLg, .LmarginXXXLg {
     margin-left: 50px !important;
 }
-.HmarginXXLg, .RmarginXXXLg {
+.HmarginXXXLg, .RmarginXXXLg {
     margin-right: 50px !important;
 }
+
+.VmarginXXXXLg, .TmarginXXXXLg {
+    margin-top: 60px !important;
+}
+.VmarginXXXXLg, .BmarginXXXXLg {
+    margin-bottom: 60px !important;
+}
+.HmarginXXXXLg, .LmarginXXXXLg {
+    margin-left: 60px !important;
+}
+.HmarginXXXXLg, .RmarginXXXXLg {
+    margin-right: 60px !important;
+}
+
+.VmarginXXXXXLg, .TmarginXXXXXLg {
+    margin-top: 70px !important;
+}
+.VmarginXXXXXLg, .BmarginXXXXXLg {
+    margin-bottom: 70px !important;
+}
+.HmarginXXXXXLg, .LmarginXXXXXLg {
+    margin-left: 70px !important;
+}
+.HmarginXXXXXLg, .RmarginXXXXXLg {
+    margin-right: 70px !important;
+}
+
 .margin0, .Vmargin0 {
     margin-bottom: 0 !important;
     margin-top: 0 !important;
@@ -342,6 +375,12 @@ body {
 }
 .paddingXXXLg {
     padding: 50px !important;
+}
+.paddingXXXXLg {
+    padding: 60px !important;
+}
+.paddingXXXXLg {
+    padding: 70px !important;
 }
 .VpaddingSm, .TpaddingSm {
     padding-top: 5px !important;
@@ -414,6 +453,32 @@ body {
 }
 .HpaddingXXXLg, .RpaddingXXXLg {
     padding-right: 50px !important;
+}
+
+.VpaddingXXXXLg, .TpaddingXXXXLg {
+    padding-top: 60px !important;
+}
+.VpaddingXXXXLg, .BpaddingXXXXLg {
+    padding-bottom: 60px !important;
+}
+.HpaddingXXXXLg, .LpaddingXXXXLg {
+    padding-left: 60px !important;
+}
+.HpaddingXXXXLg, .RpaddingXXXXLg {
+    padding-right: 60px !important;
+}
+
+.VpaddingXXXXXLg, .TpaddingXXXXXLg {
+    padding-top: 70px !important;
+}
+.VpaddingXXXXXLg, .BpaddingXXXXXLg {
+    padding-bottom: 70px !important;
+}
+.HpaddingXXXXXLg, .LpaddingXXXXXLg {
+    padding-left: 70px !important;
+}
+.HpaddingXXXXXLg, .RpaddingXXXXXLg {
+    padding-right: 70px !important;
 }
 .padding0, .Vpadding0 {
     padding-bottom: 0 !important;

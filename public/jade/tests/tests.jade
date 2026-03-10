@@ -1,0 +1,219 @@
+extends ../layout
+block content
+	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.darkBG.coloraddict.context
+		.back.abs.left50.top50.flowvisible.fullW.fullH
+			.abs.gridded.fullW.fullH(style="left:-50%;top:-50%")
+			//- 
+		#testzone.testzone.fullW.fullH(class="flex content-center justify-center justify-items-center")
+			
+		.cont.abs.top0.bottom0.left0.right0.fullW.fullH.flowYauto 
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			.lazy.cover.left0.right0.testimg
+			
+			//- .lazy(data-lazy-function="foo") saz is the greatest
+
+	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/jade_async.js")
+	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/lazyload.js")
+
+	script(type="text/javascript", src="/js/strawnode_async.js?starter=./test_app/") 
+	
+	script(type="text/javascript").
+		trace('hey braaah')
+		window.addEventListener("strawnode-ready", function(e) {
+			trace('KOUKOU')
+			//- trace($)
+
+		})
+	script(type="text/javascript").
+		// TEST JADE RENDER ;
+		(()=>{
+
+			var str = `
+		a.sazaam(class="coucou", href="#/en/")
+			| toto
+		div.abs.top0.left0()
+			a(href="#/en/")
+			` ;
+			jade.render(str, {}, function(err, resp){
+				trace(resp)
+			}) ;
+
+			})() ;
+	
+
+	//- script(type="text/javascript").
+		Express.app.listen('load', function(e){
+			trace('LOADED') ;
+
+
+			var testzone = $('.cont') ;
+
+			var ttt = jade.render('.lazy.abs.cover.left0.right0.testimg(data-lazy-function="foo" style="background:url(/img/dummy.jpg) no-repeat center;")') ;
+			
+			testzone.append(ttt) ;
+
+
+			trace(LazyLoad)
+
+			window.lazyFunctions = {
+				foo: function (element) {
+					element.style.color = "red";
+					console.log("foo");
+				}
+			};
+
+			var executeLazyFunction = function(el) {
+				var lazyFunctionName = el.getAttribute("data-lazy-function") ;
+				var lazyFunction = window.lazyFunctions[lazyFunctionName] ;
+				if (!lazyFunction) return ;
+				
+				lazyFunction(el) ;
+			}
+
+			var ll = new LazyLoad({
+				unobserve_entered: true, // <- Avoid executing the function multiple times
+				callback_enter: executeLazyFunction // Assigning the function defined above
+			});
+
+			
+
+
+		})
+
+
+
+
+	//- script(type="text/javascript").
+		Express.app.listen('load', function(e){
+			trace('LOADED') ;
+
+			const replace = (str, o) => str.replaceAll(/\{([^}]+)\}/gi, (_, a) => a.split('.').reduce((b, c) => b?.[c], o)) ;
+			
+			if(true) (()=>{
+				
+				const data = {
+					background:{
+						start:'#333333'
+					},
+					size: {
+						w: 100,
+						h: 100
+					},
+					pos:{
+						left:0,
+					}
+				}
+				
+				var box_txt = replace('.box.rel(style="width:{size.w}px;height:{size.h}px;background-color:{background.start};left:{pos.left}px;")', data) ;
+				var play_txt = replace('a.play.abs.pad.RmarXXXXLg.right0.top50.whitetranspBG.rounded.white(style="top:50%;margin-top:-1.5em", href="javascript:void(0)") Play', data) ;
+				
+				$(jade.render(box_txt)).appendTo('.testzone') ;
+				$(jade.render(play_txt)).appendTo('.frame') ;
+				
+
+				var box = $('.box') ;
+				var play = $('.play') ;
+
+				var tw ;
+
+				play.on('mousedown', function(e){
+					if(!!tw && tw.isPlaying) tw.stop() ;
+					tw = BJS.create({
+						target:box,
+						to:{'$left::px':50},
+						from:{'$left::px':-50, 'background-color':{
+							'r':-120,
+							'g':0,
+							'b':0
+						}},
+						cuepoints:{
+							'$left::px':[-300, 300]
+						},
+						time:1.825,
+						ease:Sine.easeOut
+					}) ;
+					tw.play() ;
+				})
+
+
+
+
+
+
+
+
+			})() ;
+
+
+
+
+
+			// TEST TEXT DISAPPEAR / REAPPEAR
+			if(false) (()=>{
+
+				var txt = 'a.saz(class="flex-1") We all live in a brand new world <span class="bold" style="color:lightblue">indeed and for a very, very long time</span>.' ;
+				$(jade.render(txt)).appendTo('.testzone') ;
+
+				var saz = $('.saz') ;
+				var sss = saz.html() ;
+				var sss2 = sss ;
+				var timeperchar = .02 ;
+
+				var time = (saz.text().length) * timeperchar ;
+
+				var n = 0 ;
+
+				var tw = BJS.serial(
+					BJS.create({
+						target:saz,
+						time:time,
+						ease:Expo.easeOut,
+						onComplete:function(){
+							trace('OK ' + n)
+						},
+						onUpdate:function(){
+							if(sss[sss.length-1] == '>'){
+								var ind = sss.lastIndexOf('<') ;
+								if(ind != -1){
+									sss = sss.substring(0, ind)
+								}
+							}
+							saz.html(sss = sss.slice(0, -1)) ;
+						}
+					}),
+					BJS.create({
+						target:saz,
+						time:time,
+						ease:Expo.easeOut,
+						onComplete:function(){
+							trace('KO ' + n)
+							n++;
+						},
+						onUpdate:function(){
+							if(sss2[sss.length] == '<'){
+								var temp = sss2.replace(sss, '') ;
+								sss += temp.substr(0, temp.indexOf('>') + 1) ;
+							}
+							saz.html(sss = sss2.slice(0, sss.length + 1)) ;
+						}
+					})
+				) ;
+				
+				tw.play() ;
+
+			})() ;
+
+
+
+
+
+
+
+		})

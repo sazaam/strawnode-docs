@@ -1,1 +1,15 @@
-#zoneallinside.zoneallinside.context	#zonecenter.zonecenter.context		.box			include ./jade/artists/nav			include ./jade/artists/indicator		p.txtL.Hpadding			| Award-winning <span class="green">friendly</span><br>guesthouse  :<br><br>- Comfortable Dormitory Rooms beds<br>- Convenient Twin Room beds<br>- Common kitchen and living-room<br><br>in <span class="green">most </span>of cases.		.cont.txtR.TmarginXLg			a.item.rel.dispBlock(href="#/en/about/intro/") next				span.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
+extends ./basesection
+block content
+	.box
+		include ./nav
+		include ./indicator
+	.sizeR
+
+		p.txtL.Hpadding
+			| !{t('about.about_main')}
+		.flex.Vmar.LmarXSm.RmarXXLg(class="gap-[2px] max-w-68")
+			- if(response.id == 'intro'){
+				//- +gen_link(t('ui.next'), '#/'+ lang + response.path+'/intro/', 'grow')
+				+gen_link('<', '#/'+ lang + response.parentStep.path + '/', 'w-10 typo')
+				+gen_link(t('sections.projects'), '#/'+ lang + '/projects' + '/', 'grow')
+			- }

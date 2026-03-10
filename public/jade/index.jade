@@ -1,19 +1,393 @@
 extends ./layout
+include ./artists/mixins 
 block content
-	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.blackBG.coloraddict.context
-		#zoneall.zoneall.context
+	#back.back.abs.left0.top0.right0.bottom0.fullW.fullH.coloraddict.context(class="flex content-center" style="background:#121212")
+		//- +videoblock
+		.abs.top0.left0(style="width: 100vw;height: 100vh;box-sizing:border-box")
+			canvas#backshader.fullH.fullW(style="opacity:.5")
+		
+		style.
+			#logocont {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+			}
+		
+		#logocont
+			canvas(id="glcanvas" style="width: 150px; height: 150px;")
+		
+		+log(topsections)
+		
+		script.
+			var trace = console.log ;
+
+			const canvas = document.getElementById('glcanvas');
+			const gl = canvas.getContext('webgl2');
+
+			if (!gl) {
+				alert('WebGL 2 not supported. Please use a modern browser.');
+				throw new Error('WebGL 2 not supported');
+			}
+
+			// A simple vertex shader that covers the whole screen
+			const vsSource = `#version 300 es
+				in vec4 aVertexPosition;
+				void main() {
+					gl_Position = aVertexPosition;
+				}
+			`;
+
+			function compileShader(gl, type, source) {
+				const shader = gl.createShader(type);
+				gl.shaderSource(shader, source);
+				gl.compileShader(shader);
+				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+					console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+					gl.deleteShader(shader);
+					return null;
+				}
+				return shader;
+			}
+
+			let startTime = Date.now();
+			let animateToggle = document.getElementById('animateToggle');
+
+			async function init() {
+				// Load fragment shader
+				//- const response = await fetch('shader.frag');
+				//- const fsSource = await response.text();
+
+				const fsSource = `# version 300 es
+				precision highp float;
+
+				uniform vec2 iResolution;
+				uniform float iTime;
+				uniform int iAnimate;
+
+				out vec4 fragColor;
+
+				// Map function returning the Signed Distance Field of our shape
+				float map(vec2 p) {
+					// -------------------------------------------------------------
+					// LOGO PROPORTIONS (Tweak these numbers to adjust the shape)
+					// -------------------------------------------------------------
+					float R          = 0.68;  // Outer circle radius
+					float m          = 1.75;  // V-cut steepness slope (higher = steeper angle / narrower V)
+					float yBottomTip = -0.78; // Where the bottom tips of the side leaves meet (exact bottom of outer radius)
+					float yTopTip    = 0.15; // Where the bottom tip of the top triangle rests (higher up)
+					//- float yFlatCut   = 0.5;  // The flat horizontal cut for the side leaves
+					// -------------------------------------------------------------
+
+					// Outer shape (a smooth circle)
+					float dOuter = length(p) - R;
+
+					// Normal for the V gap line: equation y = m*x + b -> -m*x + y - b = 0
+					// This vector points UP and INWARD towards the gap's center
+					vec2 nLine = normalize(vec2(-m, 1.0));
+
+					// Evaluate absolute X for perfectly symmetrical left/right sides
+					vec2 symPos = vec2(abs(p.x), p.y);
+
+					// -------------------------------------------------------------
+					// 1. SIDE LEAVES
+					// Geometrically bounded below the inner V line (nLine)
+					// -------------------------------------------------------------
+					float dSideInner = dot(symPos - vec2(0.0, yBottomTip), nLine);
+					
+					// Intersection of outer circle AND the space below the V
+					float dSide = max(dOuter, dSideInner);
+					
+					// Smoothly cut the top off completely flat horizontally
+					// dSide = max(dSide, symPos.y - yFlatCut);
+
+					// -------------------------------------------------------------
+					// 2. TOP TRIANGLE
+					// Geometrically bounded above the outer V line (-nLine)
+					// -------------------------------------------------------------
+					// Use the inverted normal to check for distance "outside" the upper V
+					float dTopOuter = dot(symPos - vec2(0.0, yTopTip), -nLine);
+					
+					// Intersection of outer circle AND the space inside the V gap
+					float dTop = max(dOuter, dTopOuter);
+
+					// Return the minimum distance between the two pieces (A union of the solids)
+					return min(dSide, dTop);
+				}
+
+				void main() {
+					// Standardize fragment coordinates from -1.0 to 1.0
+					vec2 uv = (2.0 * gl_FragCoord.xy - iResolution.xy) / iResolution.y;
+
+					// Apply a slight scaling squash so the logo can fit beautifully 
+					vec2 p = uv * vec2(1.1, 1.0);
+					
+					// Push it very slightly down visually centered
+					p.y += 0.05;
+
+					vec3 col = vec3(0.0);
+					float dist = 0.0;
+					
+					if (iAnimate == 1) {
+						// ------ ANIMATION EFFECTS ------
+						
+						// 1. Fluid distortion (adds a gentle waving motion matching the physics)
+						vec2 distortedP = p;
+						float waveTime = iTime * 2.5;
+						//distortedP.y += sin(distortedP.x * 12.0 + waveTime) * 0.015; 
+						//distortedP.x += cos(distortedP.y * 10.0 + waveTime * 0.6) * 0.01;
+						
+						// A very subtle scale bounce to keep it alive
+						float scale = 1.0 + 0.02 * sin(iTime * 1.5);
+						dist = map(distortedP * scale);
+						
+						// 2. Complex Multicolor Gradient (Inside)
+						// We use cosine palettes to generate beautiful, fluid colors based on the coordinates and time
+						// Create 3 distinct color frequencies that sweep across the shape, tuned for larger stripes
+						vec2 gradUV = uv * 0.7; // Reduced from 1.5 to make stripes visually larger
+						
+						// Base palette: a mix of purples, pinks, cyan, and oranges
+						vec3 a = vec3(0.5, 0.5, 0.5);
+						vec3 b = vec3(0.5, 0.5, 0.5);
+						vec3 c = vec3(1.0, 1.0, 1.0);
+						vec3 d = vec3(0.263, 0.416, 0.557); // Shift constants
+						
+						// Create an organic flow map based on time and space
+						float flow = iTime * 0.4 + length(gradUV) * 0.8; // Reduced length multiplier (was 2.0)
+						float warpX = sin(gradUV.x * 1.5 + iTime * 0.6) * 0.5; // Reduced frequency (was 3.0)
+						float warpY = cos(gradUV.y * 1.2 - iTime * 0.4) * 0.5; // Reduced frequency (was 2.5)
+						
+						// Combine into a single varying 't' value for the color palette
+						float colorT = flow + warpX + warpY;
+						
+						// The famous Inigo Quilez color palette formula: a + b * cos(2pi * (c*t + d))
+						vec3 innerColor = a + b * cos(6.28318 * (c * colorT + d));
+						
+						// HEX #121212 background converted to RGB 0.0-1.0 space: 18 / 255.0 = 0.0706
+						vec3 bgColor = vec3(0.0706);
+
+						// Darken it slightly near the very edges based on distance for pseudo-3D volume
+						// but never drop below bgColor (to avoid black fringing)
+						float edgeDarken = smoothstep(0.0, -0.1, dist) * 0.7 + 0.15;
+						innerColor = mix(bgColor, innerColor, edgeDarken);
+						
+						// Enhance saturation & contrast
+						innerColor = smoothstep(0.1, 0.9, innerColor);
+						
+						// HARD FLOOR CONSTRAINT: Ensure no color ever drops below #121212
+						innerColor = max(innerColor, bgColor);
+						
+						// 3. Ambient Edge Glow/Aura (Outside)
+						// Soft aura matching the vibrant inner colors
+						float aura = exp(-abs(dist) * 12.0) * 0.4;
+						vec3 glowColor = innerColor * aura;
+						
+						float alpha = smoothstep(0.005, -0.005, dist);
+
+						// Composite: glow added to background + vibrant gradient shape in foreground
+						// vec3 backgroundWithGlow = bgColor + glowColor;
+						col = mix(bgColor, innerColor, alpha);
+
+					} else {
+						// ------ STATIC VECTOR RENDERING ------
+						dist = map(p); 
+						
+						// Mathematically sharp smooth-step antialiasing edge like an SVG
+						float alpha = smoothstep(0.005, -0.005, dist);
+						
+						vec3 bgColor = vec3(0.0706);
+						// Output pure #121212 background and pure white vector
+						col = mix(bgColor, vec3(1.0), alpha); 
+					}
+
+					fragColor = vec4(col, 1.0);
+				}
+
+
+				`
+
+				const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource);
+				const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+				const shaderProgram = gl.createProgram();
+				gl.attachShader(shaderProgram, vertexShader);
+				gl.attachShader(shaderProgram, fragmentShader);
+				gl.linkProgram(shaderProgram);
+
+				if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+					console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+					return;
+				}
+
+				const programInfo = {
+					program: shaderProgram,
+					attribLocations: {
+						vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+					},
+					uniformLocations: {
+						resolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
+						time: gl.getUniformLocation(shaderProgram, 'iTime'),
+						animate: gl.getUniformLocation(shaderProgram, 'iAnimate')
+					},
+				};
+
+				// Create a buffer for the square's positions.
+				const positionBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+				
+				// Two triangles to cover the fullscreen quad
+				const positions = [
+					-1.0,  1.0,
+					1.0,  1.0,
+					-1.0, -1.0,
+					1.0, -1.0,
+				];
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+				window.render = function() {
+					// Calculate elapsed time
+					const now = (Date.now() - startTime) * 0.001;
+
+					// Resize canvas if window size changes
+					const displayWidth  = canvas.clientWidth;
+					const displayHeight = canvas.clientHeight;
+
+					if (canvas.width  !== displayWidth || canvas.height !== displayHeight) {
+						canvas.width  = displayWidth;
+						canvas.height = displayHeight;
+					}
+
+					gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+					// Clear the canvas
+					gl.clearColor(0.0, 0.0, 0.0, 1.0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
+
+					// Tell WebGL to use our program
+					gl.useProgram(programInfo.program);
+
+					// Bind the position buffer
+					gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+					gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
+					gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+					// Set the uniforms (like shadertoy variables)
+					gl.uniform2f(programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height);
+					gl.uniform1f(programInfo.uniformLocations.time, now);
+					gl.uniform1i(programInfo.uniformLocations.animate, 1);
+
+					// Draw the quad
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					
+					if(!window.stoploader) requestAnimationFrame(window.render);
+					
+				}
+				// Start animation loop
+				requestAnimationFrame(window.render);
+			}
+
+			init();
+
+
 	
-	//
-		script( type="text/javascript", src="/js/strawnode.js" )
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/betweenjs.min.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/node_modules/jquery-1.8.1.min.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/node_modules/jquery.ba-hashchange.min.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/strawexpress.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/strawexpress-address.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/strawexpress-utils.js")
-		script( type="text/javascript", src="/js/strawnode_app/node_modules/strawjade.js")
-		script( type="text/javascript", src="/js/strawnode_app/graphics.js")
-		script( type="text/javascript", src="/js/strawnode_app/routes.js")
-		script( type="text/javascript", src="/js/strawnode_app/index.js")
+
+	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.context
+		.toprightlinks.lh2.txtC.marXLg.abs.right0.languages(style="z-index:300")
+			ul.langswitch(class="flex flex-row")
+				li
+					a.inline-block.padding.white.langchange(href="#/en/" class="en") EN
+				//- li
+					a.inline-block.padding.white.langchange(href="#/fr/" class="fr") FR
+				li
+					a.inline-block.padding.white.langchange(href="#/ko/" class="kr") KR
+		//- include ./pipe
+		
+		.zoneallcontain.fullW.fullH.zi3.context
+			.zoneall(class="h-full flex flex-col md:flex-row")
+
+				.none.landing.rel(class="h-full grow flex justify-center justify-items-center content-center")
+					.firstlink(class="self-center flex flex-col max-w-64")
+						+svg_mv()
+						.req_explain.none(class="")
+							p.BmarXLg.HpadXXLg.sizeSm.whitetranspTXT
+								| For an enhanced experience and best graphic performance, we suggest you using
+							a.block.Hmar.sizeR(href="https://brave.com/download/" target='_blank') Brave browser.
+							p.BmarXLg.HpadXXLg.sizeSm.whitetranspTXT
+								| <br> Otherwise, from your phone. <br> You may also just continue normally.
+						+gen_alpha_link('Enter', null, 'enterlink')
+				//- here should include the correct template along section
+	.shadernav.abs.top0.left0.zi30(class="w-28")
+			+lr_arrows('l', 't', 'Tmar LmarLg')
 	
-	script(type="text/javascript", src="./js/strawnode.js?starter=./strawnode_app/")
+	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/jade.js") 
+	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/marked.js") 
+	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/i18next.js")
+	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/shadertoylite.js")
+	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/lazyload.js")
+	script(type="text/javascript", src="/js/strawnode_async.js?starter=./strawnode_app/")
+
+	//- here loading in relative breaks the direct deeplinking feature coming from url with no /#/en/...
+	
+	script(type="text/javascript").
+		// was inited for JSAddress
+		var ajaxified = true ;
+		var done = false ;
+		
+
+		// i18next
+		let resources = !{JSON.stringify(resources)} ;
+		//trace(resources[0])
+		i18next.init({
+			//- lng: 'en', // if you're using a language detector, do not define the lng option
+			//- debug: true,
+			fallbackLng: ["en"],
+			resources: resources[0]
+		}) ;
+
+		
+
+		//- When having sections given through express/jade
+		//- let sections_JSON = !{JSON.stringify(topsections)} ;
+		//- window.Data = sections_JSON ;
+		
+
+		window.addEventListener("strawnode-ready", function(e) {
+			
+			//- trace(window.strawnodeLoadingFeedback)
+			done = true ;
+			console.log("StrawNode is fully loaded! The starter package was:", e.detail);
+			// Hide your loading screen
+			// Initialize your SPA router
+			// Do Web 3.0 things!
+			////////// Actual Start
+			var startSite = function(delayed){
+				$('.landing').remove() ;
+				return setTimeout(function(){
+					
+					Express.app.fire('JSAddress') ;
+				}, 1) ;
+			}
+
+			if(1){
+
+			
+				/////////////////////////////////////////// LANDING PAGE
+				var need_landing = parseInt(localStorage.need_landing || 1) ;
+				var isBrave = Kompat.instance.isBrave ;
+				trace('isBrave', isBrave)
+				isBrave = isBrave || Kompat.instance.isMobile ;
+				if(need_landing){
+					$('.landing').removeClass('none') ;
+					if(!isBrave) $('.req_explain').removeClass('none') ;
+					$('.enterlink').on('mousedown', function(e){
+						$('.enterlink').remove() ;
+						
+						localStorage.need_landing = 0 ;
+						startSite(true) ;
+					})
+				}else{
+					startSite(false) ;
+				}
+			}
+		});
+		

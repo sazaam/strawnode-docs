@@ -1,1 +1,20 @@
-#zoneallinside.zoneallinside.context	#zonecenter.zonecenter.context				.box			include ./jade/artists/nav			include ./jade/artists/indicator						form(onsubmit="AddressHierarchy.instance.headTo(AddressHierarchy.instance.currentStep.path + $('#seek').attr('value'));return false;")				fieldset.context					p.fline.label30.sizeR.txtL						label.submit.floatRR.txtR(for="seek")							input.inputs.submit.noBrd.Hpadding.floatR(type="submit", value=">")						span.txtL							input#seek.inputs.Hpadding(type="text", placeholder="Type a number")					- if(!/msie/i.test(navigator.userAgent)) {			script(type="text/javascript")				| $('#seek')[0].focus() ;		- }
+
+extends ./basesection
+block content
+	.box
+		include ./nav
+		include ./indicator
+		
+		form(onsubmit="AddressHierarchy.instance.headTo(AddressHierarchy.instance.currentStep.path + $('#seek').attr('value'));return false;")
+			fieldset.context
+				p.fline.label30.sizeR.txtL
+					label.submit.floatRR.txtR.typo(for="seek")
+						input.inputs.submit.noBrd.Hpadding.floatR(style="margin-right:3px" type="submit", value=">")
+					span.txtL
+						input#seek.inputs.seeks.Hpadding(type="text", placeholder="Type a number")
+		
+		script(type="text/javascript").
+			$('#seek').each(function(i, el){
+				el.focus() ;
+			}) ;
+				

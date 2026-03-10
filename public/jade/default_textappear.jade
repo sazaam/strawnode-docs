@@ -1,0 +1,92 @@
+extends ./layout
+block content
+	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.darkBG.coloraddict.context
+		.testzone.fullW.fullH(class="flex content-center justify-center")
+			a.saz(class="flex-1")
+				//- | We all live in a brand new world indeed.
+				| We all live in a brand new world <span class="bold" style="color:lightblue">indeed and for a very, very long time</span>.
+		
+
+
+
+
+	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/") 
+	
+	script(type="text/javascript").
+		Express.app.listen('load', function(e){
+			trace('LOADED')
+
+			var str = 'a.sazaam(class="coucou", href="#/en/") toto' ;
+			//- var str ;
+			//- trace(jade.render(str).children[0]) ;
+
+
+			// get the several textes (including nested nodes) in an array
+			// to do that, ...
+
+			// then, make a tween that deletes each character from the end and then also delete the node (if nested)
+			// then a tween that rewrites it again translated (with node)
+
+			trace(jade.render(str)) ;
+			var saz = $('.saz') ;
+			var sss = saz.html() ;
+			var sss2 = sss ;
+			var timeperchar = .02 ;
+			var time = (saz.text().length) * timeperchar ;
+
+			var n = 0 ;
+
+			var tw = BTW.serial(
+				KAKA = BTW.create({
+					target:saz,
+					time:time,
+					ease:Expo.easeOut,
+					onComplete:function(){
+						trace('OK ' + n)
+					},
+					onUpdate:function(){
+						if(sss[sss.length-1] == '>'){
+							var ind = sss.lastIndexOf('<') ;
+							if(ind != -1){
+								sss = sss.substring(0, ind)
+							}
+						}
+						saz.html(sss = sss.slice(0, -1)) ;
+						if(sss.length == 0){
+							//- this.time = this.position ;
+							//- this.fire('complete') ;
+						}
+					}
+				}),
+				BTW.create({
+					target:saz,
+					time:time,
+					ease:Expo.easeOut,
+					onComplete:function(){
+						trace('KO ' + n)
+						n++;
+					},
+					onUpdate:function(){
+						if(sss2[sss.length] == '<'){
+							var temp = sss2.replace(sss, '') ;
+							sss += temp.substr(0, temp.indexOf('>') + 1) ;
+						}
+						saz.html(sss = sss2.slice(0, sss.length + 1)) ;
+
+						if(sss.length == sss2.length) {
+							//- this.time = this.position ;
+							//- this.fire('complete') ;
+						}
+					}
+				})
+			) ;
+			
+			tw.play() ;
+
+
+
+
+
+
+
+		})

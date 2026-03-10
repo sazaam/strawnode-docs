@@ -1,1 +1,28 @@
-#nav.nav.zindex10	- var TITLE = 'The StrawNode <sup class="sizeXSm">TM</sup>  Project' ;	ul.txtL		- var st = response.id == '' ? response.parentStep : response , arr = [] ;		- while(!!st.parentStep) {			- var path = {id:st.parentStep.id, path:st.parentStep.path} ;			- arr.push(path) ;			- st = st.parentStep 		- }		- arr.reverse() ;		- for(var i = 0 , l = arr.length ; i < l ; i++) {			- var path = arr[i] ;			li				a.item.dispBlock.sizeR(href="#/en#{path.path == '@' ? '/' : path.path + '/' }")= path.id == '@' ? TITLE : path.id					span.arrowindic.abs.dispNone.left0.top0.bottom0 &gt;		- }
+#nav.nav.zindex10.unselectable
+	ul.txtL
+		- var ttt = 'MetaVagrant'
+		- var arr = [] ;
+		- var st = response.id == '' ? response.parentStep : response ;
+		- while(!!st.parentStep) {
+			- var isLive = !!st.parentStep.isLiveStep ? st.parentStep.isLiveStep() : false ;
+			- arr.push({id:st.parentStep.id, path:st.parentStep.path, isLiveStep:isLive}) ;
+			- st = st.parentStep 
+		- }
+		- arr.reverse() ;
+
+		//- +log(lang)
+		- for(var i = 0 , l = arr.length ; i < l ; i++) {
+			- var path = arr[i] ;
+			li
+				a.item.dispBlock.sizeR(href="#/#{lang}#{path.path == '@' ? '/' : path.path + '/' }")
+					if (path.id == '@')
+						span.block.txtL(style="height:17px;margin-left:-2px")
+							+svg_meta()
+					else
+						- if(path.isLiveStep){
+							| !{path.id}
+						- }else{
+							| !{t('sections.' + path.id)}
+						- }
+					span.typo.arrowindic.abs.dispNone.left0.top0.bottom0 &gt;
+		- }

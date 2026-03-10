@@ -1,1 +1,10 @@
-#zoneallinside.zoneallinside.context		#zonecenter.zonecenter.context		.box			include ./jade/artists/nav			include ./jade/artists/indicator			include ./jade/artists/navsection
+extends ./basesection
+block content
+	.box
+		include ./nav
+		include ./indicator
+		
+		unless /(projects|studies)/.test(response.id)
+			include ./navsection
+		else 
+			include ./navsection_project

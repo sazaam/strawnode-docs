@@ -688,11 +688,61 @@
 			})() ;
 			
 			var Path = window['Path'] = (function(){
+				var splitDeviceRe =
+					/^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?([\\\/])?([\s\S]*?)$/;
+
+				// Regex to split the tail part of the above into [*, dir, basename, ext]
+				var splitTailRe =
+					/^([\s\S]*?)((?:\.{1,2}|[^\\\/]+?|)(\.[^.\/\\]*|))(?:[\\\/]*)$/;
 
 				var f = function f(p) {
 					return !!p ;
 				}
+				function normalizeArray(parts, allowAboveRoot) {
+					var res = [];
+					for (var i = 0; i < parts.length; i++) {
+						var p = parts[i];
 
+						// ignore empty parts
+						if (!p || p === '.')
+						continue;
+
+						if (p === '..') {
+						if (res.length && res[res.length - 1] !== '..') {
+							res.pop();
+						} else if (allowAboveRoot) {
+							res.push('..');
+						}
+						} else {
+						res.push(p);
+						}
+					}
+
+					return res;
+					}
+
+					// returns an array with empty elements removed from either end of the input
+					// array or the original array if no elements need to be removed
+					function trimArray(arr) {
+					var lastIndex = arr.length - 1;
+					var start = 0;
+					for (; start <= lastIndex; start++) {
+						if (arr[start])
+						break;
+					}
+
+					var end = lastIndex;
+					for (; end >= 0; end--) {
+						if (arr[end])
+						break;
+					}
+
+					if (start === 0 && end === lastIndex)
+						return arr;
+					if (start > end)
+						return [];
+					return arr.slice(start, end + 1);
+					}
 				var Path = function Path(){
 					throw new Error('Not meant to be instanciated') ;
 				}
@@ -985,17 +1035,17 @@
 			// EXAMPLES
 			//1	// JS/STRAWNODE.JS
 				// JS/APP/INDEX.JS
-					// requiring ./NODE_MODULES/TYPE.JS
+					// requiring ./strawnode_modules/TYPE.JS
 					// requiring ./ROUTES.JS
 
 			//2	// JS/STRAWNODE.JS?STARTER=APP/INDEX.JS
 				// requiring ./APP/INDEX.JS 
-					// requiring ./NODE_MODULES/TYPE.JS
+					// requiring ./strawnode_modules/TYPE.JS
 					// requiring ./ROUTES.JS
 
 			//3	// JS/STRAWNODE.JS?STARTER=APP/
 				// requiring ./APP/PACKAGE.JSON 
-					// requiring ./NODE_MODULES/TYPE.JS
+					// requiring ./strawnode_modules/TYPE.JS
 					// requiring ./ROUTES.JS
 					// requiring ./INDEX.JS
 			
@@ -1015,7 +1065,7 @@
 			var DEFAULT_JS_NAME = 'index' ;
 			var DEFAULT_PKG_JSON_FILENAME = '' ;
 
-			var trace = function(){return console.log.apply(console, [].concat(arguments))} ;
+			// var trace = function(){return console.log.apply(console, [].concat(arguments))} ;
 			// HELPERS
 			var getBaseParams = function (){
 				var abs = scriptSrc(true) ;
@@ -1168,8 +1218,14 @@
 				var public_root = baseparams.public_root ;
 				var script_root = baseparams.script_root ;
 				module.params = params ;
-				
-				return new Function('module', '__filename', '__dirname', '__parameters', '__public_root', '__script_root', file)(module, filename, dirname, params, public_root, script_root) ;
+				var f ;
+				try {
+					f = new Function('module', '__filename', '__dirname', '__parameters', '__public_root', '__script_root', file)(module, filename, dirname, params, public_root, script_root) ;
+				} catch (e) {
+					var err = e.constructor(e.message + '\n at '+ module.dirname + module.filename) ;
+					throw err;
+				}
+				return f ;
 			} ;
 
 
@@ -1276,7 +1332,7 @@
 				var oldpath = typeExists ? Type.hackpath : '' ;
 				var mod, resp, r ;
 				
-				mod = new ModuleLoader(ModuleLoader.concatRoot('./node_modules/' + url)).load() ;
+				mod = new ModuleLoader(ModuleLoader.concatRoot('./strawnode_modules/' + url)).load() ;
 
 
 				if(mod.failed) {
@@ -1285,7 +1341,7 @@
 				
 				resp = mod.response ;
 				
-				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot('./node_modules/')) ;
+				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot('./strawnode_modules/')) ;
 				if(typeExists) Type.hackpath = '' ;
 				
 				r = simfunc(resp, new Module(url), url, params) ;

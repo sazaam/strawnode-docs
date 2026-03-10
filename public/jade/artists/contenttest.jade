@@ -1,0 +1,81 @@
+extends ./basecontent
+block content
+	//- +videoblock
+
+	//- +log(typeof module == 'undefined' )
+	
+	- var isHome = response.id == '@' ;
+	- var n = isHome ? 1 : 6 ;
+	- let resid = response.id ;
+
+	case resid
+		when 'projects'
+		when 'studies'
+			div.fullH(class="md:max-w-90 self-center")
+				- var hh = 202 ;
+				.projects_list.fullH.fullW.context.rel.lhXLg.whitetransp(class="txtJ md:border-r")
+					.project_panes.rel.fullW
+						- var els = response.children ;
+						- els = els.length < 6 ? els.concat(els) : els ;
+						- var l = els.length ;
+						- var baseop = .2 ;
+						for el, i in els
+							- var op = i == 0 ? 1 : baseop ;
+							- var top = i < Math.floor(l / 2) ? i * hh : (i-l) * hh ;
+							.abs.project_pane.context(named=el.id + "" straw="project_pane_" + i, style="opacity:#{op};top:#{top}px;width:360px;height:" + hh + "px")
+								
+								.innerslide.fullW.fullH.flowvisible.rel(style="left:0%") 
+									+project_pane(el, false)
+									+extra_panes(el)
+								+lr_arrows_justtransp('r', 'b', 'panenav BmarSm Rmar white sizeM')
+						
+						//- +yt("TJORWNcMoU8", "PHa7_EzqBICBXSi5&amp", 0, 1)
+						
+		when 'intro'
+			//- 
+			.about.slides.sizeR.rel.context.flowvisible(class="md:max-w-128")
+				.about_intro.rel.lhXLg.line(class="txtJ" style="width:300%;left:0%")
+					- var els = ['reason', 'outside', 'everything_is_step'] ;
+					each ctx, i in els
+						- var rctx = 'about.intro.' + ctx ;
+						.unit.size1of3( style="opacity:"+(i==0? "1" : ".3"))
+							.lhLg.whitetranspTXT.marXXXLg.BpadXXXLg
+								.flex.flex-row.items-end(class="gap-6")
+									.txtJ.shrink
+										:md
+											### **#{t(rctx)}**
+											<br>
+											!{t(rctx, {context:"desc"})}
+									.img(class="flex-none" style="width:100px;height:100px")
+										case i
+											when 1 
+												+svg_tree
+											when 2 
+												+svg_foot
+											default
+												+svg_spiral
+
+				.pagination.abs.bottom0.right0.RmarXXXLg.Rpad.BmarXLg.sizeSm.unselectable
+					span.block.floatR
+						span.num= 1 
+						|  /  #{els.length}
+				
+				+lr_arrows('l', 'b', 'LmarXXLg Bmar')
+					
+		when '@'
+			break
+		when 'about'
+			.VpadXLg(class="max-w-80")
+				.HpadXXLg.txtL
+					+article_about()
+		default
+			.VpadXLg(class="max-w-80")
+				- for(var i = 0 ; i < n ; i++ ){
+					.HpadXXLg.TpadSm.whitetranspTXT.txtL
+						+article_about()
+					- if(i != n - 1){
+						hr.whitetranspBG.Vmar
+					- }
+				- }
+	
+	
