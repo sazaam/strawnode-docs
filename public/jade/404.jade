@@ -1,0 +1,16 @@
+include ./artists/mixins
+
+.VpadXXLg.HpadXXLg
+  .sizeXXXXLg.typo.lh1 404
+  .lhXLg.Tpad
+    p.whitetranspTXT
+      | The page
+      = ' '
+      strong #{response.userData.failedPath || response.path}
+      = ' '
+      | was not found.
+    p.TmarXXLg
+      if response.parentStep
+        +gen_link('&larr; Go back', '#/' + lang + response.parentStep.path + '/', '')
+      else
+        +gen_link('&larr; Go home', '#/' + lang + '/', '')

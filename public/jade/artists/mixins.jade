@@ -30,7 +30,23 @@ mixin videoblock()
 				//- source(src="/vids/mv.ogg" type="video/ogg")
 				| Your browser does not support the video tag.
 
+mixin webm(src, w, h)
+	.webms.BmarXLg.context
+		.webmcont.BmarXXXXXLg.floatR.LmarLg.blackBG(style="width:" + w + "px; height:" + h + "px")
+			img.fullW.fullH(src='/img/webm/'+ src +'.png')
+			video.webm.none(controls, loop)
+				source(src='/img/webm/' + src + '.webm' type="video/webm")
+			legend.sizeSm.txtC.Tmar Procedural
+		.BmarXXXXXLg.floatR.blackBG(style="width:" + w + "px; height:" + h + "px")
+			img.fullW.fullH(src='/img/webm/'+ src +'.png')
+			legend.sizeSm.txtC.Tmar Original
+	.clear 
+		//
 
+mixin article(txtvar)
+	article.article.context
+		- var mk = marked.marked(t(txtvar))
+		div.article_content.HpadXSm!= mk
 
 
 mixin article_about(right)
@@ -170,6 +186,20 @@ mixin project_pane(response, back)
 				+svg_smythson(back)
 			when 'metavagrant'
 				+svg_mv(back)
+			when 'ashina'
+				+svg_ashina(back)
+			when 'lostinone'
+				+svg_lostinone(back)
+			when 'sagong'
+				+svg_sagong(back)
+			when 'modern_art'
+				+svg_modern_art(back)
+			when 'dkt'
+				+svg_dkt(back)
+			when 'hexarmor'
+				+svg_hexarmor(back)
+			when 'mmai'
+				+svg_mmai(back)
 			default
 				+svg_infinite(back)
 

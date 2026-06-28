@@ -129,19 +129,54 @@ module.exports = {
 		projects.infinite = lambda_deep() ;
 		projects.infinite['userData'] = {
 			slides:[
+				{url:'inifinite_01_s.jpg', x:'20%'},
+				{url:'inifinite_01_side.jpg', x:'80%'},
+				{url:'inifinite_01_frontleft_transp.jpg'},
+				{url:'inifinite_04_right-Recovered.jpg', x:'70%'},
 				{url:'infinite-01bis.jpg'},
+				{url:'inifinite_real_01.jpg'},
+				{url:'inifinite_real_02.jpg'},
+				{url:'inifinite_real_03.jpg'},
+				{url:'inifinite_real_04.jpg'},
+				{url:'inifinite_real_05.jpg'},
 				{url:'infinite-02.jpg', x:'54%'},
 			]
 		}
 
 
-		projects.smythson = lambda_deep() ;
-		projects.smythson['userData'] = {
+		
+		projects.dkt = lambda_deep() ;
+		projects.dkt['userData'] = {
 			slides:[
-				{url:'smythson-naja-01.jpg', x:'25%'},
-				{url:'smythson-naja-02.jpg', x:'45%'},
-				{url:'smythson-naja-03.jpg', x:'65%'},
-				{url:'smythson-naja-04.jpg', x:'60%'},
+				{url:'dkt-01.jpg', x:'5%'},
+				{url:'dkt-02.jpg', x:'5%'},
+				{url:'dkt-03.jpg', x:'25%'},
+				{url:'dkt-04.jpg', x:'60%'},
+				{url:'dkt-05.jpg', x:'60%'},
+				{url:'dkt-06.jpg', x:'0%'},
+				{url:'dkt-07.jpg', x:'75%'},
+				{url:'dummy.jpg', x:'45%', noslide:1},
+			]
+		}
+		
+		projects.hexarmor = lambda_deep() ;
+		projects.hexarmor['userData'] = {
+			slides:[
+				{url:'hex-01.jpg', x:'50%'},
+				{url:'hex-02.jpg', x:'45%'},
+				{url:'hex-03.jpg', x:'65%'},
+				{url:'hex-04.jpg', x:'60%'},
+				{url:'hex-05.jpg', x:'60%'},
+				{url:'hex-06.jpg', x:'60%'},
+				{url:'hex-07.jpg', x:'0%'},
+				{url:'hex-08.jpg', x:'60%'},
+				{url:'hex-plan-01.jpg', x:'50%'},
+				{url:'hex-plan-02.jpg', x:'20%'},
+				{url:'hex-plan-03.jpg', x:'0%'},
+				{url:'hex-plan-04.jpg', x:'0%'},
+				{url:'hex-plan-05.jpg', x:'60%'},
+				{url:'hex-plan-06.jpg', x:'60%'},
+				{url:'hex-plan-07.jpg', x:'50%'},
 				{url:'dummy.jpg', x:'45%', noslide:1},
 			]
 		}
@@ -153,6 +188,24 @@ module.exports = {
 				{url:'itFlow-01.jpg', x:'20%'},
 				{url:'itFlow-02.jpg', x:'82%'},
 				{url:'itFlow-03.jpg', x:'90%'},
+			]
+		}
+		
+		projects.mmai = lambda_deep() ;
+		projects.mmai['userData'] = {
+			slides:[
+				{url:'mmai_01.jpg'},
+				{url:'mmai_02.jpg', x:'50%'},
+				{url:'mmai_03.jpg', x:'50%'},
+				{url:'mmai_04.jpg', x:'50%'},
+				{url:'mmai_05.jpg', x:'50%'},
+				{url:'mmai_002.jpg', x:'50%'},
+				{url:'mmai_001.jpg', x:'50%'},
+				{url:'mmai_003.jpg', x:'50%'},
+				{url:'mmai_004.jpg', x:'50%'},
+				{url:'mmai_005.jpg', x:'50%'},
+				{url:'mmai_006.jpg', x:'50%'},
+				{url:'mmai_007.jpg', x:'50%'},
 			]
 		}
 		
@@ -176,33 +229,62 @@ module.exports = {
 		studies.sagong = lambda_deep() ;
 		studies.sagong['userData'] = {
 			slides:[
-				{url:'mv-01.jpg'},
-				{url:'itFlow-01.jpg', x:'20%'},
-				{url:'itFlow-02.jpg', x:'82%'},
-				{url:'itFlow-03.jpg', x:'90%'},
+				{url:'sagong_01.jpg', x:'25%'},
+				{url:'sagong_02.jpg', x:'60%'},
+				{url:'sagong_03.jpg', x:'50%'},
+				{url:'sagong_04.jpg', x:'10%'},
+				{url:'sagong_05.jpg', x:'65%'},
 			]
 		}
 
 		studies.lostinone = lambda_deep() ;
 		studies.lostinone['userData'] = {
 			slides:[
-				{url:'mv-01.jpg'},
-				{url:'itFlow-01.jpg', x:'20%'},
-				{url:'itFlow-02.jpg', x:'82%'},
-				{url:'itFlow-03.jpg', x:'90%'},
+				{url:'loi_01.jpg'},
+				{url:'loi_02.jpg', x:'20%'},
+				{url:'loi_04.jpg', x:'82%'},
+				{url:'loi_03.jpg', x:'90%'},
 			]
 		}
 		
-		studies.lostinone = lambda_deep() ;
-		studies.lostinone['userData'] = {
+
+		studies.ashina = lambda_deep() ;
+		studies.ashina['userData'] = {
 			slides:[
-				{url:'mv-01.jpg'},
-				{url:'itFlow-01.jpg', x:'20%'},
-				{url:'itFlow-02.jpg', x:'82%'},
-				{url:'itFlow-03.jpg', x:'90%'},
+				{url:'Ashina_BW.jpg'},
+				{url:'Ashina_02.jpg', x:'52%'},
+				{url:'ashina_house_01.jpg', x:'41%'},
+				{url:'ashina_house_02.jpg', x:'41%'},
+				{url:'ashina_house_03.jpg', x:'66%'},
+				{url:'Ashina_04.jpg', x:'32%'},
+				{url:'Ashina_01.jpg', x:'35%'},
 			]
 		}
 
+		
+		studies.smythson = lambda_deep() ;
+		studies.smythson['userData'] = {
+			slides:[
+				{url:'smythson-naja-01.jpg', x:'25%'},
+				{url:'smythson-naja-02.jpg', x:'45%'},
+				{url:'smythson-naja-03.jpg', x:'65%'},
+				{url:'smythson-naja-04.jpg', x:'60%'},
+				{url:'dummy.jpg', x:'45%', noslide:1},
+			]
+		}
+
+		studies.modern_art = lambda_deep() ;
+		studies.modern_art['userData'] = {
+			slides:[
+				{url:'exhibition_01.png'},
+				{url:'exhibition_02.png', x:'20%'},
+				{url:'dummy.jpg', noslide:1},
+				{url:'dummy.jpg', noslide:1},
+				{url:'dummy.jpg', noslide:1},
+				{url:'dummy.jpg', noslide:1},
+				{url:'dummy.jpg', noslide:1},
+			]
+		}
 		return studies ;
 	})(),
 	docs : (function(){
