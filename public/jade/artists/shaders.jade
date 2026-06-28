@@ -3323,7 +3323,7 @@ script.
 
 	var voids = `
 		void mainImage( out vec4 fragColor, in vec2 fragCoord ){
-		    vec2 uv =  (2.0 * fragCoord - iResolution.xy) / min(iResolution.x, iResolution.y);
+			vec2 uv =  (2.0 * fragCoord - iResolution.xy) / min(iResolution.x, iResolution.y);
 			float time = iTime / 5.0 ;
 			for(float i = 1.0; i < 10.0; i++){
 				uv.x += 0.6 / i * sin(i * 2.5* uv.y + time);
@@ -4415,3 +4415,925 @@ script.
 			o = sqrt(1.-exp(-1.5*o*o));
 		}
 	` ;
+
+	var liquidGold = window.liquidGold = `
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float t = iTime * 0.5;
+			for(float i=1.0; i<4.0; i++) {
+				uv.x += 0.3 / i * sin(i * 3.0 * uv.y + t + i * 0.5);
+				uv.y += 0.3 / i * cos(i * 3.0 * uv.x + t + i * 0.5);
+			}
+			vec3 col = 0.5 + 0.5 * cos(t + uv.xyx + vec3(0, 2, 4));
+			float d = length(uv);
+			col = mix(vec3(1.0, 0.8, 0.0), col, smoothstep(0.0, 0.5, d));
+			col += 0.1 / d * vec3(1.0, 0.9, 0.5);
+			fragColor = vec4(col * col, 1.0);
+		}
+	`;
+
+
+	var chromaticVortex = window.chromaticVortex = `
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float t = iTime * 0.4;
+			float r = length(uv);
+			float a = atan(uv.y, uv.x) + t + sin(r * 5.0 - t);
+			
+			// Chromatic aberration offsets
+			float offset = 0.02 * smoothstep(0.0, 1.0, r);
+			
+			vec3 col;
+			for(int i=0; i<3; i++) {
+				float shift = float(i) * offset;
+				float ai = a + shift;
+				float ri = r + shift * 0.5;
+				float uv_i = sin(10.0 * ri - t * 2.0 + sin(ai * 3.0));
+				col[i] = smoothstep(0.1, 0.0, abs(uv_i)) * (0.5 + 0.5 * cos(t + ri * 10.0 + vec3(0,2,4)[i]));
+			}
+			
+			col += 0.05 / r * vec3(0.2, 0.5, 1.0);
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+
+	var neonNebulaV2 = window.neonNebulaV2 = `
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float t = iTime * 0.1;
+			vec3 col = vec3(0.0);
+			for(float i=1.0; i<6.0; i++) {
+				uv += 0.1 * sin(uv.yx * 4.0 + t * i + i);
+				float d = length(uv);
+				vec3 layerCol = 0.5 + 0.5 * cos(t + i + vec3(0, 2, 4));
+				col += 0.003 / d * layerCol;
+				col += 0.001 / abs(sin(d * 10.0 - t * 5.0)) * layerCol;
+			}
+			col *= smoothstep(1.5, 0.0, length(uv));
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+
+	var burningPaper = window.burningPaper = `
+		float p_hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+		float p_noise(vec2 p) {
+			vec2 i = floor(p);
+			vec2 f = fract(p);
+			f = f*f*(3.0-2.0*f);
+			return mix(mix(p_hash(i + vec2(0,0)), p_hash(i + vec2(1,0)), f.x),
+						mix(p_hash(i + vec2(0,1)), p_hash(i + vec2(1,1)), f.x), f.y);
+		}
+		float p_fbm(vec2 p) {
+			float v = 0.0;
+			float a = 0.5;
+			for (int i = 0; i < 5; i++) {
+				v += a * p_noise(p);
+				p *= 2.0;
+				a *= 0.5;
+			}
+			return v;
+		}
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = fragCoord.xy / iResolution.xy;
+			float t = iTime * 0.5;
+			float n = p_fbm(uv * 3.0 + vec2(0.0, t));
+			float mask = smoothstep(0.4, 0.6, n + uv.y - 0.5);
+			vec3 fire = mix(vec3(1.0, 0.1, 0.0), vec3(1.0, 0.8, 0.0), n);
+			vec3 col = mix(vec3(0.1), fire, mask);
+			col += smoothstep(0.5, 0.45, abs(n + uv.y - 0.55)) * vec3(1.0, 0.5, 0.0);
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+
+	var frostedPlasma = window.frostedPlasma = `
+		// Modern frosted glass / organic plasma effect
+		float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = fragCoord.xy / iResolution.xy;
+			float time = iTime * 0.2;
+			
+			// Create organic moving noise
+			vec2 p = uv * 3.0;
+			for(int n=1; n<4; n++) {
+				float i = float(n);
+				p += vec2(0.7 / i * sin(i * p.y + time + i * 0.5) + 0.8, 0.4 / i * sin(i * p.x + time + i * 1.5) + 1.6);
+			}
+			
+			// Dynamic color palette
+			vec3 col1 = vec3(0.1, 0.5, 0.9); // Blue
+			vec3 col2 = vec3(0.9, 0.1, 0.5); // Pink
+			vec3 col = mix(col1, col2, sin(p.x + p.y + time) * 0.5 + 0.5);
+			col = mix(col, vec3(0.2, 0.8, 0.6), cos(p.y - time) * 0.5 + 0.5);
+			
+			// Frosted glass effect / noise
+			float grain = (hash(uv + time) - 0.5) * 0.05;
+			col += grain;
+			
+			// Smooth vignettes
+			col *= 1.2 - 0.5 * length(uv - 0.5);
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	// 56
+	var holographicSilk = window.holographicSilk = `
+		// Irridescent flowing ribbons
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.3;
+			
+			vec3 finalCol = vec3(0.0);
+			
+			for(float i=0.0; i<6.0; i++) {
+				vec2 p = uv;
+				float t = time + i * 0.5;
+				
+				// Wave distortion
+				p.x += 0.5 * sin(p.y * 2.0 + t);
+				p.y += 0.3 * cos(p.x * 1.5 + t * 1.2);
+				
+				float d = abs(p.x);
+				float line = 0.002 / d;
+				
+				// Holographic color shifting
+				vec3 col = 0.5 + 0.5 * cos(vec3(0, 2, 4) + t + p.y * 2.0);
+				finalCol += col * line;
+			}
+			
+			finalCol = pow(finalCol, vec3(0.8)); // Gamma correction
+			fragColor = vec4(finalCol, 1.0);
+		}
+	`;
+
+
+	var abstractNebula = window.abstractNebula = `
+		float n_hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+		float n_noise(vec2 p) {
+			vec2 i = floor(p);
+			vec2 f = fract(p);
+			f = f*f*(3.0-2.0*f);
+			return mix(mix(n_hash(i + vec2(0,0)), n_hash(i + vec2(1,0)), f.x),
+						mix(n_hash(i + vec2(0,1)), n_hash(i + vec2(1,1)), f.x), f.y);
+		}
+
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = fragCoord.xy / iResolution.xy;
+			float time = iTime * 0.1;
+			
+			vec2 p = uv * 2.0;
+			float f = 0.0;
+			f += 0.500 * n_noise(p + time); p *= 2.02;
+			f += 0.250 * n_noise(p - time * 0.5); p *= 2.03;
+			f += 0.125 * n_noise(p + time * 0.2);
+			
+			// Minimalist deep space palette
+			vec3 space = vec3(0.02, 0.01, 0.05);
+			vec3 nebula = vec3(0.2, 0.1, 0.4);
+			vec3 highlight = vec3(0.8, 0.4, 0.6);
+			
+			vec3 col = mix(space, nebula, f);
+			col = mix(col, highlight, pow(f, 4.0));
+			
+			// Soft vignettes
+			col *= 1.0 - 0.4 * length(uv - 0.5);
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+
+	var interstellarTunnel = window.interstellarTunnel = `
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			float a = atan(uv.y, uv.x);
+			float r = length(uv);
+			
+			// Tunnel coordinates
+			vec2 st = vec2(a, 1.0 / r + time);
+			
+			// Original pattern reconstructed
+			// We don't need 4D for sine waves because they are inherently periodic!
+			// We just need the angle (st.x) multiplier to be an integer (6.0) 
+			// so it perfectly matches at -PI and +PI.
+			float pattern = sin(st.x * 6.0 + sin(st.y * 5.0)) * 0.5 + 0.5;
+			pattern *= sin(st.y * 10.0) * 0.5 + 0.5;
+			
+			vec3 col = 0.5 + 0.5 * cos(vec3(0, 2, 4) + st.y + a);
+			col *= pattern * r; // Dim towards center
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var electricFractal = window.electricFractal = `
+		// Electric branching fractal
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord * 2.0 - iResolution.xy) / min(iResolution.x, iResolution.y);
+			float time = iTime * 0.5;
+			
+			vec3 col = vec3(0.0);
+			for(float i=1.0; i<8.0; i++) {
+				uv = abs(uv) / dot(uv, uv) - 0.5;
+				uv *= mat2(cos(time * 0.1), sin(time * 0.1), -sin(time * 0.1), cos(time * 0.1));
+				
+				float d = length(uv);
+				vec3 c = 0.5 + 0.5 * cos(vec3(0, 2, 4) + i + time);
+				col += c * (0.01 / d);
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+
+	var dreamyParticles = window.dreamyParticles = `
+		// Bright flickering particles with stormy branching lightning
+		float p_hash(float n) { return fract(sin(n) * 43758.5453123); }
+		
+		// Sharp 1D value noise
+		float sharp_noise(float x, float seed) {
+			float i = floor(x);
+			float f = fract(x);
+			// Linear interpolation = sharp angles
+			float a = p_hash(i + seed);
+			float b = p_hash(i + 1.0 + seed);
+			return mix(a, b, f); 
+		}
+		
+		// Get jagged X displacement for lightning bolt
+		float get_bolt_x(float y, float seed) {
+			float x = (sharp_noise(y * 10.0, seed) - 0.5) * 0.08; // very narrow spread
+			x += (sharp_noise(y * 22.0, seed + 1.0) - 0.5) * 0.03;
+			x += (sharp_noise(y * 50.0, seed + 2.0) - 0.5) * 0.01;
+			return x;
+		}
+		
+		// Lightning branch SDF (fractal noise)
+		float lightning(vec2 p, float time, float seed) {
+			// Quick flash timing (lightning happens in bursts)
+			float flashTimer = fract(time * 0.5 + seed); // 2 second frequency per bolt
+			
+			// Lightning only visible for a fraction of a second
+			float life = smoothstep(0.95, 1.0, 1.0 - flashTimer); 
+			if(life <= 0.0) return 0.0;
+			
+			// Generate unique seed per strike so they never repeat their shape!
+			float shapeSeed = seed + floor(time * 0.5 + seed) * 13.37;
+			
+			vec2 q = p;
+			// Track minimum distance to ANY branch
+			float dist = abs(q.x - get_bolt_x(q.y, shapeSeed));
+			
+			// Recursive branching system
+			// Level 1 Branches (Primary)
+			for(int i = 0; i < 3; i++) {
+				float b1_seed = shapeSeed + float(i) * 3.14;
+				float startY1 = 0.8 - p_hash(b1_seed) * 1.5; 
+				
+				if (q.y < startY1) {
+					float dir1 = (p_hash(b1_seed + 1.0) > 0.5) ? 1.0 : -1.0;
+					float dy1 = startY1 - q.y;
+					
+					// Perfectly connect to root bolt x at startY1
+					float rootX1 = get_bolt_x(startY1, shapeSeed);
+					float bx1 = rootX1 + dir1 * dy1 * 0.15; // tighter branch fan
+					// Add jaggy noise that scales with distance from root
+					bx1 += (sharp_noise(dy1 * 12.0, b1_seed) - 0.5) * dy1 * 0.15; // less horizontal variance
+					
+					float branchDist = abs(q.x - bx1);
+					
+					// Level 2 Branches (Secondary - branch off the primary)
+					float b2_seed = b1_seed + 42.0;
+					// Start second branch somewhat below the primary origin
+					float startY2 = startY1 - 0.2 - p_hash(b2_seed) * 0.3;
+					
+					if (q.y < startY2) {
+						float dir2 = -dir1; // Opposite direction usually
+						float dy2 = startY2 - q.y;
+						
+						// Re-evaluate primary branch X at startY2 to connect perfectly!
+						float dy_root2 = startY1 - startY2;
+						float rootX2 = rootX1 + dir1 * dy_root2 * 0.15;
+						rootX2 += (sharp_noise(dy_root2 * 12.0, b1_seed) - 0.5) * dy_root2 * 0.15;
+						
+						float bx2 = rootX2 + dir2 * dy2 * 0.2;
+						bx2 += (sharp_noise(dy2 * 20.0, b2_seed) - 0.5) * dy2 * 0.25;
+						
+						branchDist = min(branchDist, abs(q.x - bx2));
+					}
+					dist = min(dist, branchDist);
+				}
+			}
+
+			// Intense core with soft glowing halo
+			float glow = 0.0003 / max(dist, 0.0001); // Thinner glow
+			float core = smoothstep(0.003, 0.0, dist) * 1.5; // Thinner core, slightly less bright
+			
+			// Flicker rapidly during lifespan
+			float flicker = mix(0.2, 1.0, p_hash(time * 50.0 + shapeSeed));
+			
+			// Bolt fades at the top and bottom
+			float verticalFade = smoothstep(-1.0, 0.5, p.y) * smoothstep(1.0, 0.0, p.y);
+			
+			return (glow + core) * life * flicker * verticalFade;
+		}
+
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.25; // SLOWED DOWN: Was 0.4
+			
+			vec3 col = vec3(0.01, 0.02, 0.05); // Dark stormy background
+			
+			// --- LIGHTNING SYSTEM ---
+			// Generates a few distinct thunderbolts at different depths and positions
+			for(float i = 0.0; i < 4.0; i++) {
+				float seed = i * 4.23;
+				vec2 lpos = uv;
+				// Random horizontal spawn position
+				lpos.x += p_hash(seed + floor(time * 0.5)) * 2.0 - 1.0;
+				
+				// Give each bolt a unique diagonal slant
+				float slant = (p_hash(seed + 13.37) - 0.5) * 1.5; // Random angle left or right
+				lpos.x += lpos.y * slant;
+				
+				// Parallax/depth scale factor
+				float depthScale = 1.0 + p_hash(seed + 1.0) * 2.0; 
+				
+				float volt = lightning(lpos * depthScale, time, seed);
+				
+				// Fast, distinct color generation mirroring the particles' palette
+				vec3 particleTint = 0.5 + 0.5 * cos(vec3(0, 1, 3) + seed * 2.5);
+				
+				// Lightning color (blue/purple electric arc) mixed with random particle color
+				vec3 baseCol = mix(vec3(0.6, 0.8, 1.0), vec3(0.8, 0.4, 1.0), p_hash(i));
+				vec3 lCol = mix(baseCol, particleTint, 0.6); // 60% tint
+				
+				// Add lightning to the scene, diminished by depth to create distant flashes
+				col += lCol * volt * (1.0 / depthScale);
+				
+				// General sky flash when lightning strikes
+				float generalFlash = smoothstep(0.95, 1.0, 1.0 - fract(time * 0.5 + seed)) * (1.0 - uv.y) * 0.1 / depthScale;
+				col += lCol * generalFlash * p_hash(time * 50.0); // flicker the sky
+			}
+			
+			
+			// --- PARTICLES SYSTEM ---
+			for(float i=0.0; i<50.0; i++) {
+				float seed = i * 1.234;
+				vec2 pos = vec2(p_hash(seed) - 0.5, p_hash(seed + 1.0) - 0.5) * 1.5;
+				
+				// Swirling motion
+				pos.x += 0.3 * sin(time * 0.5 + seed);
+				pos.y += 0.2 * cos(time * 0.4 + seed * 2.0);
+				
+				// Fast jitter for stormy turbulence (Reduced amplitude)
+				pos += vec2(sin(time * 10.0 + seed), cos(time * 11.0 + seed)) * 0.002;
+				
+				float d = length(uv - pos);
+				float size = 0.003 + 0.006 * p_hash(seed + 2.0); // Slightly smaller particles
+				
+				// Particle intensity with rapid flickering
+				float flicker = 0.5 + 0.5 * sin(time * (10.0 + p_hash(seed) * 15.0) + seed * 10.0);
+				
+				// Increased brightness and sharper core
+				float glow = (size * flicker) / max(d * d, 0.0001);
+				glow += (size * 0.5) / max(d, 0.0001); // Halo
+				
+				vec3 pCol = 0.5 + 0.5 * cos(vec3(0, 1, 3) + seed + time * 0.2);
+				// DIMMED PARTICLES: (multiply by 0.04 instead of 0.1)
+				col += pCol * glow * 0.04;
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var moltenGold = window.moltenGold = `
+		// Thick viscous liquid gold
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = fragCoord.xy / iResolution.xy;
+			float time = iTime * 0.15;
+			
+			for(float n = 1.0; n < 6.0; n++) {
+				uv.x += 0.2 * sin(n * uv.y + time + n);
+				uv.y += 0.2 * sin(n * uv.x + time + n);
+			}
+			
+			float d = sin(uv.x + uv.y);
+			vec3 col = mix(vec3(1.0, 0.7, 0.1), vec3(0.5, 0.2, 0.0), d);
+			col += 0.2 * pow(max(0.0, 1.0 - abs(d)), 10.0); // Specular highlight
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var quantumLattice = window.quantumLattice = `
+		// Pulsing grid of quantum "diodes"
+		float q_hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.4;
+			
+			float scale = 40.0;
+			vec2 gv = fract(uv * scale) - 0.5;
+			vec2 id = floor(uv * scale);
+			
+			float n = q_hash(id);
+			float pulse = 0.5 + 0.5 * sin(time + n * 6.28);
+			
+			float d = length(gv);
+			float diode = (0.02 * pulse) / (d + 0.001);
+			
+			vec3 col = 0.5 + 0.5 * cos(vec3(0, 2, 4) + n * 10.0 + time * 0.5);
+			col *= diode * smoothstep(0.5, 0.2, length(uv)); // Fade out at edges
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var digitalRainfall = window.digitalRainfall = `
+		// Granular vertical streaks of light
+		float d_hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = fragCoord.xy / iResolution.xy;
+			float time = iTime * 0.8;
+			
+			float x = floor(uv.x * 100.0);
+			float h = d_hash(vec2(x, 0.0));
+			float y = fract(uv.y + time * (0.2 + h * 0.5) + h);
+			
+			float streak = smoothstep(0.1, 0.0, abs(y - 0.5)) * h;
+			streak *= step(0.95, d_hash(vec2(x, floor(uv.y * 20.0 + time * 5.0))));
+			
+			vec3 col = vec3(0.2, 0.5, 1.0) * streak * 2.0;
+			col += vec3(0.1, 0.2, 0.4) * streak * (0.01 / abs(fract(uv.x * 100.0) - 0.5));
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var atomicOrbits = window.atomicOrbits = `
+		// Tiny particles in orbital motion
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<20.0; i++) {
+				float t = time * (1.0 + i * 0.1) + i * 6.28 / 20.0;
+				float r = 0.1 + i * 0.02;
+				vec2 pos = vec2(cos(t), sin(t)) * r;
+				
+				float d = length(uv - pos);
+				float size = 0.001 + 0.002 * sin(t * 2.0);
+				float glow = size / (d * d + 0.00001);
+				
+				col += (0.5 + 0.5 * cos(vec3(0, 1, 2) + i)) * glow * 0.01;
+			}
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var logicLattice = window.logicLattice = `
+		// Rotating logic symbols and connecting traces
+		float ll_hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.4;
+			
+			vec2 p = uv * 15.0;
+			vec2 id = floor(p);
+			vec2 f = fract(p) - 0.5;
+			
+			float h = ll_hash(id);
+			vec3 col = vec3(0.01);
+			
+			// Logic gate symbol (L-shape or Plus)
+			float angle = floor(h * 4.0) * 1.57 + time * (h - 0.5) * 2.0;
+			mat2 r = mat2(cos(angle), sin(angle), -sin(angle), cos(angle));
+			vec2 rf = r * f;
+			
+			float sym = min(abs(rf.x) + step(0.0, rf.y), abs(rf.y) + step(0.0, rf.x));
+			sym = smoothstep(0.05, 0.0, abs(sym - 0.2));
+			
+			// Pulsing center "diode"
+			float pulse = 0.5 + 0.5 * sin(time * 2.0 + h * 6.28);
+			float diode = (0.005 * pulse) / (length(f) + 0.001);
+			
+			vec3 gateCol = 0.5 + 0.5 * cos(vec3(0, 1, 3) + h * 5.0 + time);
+			col += gateCol * (sym + diode * 10.0);
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var resonanceGrid = window.resonanceGrid = `
+		// Interference from two sources rendered as a fine mesh
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.6;
+			
+			vec2 s1 = vec2(sin(time), cos(time * 0.8)) * 0.3;
+			vec2 s2 = vec2(cos(time * 1.1), sin(time * 0.5)) * 0.3;
+			
+			float w1 = sin(length(uv - s1) * 40.0 - time * 5.0);
+			float w2 = sin(length(uv - s2) * 40.0 - time * 4.0);
+			float res = (w1 + w2) * 0.5;
+			
+			// Render as discrete point grid
+			vec2 gv = fract(uv * 50.0) - 0.5;
+			float point = smoothstep(0.2, 0.0, length(gv));
+			
+			vec3 col = mix(vec3(0.1, 0.0, 0.2), vec3(0.0, 1.0, 0.8), res * 0.5 + 0.5);
+			col *= point * (abs(res) + 0.2);
+			
+			// Brighter interference peaks
+			col += vec3(1.0) * smoothstep(0.9, 1.0, res) * point;
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var axiomParticles = window.axiomParticles = `
+		// Particles snapping to a hexagon grid but with organic transitions
+		float ax_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.3;
+			
+			uv *= 10.0;
+			// Hexagonal coordinates
+			vec2 s = vec2(1.0, 1.732);
+			vec2 h = s * 0.5;
+			vec2 a = mod(uv, s) - h;
+			vec2 b = mod(uv - h, s) - h;
+			vec2 gv = length(a) < length(b) ? a : b;
+			vec2 id = uv - gv;
+			
+			float h_val = ax_hash(id);
+			float pulse = 0.5 + 0.5 * sin(time * 2.0 + h_val * 6.28);
+			
+			// Diode-like centers
+			float d = length(gv);
+			float diode = (0.01 * pulse) / (d + 0.001);
+			
+			// Dynamic color with "ElectricFractal" palette
+			vec3 col = 0.5 + 0.5 * cos(vec3(0, 2, 4) + h_val * 10.0 + time);
+			col *= diode * (0.1 + 0.9 * step(0.1, pulse));
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var hypercubeProjection = window.hypercubeProjection = `
+		// Rotating hypercube "slices" with granular edges
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<4.0; i++) {
+				float t = time + i * 0.785;
+				// 4D-ish rotation logic simplified to nested 2D
+				vec2 p = uv;
+				p *= mat2(cos(t), sin(t), -sin(t), cos(t));
+				p = abs(p) - 0.2 - 0.1 * sin(t * 2.0);
+				p *= mat2(cos(t*0.5), sin(t*0.5), -sin(t*0.5), cos(t*0.5));
+				
+				float edge = 0.002 / abs(max(p.x, p.y));
+				float dots = step(0.9, fract(atan(p.y, p.x) * 10.0 + time * 5.0));
+				
+				col += (0.5 + 0.5 * cos(vec3(0, 1, 2) + i)) * edge * (0.5 + 0.5 * dots);
+			}
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var synapticFlow = window.synapticFlow = `
+		// Dense network of neurons with pulsing signals
+		float sf_hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.2;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<12.0; i++) {
+				float h = sf_hash(vec2(i, 1.23));
+				vec2 p1 = vec2(sf_hash(vec2(i, 2.34))-0.5, sf_hash(vec2(i, 3.45))-0.5) * 1.8;
+				vec2 p2 = vec2(sf_hash(vec2(i, 4.56))-0.5, sf_hash(vec2(i, 5.67))-0.5) * 1.8;
+				
+				// Line segment distance
+				vec2 pa = uv - p1, ba = p2 - p1;
+				float t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+				float d = length(pa - ba * t);
+				
+				// Signal moving along the line
+				float signal = fract(time * (0.2 + h * 0.3) + h);
+				float pulse = smoothstep(0.1, 0.0, abs(t - signal));
+				
+				vec3 lineCol = mix(vec3(0.1, 0.2, 0.4), vec3(0.2, 0.8, 1.0), pulse);
+				col += lineCol * (0.0005 / (d + 0.005)) * (1.0 + pulse * 10.0);
+			}
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var tesseractGrid = window.tesseractGrid = `
+		// Shifting 4D-ish grid projections
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.4;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<3.0; i++) {
+				float t = time + i * 1.1;
+				vec2 p = uv;
+				// Pseudo-4D rotation by nesting
+				p *= mat2(cos(t), sin(t), -sin(t), cos(t));
+				p = abs(p) - 0.2;
+				p *= mat2(cos(t*0.7), sin(t*0.7), -sin(t*0.7), cos(t*0.7));
+				
+				float grid = 0.001 / abs(p.x) + 0.001 / abs(p.y);
+				float pulse = 0.5 + 0.5 * sin(time * 2.0 + i);
+				
+				col += (0.5 + 0.5 * cos(vec3(0, 3, 5) + i)) * grid * pulse;
+			}
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var eventHorizonBloom = window.eventHorizonBloom = `
+		// Streaky, blooming accretion disk with intense granularity
+		float ehb_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			float d = length(uv);
+			float ang = atan(uv.y, uv.x);
+			
+			vec3 col = vec3(0.0);
+			if(d > 0.15) {
+				// Accretion disk streaks
+				for(float i=0.0; i<3.0; i++) {
+					float r = d * (20.0 + i * 10.0);
+					float a = ang + 3.0 / (d + 0.1) - time * (1.0 + i * 0.2);
+					vec2 p = vec2(cos(a), sin(a)) * r;
+					
+					float h = ehb_hash(floor(p));
+					float streak = smoothstep(0.9, 1.0, h) * (0.1 / abs(fract(p.x) - 0.5));
+					vec3 sCol = mix(vec3(1.0, 0.2, 0.0), vec3(1.0, 0.8, 0.2), i/3.0);
+					col += sCol * streak * smoothstep(0.8, 0.2, d);
+				}
+			}
+			
+			// The dark singularity
+			col *= smoothstep(0.15, 0.16, d);
+			// Bloom glow around the edge
+			col += vec3(1.0, 0.4, 0.1) * (0.005 / abs(d - 0.155));
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var chronosFragments = window.chronosFragments = `
+		// Temporal echoes and shattered fragments of time
+		float cf_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.4;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<5.0; i++) {
+				float t = time - i * 0.1; // Temporal offset
+				float cell_time = floor(t * 2.0);
+				
+				vec2 p = uv + vec2(sin(t), cos(t * 0.5)) * 0.3;
+				vec2 id = floor(p * 10.0);
+				float h = cf_hash(id + cell_time);
+				
+				if(h > 0.95) {
+					float d = length(fract(p * 10.0) - 0.5);
+					float burst = exp(-fract(t * 2.0) * 4.0);
+					vec3 fCol = mix(vec3(0.0, 0.5, 1.0), vec3(1.0, 0.2, 0.5), i/5.0);
+					col += fCol * (0.01 * burst / (d + 0.001));
+				}
+			}
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var etherealCurrent = window.etherealCurrent = `
+		// Shimmering spectral ripples with multi-colored grains
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			float d = length(uv);
+			float ripple = sin(d * 15.0 - time * 5.0);
+			
+			vec3 col = vec3(0.0);
+			// Multiple interference layers
+			for(float i=0.0; i<3.0; i++) {
+				vec2 p = uv + vec2(sin(time * 0.2 + i), cos(time * 0.3 + i)) * 0.3;
+				float r = length(p);
+				float s = sin(r * 20.0 - time * 4.0 + i * 2.0);
+				
+				// Prismatic grains
+				float grain = step(0.99, fract(sin(dot(fragCoord + i*100.0, vec2(12.98, 78.23))) * 43758.54));
+				vec3 pCol = 0.5 + 0.5 * cos(vec3(0, 1, 2) + i * 2.1 + time);
+				
+				col += pCol * (smoothstep(0.1, 0.0, abs(s)) * 0.3 + grain * 2.0);
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var dramaticVortex = window.dramaticVortex = `
+		// Aggressive, high-contrast granular storm
+		float dv_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.8;
+			
+			float d = length(uv);
+			float ang = atan(uv.y, uv.x) + 5.0 / (d + 0.1) - time * 5.0;
+			
+			vec3 col = vec3(0.0);
+			// Fast spinning shards
+			for(float i=0.0; i<3.0; i++) {
+				float r = d * (15.0 + i * 10.0);
+				vec2 p = vec2(cos(ang * (1.0 + i * 0.1)), sin(ang)) * r;
+				float h = dv_hash(floor(p));
+				
+				if(h > 0.9) {
+					float shard = 0.02 / (length(fract(p) - 0.5) + 0.01);
+					vec3 sCol = mix(vec3(1.0, 0.0, 0.1), vec3(0.2, 0.0, 0.0), i/3.0);
+					col += sCol * shard;
+				}
+			}
+			// Violent flashes
+			//- if(dv_hash(vec2(floor(time * 10.0))) > 0.95) {
+			//- 	col += vec3(0.5, 0.1, 0.1);
+			//- }
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var fractalMembrane = window.fractalMembrane = `
+		// Intricate, recursive granular surface
+		float fm_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.3;
+			
+			vec3 col = vec3(0.0);
+			vec2 p = uv;
+			for(float i=1.0; i<5.0; i++) {
+				p = abs(p) / dot(p, p) - 0.5;
+				p *= mat2(cos(time * 0.1 + i), sin(time * 0.1), -sin(time * 0.1), cos(time * 0.1));
+				
+				float d = length(p);
+				float grain = fm_hash(fragCoord + floor(time * 15.0));
+				vec3 pCol = 0.5 + 0.5 * cos(vec3(0, 2, 4) + i + time);
+				col += pCol * (0.03 / (d + 0.05)) * (0.8 + 0.2 * grain); // Increased line thickness
+			}
+			
+			fragColor = vec4(col * 0.6, 1.0); // Increased overall brightness
+		}
+	`;
+
+		// 122
+	var neonTidal = window.neonTidal = `
+		// Powerful waves of neon granular energy
+		float nt_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.6;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<3.0; i++) {
+				float speed = 1.0 + i * 0.5;
+				float wave = sin(uv.x * 5.0 + time * speed) * 0.2 + 
+								sin(uv.x * 12.0 - time * speed * 0.5) * 0.1;
+								
+				float d = abs(uv.y - wave);
+				float edge = 0.01 / (d + 0.01);
+				
+				float grain = nt_hash(fragCoord + floor(time * 30.0));
+				vec3 wCol = mix(vec3(0.0, 1.0, 0.8), vec3(1.0, 0.0, 0.5), i/3.0);
+				col += wCol * edge * (0.5 + 0.5 * step(0.9, grain));
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var prismDust = window.prismDust = `
+		// Exploding multi-colored particles in a dark void
+		float pd_hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 43758.54); }
+		
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.5;
+			
+			vec3 col = vec3(0.0);
+			for(float i=0.0; i<20.0; i++) {
+				float h = pd_hash(vec2(i, 45.67));
+				float t = fract(time * (0.1 + h * 0.2) + h);
+				
+				float r = t * 1.5;
+				float ang = h * 6.28 + time * (h - 0.5);
+				vec2 p = vec2(cos(ang), sin(ang)) * r;
+				
+				float d = length(uv - p);
+				float size = 0.02 * (1.0 - t);
+				float spark = smoothstep(size, 0.0, d);
+				
+				vec3 pCol = 0.5 + 0.5 * cos(vec3(0, 1, 2) + i * 1.2 + time);
+				col += pCol * spark * (0.5 + 0.5 * pd_hash(fragCoord + floor(time * 20.0)));
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var azureHaze = window.azureHaze = `
+		// Deep stratospheric scattering with soft grains
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.4;
+			
+			float d = length(uv);
+			vec3 col = mix(vec3(0.0, 0.2, 0.5), vec3(0.4, 0.7, 1.0), 1.0 - d);
+			
+			// Soft granular light scattering
+			float grain = fract(sin(dot(fragCoord, vec2(12.98, 78.23))) * 43758.54);
+			float haze = 0.5 + 0.5 * sin(time + uv.x * 2.0);
+			col += vec3(1.0) * grain * 0.05 * haze;
+			
+			// Wandering light rays
+			float ray = smoothstep(0.1, 0.0, abs(sin(uv.x * 2.0 + uv.y * 3.0 + time)));
+			col += vec3(0.8, 0.9, 1.0) * ray * 0.1 * (1.0 - d);
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;
+
+	var intricateMandala = window.intricateMandala = `
+		// Intricate, recursively folded polar mandala
+		void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+			vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
+			float time = iTime * 0.1;
+			
+			vec3 col = vec3(0.0);
+			vec2 p = uv;
+			
+			// Polar domain repetition and folding for extreme intricacy
+			for(float i = 0.0; i < 6.0; i++) {
+				p = abs(p) - 0.1 * i;
+				
+				float a = atan(p.y, p.x);
+				float r = length(p);
+				
+				// Kaleidoscopic angle folding
+				float fold = 6.0 + i * 2.0;
+				a = mod(a, 6.28318 / fold) - 3.14159 / fold;
+				p = r * vec2(cos(a), sin(a));
+				
+				// Rotation
+				float s = sin(time + i * 0.5);
+				float c = cos(time + i * 0.5);
+				p *= mat2(c, -s, s, c);
+				
+				// Draw extremely thin, soft lines
+				float d = abs(p.x - p.y);
+				float line = 0.0005 / (d + 0.0001);
+				
+				// Delicate hue shifts
+				vec3 lCol = 0.5 + 0.5 * cos(vec3(0, 1.5, 3.0) + time * 2.0 + i + r * 10.0);
+				col += lCol * line * smoothstep(0.8, 0.2, r);
+			}
+			
+			fragColor = vec4(col, 1.0);
+		}
+	`;

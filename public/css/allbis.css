@@ -1,4 +1,4 @@
-/*! tailwindcss v4.2.1 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
 @import url('https://fonts.cdnfonts.com/css/montserrat');
 @layer properties;
 html {
@@ -43,9 +43,6 @@ input, textarea, select {
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
-}
-legend {
-  color: #000000;
 }
 body {
   font: 13px/1.231 clean,sans-serif;
@@ -2836,7 +2833,13 @@ a.justtransp {
   left: 50%;
   margin-left: -180px;
 }
+.brackets {
+  top: -10px;
+}
 @media screen and (min-width: 768px) {
+  .brackets {
+    top: 60px;
+  }
   .navzoneinside {
     margin-top: 2em !important;
     margin-bottom: 2em !important;
@@ -2867,6 +2870,10 @@ a.justtransp {
   width: 360px;
   height: 202px;
   background: #232323;
+}
+.touch-action, .touch-action * {
+  touch-action: none !important;
+  user-select: none !important;
 }
 .loader {
   width: 48px;
@@ -2899,13 +2906,17 @@ a.justtransp {
     opacity: 0;
   }
 }
-.scrollingzone::-webkit-scrollbar {
+.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar {
   display: none;
 }
 .limited {
   max-width: 300px;
   float: right;
   clear: both;
+}
+.article hr {
+  background: rgba(255, 255, 255, .25);
+  margin: 20px 0;
 }
 .section_home .content {
   border-width: 0px !important;
@@ -2939,6 +2950,12 @@ a.justtransp {
   bottom: 50%;
   left: 0;
   right: 0;
+}
+.pix {
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  background: white;
 }
 .item:focus .arrowindic, .item:hover .arrowindic {
   display: block !important;
@@ -3268,12 +3285,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .static {
     position: static;
   }
-  .start {
-    inset-inline-start: var(--spacing);
-  }
-  .end {
-    inset-inline-end: var(--spacing);
-  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -3558,6 +3569,11 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .md\:w-80 {
     @media (width >= 48rem) {
       width: calc(var(--spacing) * 80);
+    }
+  }
+  .md\:max-w-80 {
+    @media (width >= 48rem) {
+      max-width: calc(var(--spacing) * 80);
     }
   }
   .md\:max-w-90 {

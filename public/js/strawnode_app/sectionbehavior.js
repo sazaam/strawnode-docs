@@ -3,7 +3,8 @@
 var slidings_sections = ['projects', 'studies'] ;
 var about_type_sliding_sections = ['about'] ;
 
-
+var GestureManager = require('./strawnode_modules/gesture') ;
+var KeyboardManager = require('./strawnode_modules/keyboard') ;
 
 module.exports = {
     /////////////////////////////////// CHECK & ADD|REMOVE CLASS ALONG CONDITION
@@ -23,6 +24,7 @@ module.exports = {
         // LANG Switches
         this.enableLang(cond, res) ;
         
+        this.intro_gesture(cond, res) ;
         // Slides
         this.intro_slides(cond, res) ;
         
@@ -31,8 +33,281 @@ module.exports = {
 
         this.project_hide(cond, res) ;
 
+        // Home Catchphrases
+        this.home_catchphrases(cond, res) ;
     },
+    home_catchphrases:function(cond, res){
+        if(res.name!='@') return ;
+        
+        var tw_pix, tw_fade ;
+        var brackets, zone ;
+        if(cond){
+            zone = $('.content').removeClass('flowYauto flowXhidden').addClass('flowvisible') ;
+            brackets = $('<div>').addClass('brackets flex rel justify-center HmarXLg padXLg rel flowvisible') ;
+            var qarr = [] ;
 
+            var quotes = i18next.t('quotes', { returnObjects: true }) ;
+
+            for(var s in quotes){
+                qarr.push(quotes[s]) ;
+            }
+            
+
+
+            var randomize = function(rr){
+                return parseInt(Math.random() * rr) - (rr >> 1) ;
+            }
+
+            var ql = qarr.length ;
+            var rand = res.userData.rand || parseInt(Math.random() * ql) ;
+            var bracketstxt = $('<div>').addClass('rel').css('white-space','pre-line').appendTo(brackets) ;
+            var bracketsbox = $('<div>').addClass('animz').css({'padding':'20px', 'background':'#FFFFFF11'}).appendTo(bracketstxt) ;
+            var txt = $('<div>').addClass('quote sizeM').css({'opacity': 0}).html(qarr[rand]).appendTo(bracketsbox) ;
+            
+            var lr = $('<div class="abs typo animz">').css({'bottom':'-20px', 'right':'20px'}).appendTo(bracketstxt) ;
+            var larr = $('<a href="javascript:void(0)">').addClass('larr HpadSm').html('&lt;').appendTo(lr) ;
+            var rarr = $('<a href="javascript:void(0)">').addClass('rarr HpadSm').html('&gt;').appendTo(lr) ;
+
+            var track = $('<div class="abs typo animz">').css({'bottom':'-20px', 'left':'20px', 'right':'120px', 'background':'white'}).appendTo(bracketstxt) ;
+            var lineback = $('<hr class="abs" />').css({'width':'100%','height':'1px', 'left':'30px', 'right':'0', top:'-7px', background:'#FFFFFF22'}).appendTo(track) ;
+            var linetrack = lineback.clone().css({'width':'20%', background:'#FFFFFF55'}).appendTo(track) ;
+
+            var timesec = 14 ;
+            var ii = 0 ;
+            var threshold = 5 ;
+            var prevDrawTime = (Date.now()) ;
+            var firstDrawTime = 0;
+            var dont = false ;
+            var refreshtrack = function(n){
+                n = dont ? 0 : n ;
+                linetrack.css({'width':(n / timesec * 100) + '%'}) ;
+            } ;
+
+            var animtrack = res.userData.animtrack = res.userData.animtrack || new BJS.$.Animation(undefined, function(n){
+                var now = Date.now() ;
+
+                if (firstDrawTime == 0) {
+                    firstDrawTime = now;
+                }
+
+                // I want to have a timecount that is given locally(this animation only)
+                // that gives me the time since the start, and removing any pause/stop times
+                // and that resets on anim.reset().
+
+                if(ii % threshold != 0){
+                    var loctime = (now - prevDrawTime) * .01 ; 
+                    if(loctime > (n - parseInt(n))){
+                        var elapsed = prevDrawTime - firstDrawTime;
+                        firstDrawTime = now - elapsed;
+                        prevDrawTime = now;
+                    }
+                    var gone = (prevDrawTime - firstDrawTime) * .001 ;
+                    prevDrawTime = now ;
+                    ii = ii % threshold ;
+                    refreshtrack((prevDrawTime - firstDrawTime) * .001) ;
+                    if(gone > timesec){
+                        rarr.trigger('click') ;
+                        dont = 1 ;
+                        prevDrawTime = firstDrawTime + .005 ;
+                    }
+                }
+                
+                ii ++ ;
+            }) ;
+
+            
+            animtrack.start() ;
+
+
+            var nnn = function(e){
+                e.preventDefault() ;
+                e.stopPropagation() ;
+                
+                dont = 1 ;
+                var now = Date.now() ;
+                prevDrawTime = now + .005 ;
+
+                if(!!res.userData.tw_fade && res.userData.tw_fade.isPlaying) res.userData.tw_fade.stop() ;
+                if(!!res.userData.tw_pix && res.userData.tw_pix.isPlaying) res.userData.tw_pix.stop() ;
+
+                if($(e.target).hasClass('larr')) rand -- ;
+                else rand ++ ;
+
+                rand = res.userData.rand = (ql + rand) % ql ;
+
+                var n = 18 ;
+                positions = positions.slice(n).concat(positions.slice(0, n)) ;
+                froms = froms.slice(n).concat(froms.slice(0, n)) ;
+                tweens = [] ;
+                
+                tw_fade = res.userData.tw_fade = BJS.create({target:animz, to:{opacity:0}, time:.25, ease:Linear.easeOut}) ;
+                tw_fade.onComplete = function(){
+                    
+                    firstDrawTime = Date.now() ;
+                    prevDrawTime = firstDrawTime + .005 ;
+
+                    txt.html(qarr[rand]) ;
+
+                    ww = bracketstxt.width() ;
+                    hh = bracketstxt.height() ;
+
+                    mw = ww >> 1 ;
+                    mh = hh >> 1 ;
+                    
+                    pixels.each(function(i, el){
+    
+                        var p = $(el) ;
+                        var tto = {
+                                'top::PX':randomize(hh),
+                                'left::PX':randomize(ww)
+                            } ;
+                        var tw1 = BJS.create({target:p, 
+                            to:tto,
+                            time:.125 + (.005125*i), 
+                            ease:Back.easeIn}) ;
+                        
+                        var tw2 = BJS.create({target:p, 
+                            to:place(i),
+                            from:tto,
+                            time:.125 + (.0005125*i), 
+                            ease:Expo.easeOut}) ;
+                            
+                        tweens.push(BJS.serial(tw1, tw2)) ;
+                    }) ;
+                    
+                    tw_pix = res.userData.tw_pix = BJS.serial(
+                        BJS.parallelTweens(tweens),
+                        BJS.create({target:animz, to:{opacity:100}, from:{opacity:0}, time:1.25, ease:Linear.easeOut} )
+                    ) ;
+                    
+                    tw_pix.play() ;
+                    tw_pix.onComplete = function(){
+                        firstDrawTime = Date.now() ;
+                        prevDrawTime = firstDrawTime + .005 ;
+                        dont = 0 ;
+                    }
+                }
+                
+
+                tw_fade.play() ;
+
+            }
+
+            larr.on('click', nnn) ;
+            rarr.on('click', nnn) ;
+
+            var place = function(i){
+                var to = {} ;
+                switch(true){
+                    // BR
+                    case (i < 10) :
+                        to['top::PX'] = mh ;
+                        to['left::PX'] = mw - i ;
+                    break;
+                    
+                    case (i >= 10 && i < 19) :
+                        to['top::PX'] = mh - (i - 10) ;
+                        to['left::PX'] = mw ;
+                    break;
+                    
+                    // TL
+                    case (i >= 19 && i < 28) :
+                        to['top::PX'] = -mh ;
+                        to['left::PX'] = -mw + (i - 19) ;
+                    break;
+                    case (i >= 28 && i < 37) :
+                        to['top::PX'] = -mh + (i - 28) ;
+                        to['left::PX'] = -mw;
+                    break;
+
+                    // TR
+                    case (i >= 37 && i < 46) :
+                        to['top::PX'] = -mh ;
+                        to['left::PX'] = mw - (i - 36) ;
+                    break;
+                    case (i >= 46 && i < 55) :
+                        to['top::PX'] = -mh + (i - 46) ;
+                        to['left::PX'] = mw ;
+                    break;
+                    
+                    // BL
+                    case (i >= 55 && i < 64) :
+                        to['top::PX'] = mh ;
+                        to['left::PX'] = -mw + (i - 55) ;
+                    break;
+                    case (i >= 64 && i < 73) :
+                        to['top::PX'] = mh - (i - 64) ;
+                        to['left::PX'] = -mw ;
+                    break;
+                }
+                return to ;
+            } ;
+            var bracketspix = $('<div>').addClass('abs bracketspix top50 left50').appendTo(bracketstxt) ;
+            var num = 10 ;
+            var total = num * 8 ;
+            var l = total - 8 ;
+            var positions = [], tweens = [], pixels, froms = [] ;
+
+            brackets.appendTo(zone) ;
+
+            var animz = $('.animz') ;
+            
+            var ww = bracketstxt.width() ;
+            var hh = bracketstxt.height() ;
+
+            var mw = ww >> 1 ;
+            var mh = hh >> 1 ;
+
+            for(var i = 0 ; i < l; i ++){
+                
+                var pix = $('<b>') ;
+                pix.addClass('pix') ;
+                pix.appendTo(bracketspix) ;
+                var from = {}, to = {} ;
+                
+                to = place(i) ;
+                
+                
+                from['top::PX'] = randomize(hh) ;
+                from['left::PX'] = randomize(ww) ;
+                
+                positions.push(to) ;
+                froms.push(from) ;
+                var tw = BJS.create({target:pix, 
+                    from:from, 
+                    to:to, 
+                    time:.5, 
+                    ease:Expo.easeInOut}) ;
+                tweens.push(tw) ;
+            }
+
+            BJS.serial(
+                BJS.parallelTweens(tweens),
+                BJS.create({target:txt, to:{opacity:100}, from:{opacity:0}, time:1.25, ease:Linear.easeOut} )
+            ).play() ;
+
+            
+
+            pixels = $('.pix') ;
+        }else{
+
+            if(!!res.userData.animtrack) {
+                res.userData.animtrack.stop() ;
+                res.userData.animtrack.destroy() ;
+                res.userData.animtrack = undefined ;
+                delete res.userData.animtrack ;
+            }
+
+            if(!!res.userData.tw_fade && res.userData.tw_fade.isPlaying) res.userData.tw_fade.stop() ;
+            if(!!res.userData.tw_pix && res.userData.tw_pix.isPlaying) res.userData.tw_pix.stop() ;
+
+
+            brackets = $('.brackets') ;
+            brackets.remove() ;
+            zone = $('.content').addClass('flowYauto flowXhidden').removeClass('flowvisible') ;
+        }
+
+    },
     verify_toggle:function verify_toggle(cond, res){
         // Projects Slides
         this.removeLoading() ;
@@ -117,7 +392,7 @@ module.exports = {
         if(!res.id.test(slidings_sections)) return ;
 
         if(cond){
-
+            $('.navzoneinside, .content').removeClass('hidden') ;
         }else{
             if(Unique.getInstance().hierarchy.changer.leavesNode() == 1)
                 $('.navzoneinside, .content').addClass('hidden') ;
@@ -207,8 +482,11 @@ module.exports = {
 
                         saz.html(sss = sss2.slice(0, sss.length + 1)) ;
 
-                        if(sss.length == sss2.length) {
+                        if(sss.length >= sss2.length) {
                             clearInterval(tw_letters_in) ;
+                            // trace('YOOOO FINISH')
+                            $('.webmcont img').remove() ;
+                            $('.webmcont video').removeClass('none') ;
                         }
                     }, thres) ;
                     block.data('int_in', tw_letters_in) ;
@@ -233,16 +511,8 @@ module.exports = {
                 var i18attr = desc.attr('i18n') ;
                 var trans, transdef, newtrans ;
 
-                // trace(i18next.t(desc.attr('i18n')+ '_0' + (res.id == '' ? 0 : res.id)))
                 var ttt = i18next.t(desc.attr('i18n')+ '_0' + (res.id == '' ? 0 : res.id)) ;
 
-
-                // var article = desc.find('.article_container') ;
-                
-                // if(article.size()){
-                //     BTW.to(article, {opacity:0}, .15, Linear.easeOut).play().onComplete = function(){article.remove()} ;
-                // }
-                
                 var hasJade = 0 ;
                 
                 if(i18attr.test('[$]$')){
@@ -263,6 +533,7 @@ module.exports = {
                     isJade = isJade || hasJade ;
 
                     setTimeout(() => {
+                        project_zone.find('.webms').remove() ;
                         tt.textAppear(desc, hasJade ? t : newtrans, unfound) ;
                     }, 2);
                 }
@@ -281,6 +552,7 @@ module.exports = {
                 
             })
         }
+
         return isJade ;
     },
     ///////////////////////////////////////////////////// SLIDES FROM THE PROJECT-LEVEL STEP
@@ -291,7 +563,6 @@ module.exports = {
         var tt = this ;
 
         var project_zone = $('.project_zone') ;
-
         var lr_nav = $('.projectsectionpanesnav a') ;
         var ud_nav = $('.project_zone .updownarr a') ;
         var info = $('.info a') ;
@@ -300,166 +571,130 @@ module.exports = {
         var ind = res.id == '' ? 0 : parseInt(res.id) ;
 
 
-        var isMob = Kompat.instance.isMobile ; 
-
-        var events = {
-            down:'mousedown',
-            move:'mousemove',
-            up:'mouseup',
-        }
-        
-        if(isMob){
-            events = {
-                down:'touchstart',
-                move:'touchmove',
-                up:'touchend',
-            }
-        }
-
-
         if(cond){
+
+            // Remove touch-action lock from parent's zoneall so native scroll works in deep sections
+            $('.zoneall').removeClass('touch-action') ;
+
+            // Hide ParentSection
             $('.navzoneinside, .content').addClass('hidden') ;
 
-            var noSlide = 0;
+
+            var next, prev ;
+
+            // HANDLING LR NAVIGATION BETWEEN CHILD STEPS
+            // JUST LIVE-CHANGE THEIR HREF
+            lr_nav.each(function(i, el){
+                var parsec = res.parentStep.id ;
+                var lang = document.documentElement.getAttribute('lang') ;
+                var a = $(el) ;
+                var isnext = a.hasClass('next') ;
+                var pind = (isnext ? ind + 1 : ind - 1) ;
+                var ppath = res.parentStep.path ;
+                var href = '#/' + lang + (ppath + '/' + (!isnext && ind == 1 ? '' : pind + '/')) ;
+                a.attr('href', href) ;
+
+                if(isnext) next = a ;
+                else prev = a ;
+                if((isnext && ind == res.parentStep.userData.slides.length - 1) || (!isnext && ind == 0)){
+                    a.addClass('transp') ;
+                }else{
+                    a.removeClass('transp') ;
+                }
+            })
+
+
             tt.ensureTranslates(res, project_zone) ;
-            var index_res = parseInt(res.name) ;
-            var curSlide = res.parentStep.userData.slides[isNaN(index_res) ? 0 : index_res] ;
-            noSlide = curSlide.noslide ;
             
+            var index_res = parseInt(res.name) ;
+            index_res = isNaN(index_res) ? 0 : index_res ;
+
+            var curSlide = res.parentStep.userData.slides[isNaN(index_res) ? 0 : index_res] ;
+            var noslide = curSlide.noslide ;
+
+
+
+
+            // BACKGROUND SLIDING
             var cineratio = 16/9 ;
             
+            var zoneel = project_zone.get(0) ;
+            var misted = $('.mist') ;
 
-            var getPageX = function(e){
-                return isMob ? e.originalEvent.touches[0].clientX : e.pageX ;
+            var is_slide = !noslide ;
+            
+            if(is_slide){
+                paneimg.css('background-position-x', '0%') ;
+                
+                var pW = paneimg.width() ;
+                var pH = paneimg.height() ;
+
+                /// SKIP X-SCROLL ON ASPECT RATIO
+                if(pW / pH <= cineratio) {
+
+                    var tw_back = res.userData.tw_back = BJS.delay(BJS.create({
+                        target:paneimg,
+                        to:{'background-position-x::%':100},
+                        from:{'background-position-x::%':0},
+                        time:5,
+                        ease:Physical.uniform(.3)
+                    }), 0, 2) ;
+                    
+                    tw_back.stopOnComplete = 0 ;
+                    tw_back.restart() ;
+                    
+                }
+                project_zone.addClass('touch-action') ;
+            }else{
+                project_zone.removeClass('touch-action') ;
+                $('.scrollingzone').attr('data-gesture-scroll', 'y') ;
             }
 
-            project_zone.on(events.down, res.userData.onPJ_MD = function(e){
+            res.userData.gestureEl = zoneel ;
+
+            GestureManager.listen(res, {
                 
-                if(!isMob){
-                    e.preventDefault() ;
-                    e.stopPropagation() ;
-                }
-
-                var panes = $('.project_section_panes') ;
-                var top = panes.position().top ;
-                var bottom = top + panes.height() ;
-                // alert(!!e.originalEvent.touches[0])
-                var Y = e.clientY || e.originalEvent.touches[0].clientY ;
-                if(Y > bottom || Y < top){
-                    return window.location.hash = $('.close_project a').attr('href') ;
-                }
-                
-                if(!noSlide){
-
-                    var misted = $('.mist') ;
-                    var pW = paneimg.width() ;
-                    var pH = paneimg.height() ;
-
-                    /// SKIP X-SCROLL ON ASPECT RATIO
-                    if(pW / pH > cineratio) return ;
-
-                    var el = $(e.target) ;
-                    var tag = el.prop('tagName') ;
+                swipe: function(e) {
                     
-                    if(!tag.test('A', 'SVG', 'PATH', '/i')) {
-                        
-                        var bgDef = paneimg.css('background-position-x') || '50%' ;
-                        var bgX = parseInt(bgDef.replace('%', '')) ;
-                        var pe = getPageX(e) ;
-                        var diff, clamped ;
-                        var move, up ;
-                        
-                        misted.css('opacity', .1) ;
-
-                        project_zone.on(events.move, move = function(e){
-                            
-                            diff = (pe - getPageX(e)) ;
-                            clamped = (bgX + parseInt(diff / (pW/2) * 100)).clamped(-3, 103) ;
-                            paneimg.css('background-position-x', clamped + '%') ;
-
-                        }) ;
-
-                        project_zone.on(events.up, up = function(e){
-                            
-                            bgX = clamped ;
-                            if(bgX > 100 || bgX < 0){
-                                BJS.create({
-                                    target:paneimg,
-                                    to:{"background-position-x::%":bgX < 0 ? 0 : 100},
-                                    time:.15,
-                                    ease:Back.easeOut
-                                }).play() ;
-                            }
-
-                            misted.css('opacity', 1) ;
-
-                            project_zone.off(events.move, move) ;
-                            project_zone.off(events.up, up) ;
-                            project_zone.off('mouseout', up) ;
-                        })
-                        project_zone.on('mouseout', up) ;
+                    var dir ;
+                    var enabled ;
+                    switch(e.direction){
+                        case 'right' :
+                            enabled = !prev.hasClass('transp') ;
+                            dir = prev.attr('href') ;
+                        break ;
+                        case 'left' :
+                            enabled = !next.hasClass('transp') ;
+                            dir = next.attr('href') ;
+                        break ;
+                        case 'down' :
+                            enabled = true ;
+                            dir = $('.contentzone .prev_section a').attr('href') ;
+                        break ;
+                        case 'up' :
+                            enabled = true ;
+                            dir = $('.contentzone .next_section a').attr('href') ; ;
+                        break ;
                     }
+                    
+                    if(enabled) window.location = dir ;
                 }
+            });
 
-            }) ;
             
-
-			lr_nav.each(function(i, el){
-				var a = $(el) ;
-				if(a.hasClass('prev')){
-					if(ind == 0) a.addClass('transp') ;
-					else a.removeClass('transp') ;
-				}else{
-					if(ind == res.parentStep.userData.slides.length - 1) a.addClass('transp') ;
-					else a.removeClass('transp') ;
-				}
-			})
-
-			lr_nav.on('mousedown', res.userData.onLR_MD = function(e){
-				var a = $(e.target) ;
-				var way = a.hasClass('next') ? 1 : -1 ;
-				var lang = document.documentElement.getAttribute('lang') ;
-				var n = ind ;
-				var h ;
-				var prefix = '#/' + lang ;
-				
-				if(way == 1){
-					n++ ;
-					if(n == 0) h = prefix + res.path + n + '/' ;
-					else h = prefix + res.parentStep.path  + '/' + n + '/' ;
-				}else{
-					n-- ;
-					if(n == 0) h = prefix + res.parentStep.path + '/' ;
-					else h = prefix + res.parentStep.path  + '/' + n + '/' ;
-				}
-				window.location.hash = h ;
-			}) ;
-
-			ud_nav.on('mousedown', res.userData.onUD_MD = function(e){
-				var a = $(e.target) ;
-				var way = a.hasClass('aft') ? 1 : -1 ;
-				var ind = res.parentStep.index ;
-				var lang = document.documentElement.getAttribute('lang') ;
-				var prefix = '#/' + lang ;
-				var n = ind ;
-				var ch = res.parentStep.parentStep.children ;
-				var l = ch.length ;
-
-				if(way == 1) n++ ;
-				else n-- ;
-				
-				n = (l + n) % l ;
-				window.location.hash = prefix + ch[n].path + '/' ;
-			}) ;
-
+            
 
 
         }else{
-            paneimg.css('background-position-x', '50%') ;
+            var tw_back = res.userData.tw_back ;
+            if(!!tw_back) {
+                tw_back.stop() ;
+            }
+            
+            paneimg.css('background-position-x', '0%') ;
 
-			lr_nav.off('mousedown', res.userData.onLR_MD) ;
-			ud_nav.off('mousedown', res.userData.onUD_MD) ;
-			project_zone.off(events.down, res.userData.onPJ_MD) ;
+            // Restore touch-action lock on parent's zoneall when returning from deep section
+            $('.zoneall').addClass('touch-action') ;
 
             // Ensures it Hides/Unhides ParentSection Content only if it is leaving the stage
             if(Unique.getInstance().hierarchy.changer.leavesNode() == -1){
@@ -539,7 +774,7 @@ module.exports = {
     project_slides:function project_slides(cond, res){
         
         if(!res.id.test(slidings_sections)) return ;
-        
+
         if(cond){
             var tt = this ;
             var project_pane = $('.project_pane') ;
@@ -561,7 +796,7 @@ module.exports = {
                     
                     res.userData.fast = 2 ;
                     var sss = $(project_pane.get(n)) ;
-                    sss.trigger('mousedown') ;
+                    sss.trigger('click') ;
                     res.userData.fast = false ;
 
                 }
@@ -574,11 +809,11 @@ module.exports = {
             arr.each(function(i, el){
                 var a = $(el) ;
                 var ind ;
-                a.on('mousedown', function(e){
+                a.on('click', function(e){
                     if(!!tww && tww.isPlaying) return false ;
                     arranged = tt.itemsByPos(project_pane, true) ;
                     var target = a.hasClass('aft') ? half + 1 : half - 1 ;
-                    $(arranged.get(target)).trigger('mousedown') ;
+                    $(arranged.get(target)).trigger('click') ;
                 })
             })
             
@@ -587,7 +822,7 @@ module.exports = {
             var locallinks = $('.localnav ul li a') ;
             locallinks.attr('href', 'javascript:void(0)')
 
-            locallinks.on('mousedown', function(e){
+            locallinks.on('click', function(e){
                 if(!!tww && tww.isPlaying) return false ;
 
                 var el = $(e.target) ;
@@ -595,7 +830,7 @@ module.exports = {
                 
                 var ind = $('.localnav ul li a').index(el) ;
                 var target = half + ind ;
-                $(arranged.get(target)).trigger('mousedown') ;
+                $(arranged.get(target)).trigger('click') ;
                 
                 return false ;
             })
@@ -613,7 +848,7 @@ module.exports = {
             var arranged, way, tww, oldie = flagCurrent(true,  $(project_pane.get(0))) ;
             
 
-            project_pane.on('mousedown', function(e){
+            project_pane.on('click', function(e){
 
                 if(!!tww && tww.isPlaying) return ;
 
@@ -766,7 +1001,7 @@ module.exports = {
 
             var lrnav = project_pane.find('.panenav a') ;
             
-            lrnav.mousedown(function(e){
+            lrnav.on('click', function(e){
                 e.cancelable && e.preventDefault() ;
                 e.stopPropagation() ;
                 var el = $(e.currentTarget) ;
@@ -782,7 +1017,7 @@ module.exports = {
             })
 
             var lrlocal = $('.localnav .lr_arrows a') ;
-            lrlocal.mousedown(function(e){
+            lrlocal.on('click', function(e){
                 e.cancelable && e.preventDefault() ;
                 e.stopPropagation() ;
                 var el = $(e.currentTarget) ;
@@ -798,16 +1033,49 @@ module.exports = {
                 return false ;
             })
 
-            
-        }else{
-            
+            $('.zoneall').addClass('touch-action') ;
+            res.userData.gestureEl = $('.zoneall').get(0) ;
 
+            GestureManager.listen(res, {
+                
+                swipe: function(e) {
+                    // trace('SWIPE_EVENT direction='+e.direction+' dX='+e.distanceX.toFixed(0)+' dY='+e.distanceY.toFixed(0)+' vX='+e.velocityX.toFixed(3)+' vY='+e.velocityY.toFixed(3)+' ms='+e.timeTaken.toFixed(0));
+                    var dir ;
+                    var enabled ;
+                    switch(e.direction){
+                        case 'right' :
+                            // enabled = !prev.hasClass('transp') ;
+                            // dir = prev.attr('href') ;
+                            loclarr.trigger('click') ;
+                        break ;
+                        case 'left' :
+                            // enabled = !next.hasClass('transp') ;
+                            // dir = next.attr('href') ;
+                            locrarr.trigger('click') ;
+                        break ;
+                        case 'down' :
+                            // enabled = true ;
+                            $('.updownarr a.bef').trigger('click') ;
+                            // dir = $('.contentzone .prev_section a').attr('href') ;
+                        break ;
+                        case 'up' :
+                            $('.updownarr a.aft').trigger('click') ;
+                            // enabled = true ;
+                            // dir = $('.contentzone .next_section a').attr('href') ; ;
+                        break ;
+                    }
+                    
+                    // if(enabled) window.location = dir ;
+                }
+            });
         }
     },
     ///////////////////////////////////////////////////// SMALLER HORIZONTAL SLIDES IN ABOUT INTRO SECTION
     intro_slides : function intro_slides(cond, res){
         if(!res.parentStep.id.test(about_type_sliding_sections)) return ; // return if we are NOT in the right section
         
+
+
         var sl = $('.about.slides') ;
         var tt = this ;
         if(sl.size()){
@@ -816,7 +1084,7 @@ module.exports = {
             var sls = sl.find('.unit') ; 
             var l = sls.size() ;
             var next = sl.find('.next'), prev = sl.find('.prev') ;
-            var i = 0 ;
+            
             var tw ;
             if(cond){
                 res.userData.sl_click = function(e){
@@ -841,13 +1109,85 @@ module.exports = {
                     tt.treatClass(prev, 'transp', i != 0) ;
 
                 } ;
-                sl.find('a').on('mousedown', res.userData.sl_click)
+                sl.find('a').on('click', res.userData.sl_click) ;
+
+
+                
+                res.userData.gestureEl = $('.zoneall') ;
+
+                GestureManager.listen(res, {
+                    
+                    swipe: function(e) {
+                        // trace('swiped', 'DIRECTION: ' + e.direction.toUpperCase());
+                        // trace(e.direction)
+                        var dir ;
+                        var enabled ;
+                        switch(e.direction){
+                            case 'right' :
+                                if(i > 0)
+                                prev.trigger('click') ;
+                            break ;
+                            case 'left' :
+                                if(i < 2)
+                                next.trigger('click') ;
+                            break ;
+                            case 'down' :
+                                window.location = $('.backlink').attr('href')
+                            break ;
+                            case 'up' :
+                                window.location = $('.furtherlink').attr('href') ;
+                            break ;
+                        }
+                        
+                    }
+                });
+
+
+
+
+
+
             }else{
-                sl.find('a').off('mousedown', res.userData.sl_click)
+                sl.find('a').off('click', res.userData.sl_click)
             }
         }
     },
+    intro_gesture : function intro_gesture(cond, res){
+        
+        if(res.name != 'about') return ;
 
+        if(cond){
+
+            res.userData.gestureEl = $('.zoneall') ;
+
+            GestureManager.listen(res, {
+                
+                swipe: function(e) {
+                    // trace('swiped', 'DIRECTION: ' + e.direction.toUpperCase());
+                    // trace(e.direction)
+                    var dir ;
+                    var enabled ;
+                    switch(e.direction){
+                        case 'right' :
+                            
+                        break ;
+                        case 'left' :
+                            
+                        break ;
+                        case 'down' :
+                            window.location = $('.close').attr('href')
+                        break ;
+                        case 'up' :
+                            window.location = $('.furtherlink').attr('href') ;
+                        break ;
+                    }
+                    
+                }
+            });
+        }else{
+
+        }
+    },
     ///////////////////////////////////////////////////// SHADERS BACKGROUND ENABLING GLOBAL
     back_shaders : function back_shaders(cond, res){
         if(!!window.shaderEnabled){
@@ -864,7 +1204,37 @@ module.exports = {
                 var sh = shaders = {
                     //- shaders:[next, paintedvortex, rays_storm, ],
                     // shaders:[next, crosszoom, crossholy, paintedvortex, glowers, clouds, simplex, hsvmedusas, warpy, siny, smoky, bumpsine, matrixcity, turbuly, snaky, clouds2D, airplane, rays_storm, tuby, voids, causticball, watery, /* digitalbrain, */ twiggly, squarevortex, twisty, bubbly, voidstars, phoenix, particly, matrix, cloudyskies, meteor, marbly, rainy, shapy, laserdance, voidspace, snowy],
-                    shaders:[next, simplex, crosszoom, warpy, bumpsine, matrixcity, clouds2D, rays_storm, siny, tuby, voids, causticball, squarevortex, twisty, meteor, rainy, shapy, voidspace],
+                    shaders:[next, simplex, crosszoom, warpy, bumpsine, matrixcity, 
+                        liquidGold,
+                        chromaticVortex,
+                        neonNebulaV2,
+                        burningPaper,
+                        frostedPlasma,
+                        holographicSilk,
+                        abstractNebula,
+                        interstellarTunnel,
+                        electricFractal,
+                        dreamyParticles,
+                        moltenGold,
+                        quantumLattice,
+                        digitalRainfall,
+                        atomicOrbits,
+                        logicLattice,
+                        resonanceGrid,
+                        axiomParticles,
+                        hypercubeProjection,
+                        synapticFlow,
+                        tesseractGrid,
+                        eventHorizonBloom,
+                        chronosFragments,
+                        etherealCurrent,
+                        dramaticVortex,
+                        fractalMembrane,
+                        neonTidal,
+                        prismDust,
+                        azureHaze,
+                        intricateMandala,
+                        clouds2D, rays_storm, siny, tuby, voids, causticball, squarevortex, twisty, meteor, rainy, shapy, voidspace],
                     calcCanvasSize:function calcCanvasSize() {
                         var can = $('#'+id) ;
                         var wr = can.parent() ;
@@ -910,7 +1280,7 @@ module.exports = {
                 var pp = $('.shadernav a.prev') ; 
                 var nn = $('.shadernav a.next') ; 
         
-                $('.shadernav a').on('mousedown', function(e){
+                $('.shadernav a').on('click', function(e){
                     var el = $(e.target) ;
                     var way = el.hasClass('next') ;
                     i += way ? 1 : -1 ;

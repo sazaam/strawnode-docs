@@ -164,10 +164,17 @@ a.justtransp{
 }
 
 .project_pane{left:50%;margin-left:-180px;}
-
+.brackets {
+	top:-10px;
+}
 
 /* > 1024  */ 
  @media screen and (min-width: 768px) {
+	
+	.brackets {
+		top:60px;
+	}
+
 	.navzoneinside{
 		margin-top:2em !important;
 		margin-bottom:2em !important;
@@ -209,6 +216,10 @@ a.justtransp{
 	background:#232323
 }
 
+.touch-action, .touch-action *{
+	touch-action: none !important; 
+	user-select: none !important;
+}
 
 
 .loader {
@@ -245,7 +256,7 @@ a.justtransp{
   }
 }
 
-.scrollingzone::-webkit-scrollbar {
+.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar {
   display: none;
 }
 
@@ -253,6 +264,12 @@ a.justtransp{
 	max-width:300px;
 	float:right;
 	clear:both;
+}
+
+
+.article hr{
+	background:rgba(255, 255, 255, .25) ;
+	margin:20px 0 ;
 }
 
 
@@ -294,6 +311,16 @@ a.justtransp{
 	bottom:50%;
 	left:0;
 	right:0;
+}
+
+
+
+
+.pix{
+	width:1px;
+	height:1px;
+	position:absolute;
+	background:white;
 }
 
 .item:focus .arrowindic, .item:hover .arrowindic{

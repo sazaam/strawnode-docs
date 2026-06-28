@@ -6,6 +6,9 @@
     
 	
 	
+	
+
+	
 	var EventEnhancer = Type.define({
 		domain:Type.appdomain,
 		pkg:'events',
@@ -51,265 +54,7 @@
 					})() ;
 				}
 						
-				//////// TOUCH
-				if(!!options.touch){
-					(function(){
-						var touchstarted = false ;
-						var touchmoved = false ;
-						var hastodo = false ;
-						var touchuid ;
-						var stx, sty , xx = 0, yy = 0, distX, distY, way ;
-						
-						var touchupclosure , touchdownclosure, touchmoveclosure ;
-						
-						var range = 150 ;
-						var noactionrange = 25 ;
-						
-						
-						this.OSMoving = false ;
-						
-						
-						if(!!options.touch.mobile){
-							if(!isMob) return ;
-							
-							document.addEventListener('touchstart', touchdownclosure = function(e){
-								
-								
-								e.stopPropagation() ;
-								e.stopImmediatePropagation() ;
-								
-								ww.trigger({
-									type:"OStouchstart",
-									originalEv:e
-								}) ;
-								
-								var l = e.touches.length ;
-								
-								if(l == 1){
-									
-									document.addEventListener('touchmove', touchmoveclosure = function(ev){
-										var l = ev.touches.length ;
-										
-										if(l == 1){
-											ev.cancellable && ev.preventDefault() ;
-											var tch = ev.touches[0] ;
-											
-											
-											
-											if(!touchmoved){
-												stx = tch.pageX ;
-												sty = tch.pageY ;
-												distX = 0 ;
-												distY = 0;
-												hastodo = true ;
-												ww.trigger({
-													type:"OStouchmovestart",
-													originalEv:ev
-												}) ;
-												EventEnhancer.OSMoving = true ;
-											}else{
-												ww.trigger({
-													type:"OStouchmove",
-													originalEv:ev
-												}) ;
-												distX = stx - tch.pageX ;
-												distY = sty - tch.pageY;
-												xx = Math.max(distX, tch.pageX - stx) ;
-												yy = Math.max(distY, tch.pageY - sty) ;
-												way = (xx > yy) ? 'x' : 'y' ;
-												if(xx > range || yy > range){
-													if(way == 'x') 
-														ww.trigger(
-														{
-															type:"OStouchmoveX",
-															distance:distX,
-															originalEv:ev
-														}) ;
-													else 
-														ww.trigger(
-														{
-															type:"OStouchmoveY",
-															distance:distY,
-															originalEv:ev
-														}) ;
-													hastodo = false ;
-													stx = tch.pageX ;
-													sty = tch.pageY ;
-												}
-											}
-											touchmoved = true ;
-										}
-										
-									}, {passive:false} ) ;
-									
-									
-									document.addEventListener('touchend', touchupclosure = function(ev){
-										var l = ev.touches.length ;
-										
-										if(l == 0){
-											ww.trigger({
-													type:"OStouchend",
-													originalEv:ev
-											}) ;
-											document.removeEventListener('touchend', touchupclosure) ;
-											document.removeEventListener('touchmove', touchmoveclosure) ;
-											
-											if(touchmoved){
-												ww.trigger({
-													type:"OStouchmoveend",
-													originalEv:ev
-												}) ;
-												
-												if(hastodo){
-													if(way == 'x'){
-														if(xx > noactionrange && distX !== 0){
-															ww.trigger(
-																{
-																type:"OStouchmoveX",
-																distance:distX,
-																originalEv:ev
-															}) ;
-														}							
-													}else{
-														if(yy > noactionrange && distY !== 0){
-															ww.trigger(
-															{
-																type:"OStouchmoveY",
-																distance:distY,
-																originalEv:ev
-															}) ;
-														}
-													}
-													hastodo = false ;
-												}
-												EventEnhancer.OSMoving = false ;
-												touchmoved = false ;
-											}
-											
-										}
-										
-										
-									}, {passive:false} ) ;
-								}
-								
-								
-							}, {passive:false} ) ;
-							
-							
-						}
-						
-						if(options.touch.pc){
-							if(isMob) return ;
-							
-							ww.on('mousedown', touchdownclosure = function(e){
-								
-								e.cancellable && e.preventDefault() ;
-								e.stopPropagation() ;
-								e.stopImmediatePropagation() ;
-								
-								if (e.which === 3) return ;
-		
-								ww.trigger({
-									type:"OStouchstart",
-									originalEv:e
-								}) ;
-								ww.on('mousemove', touchmoveclosure = function(ev){
-									
-									if(!touchmoved){
-										stx = ev.pageX ;
-										sty = ev.pageY ;
-										distX = 0 ;
-										distY = 0;
-										hastodo = true ;
-										ww.trigger({
-											type:"OStouchmovestart",
-											originalEv:ev
-										}) ;
-										EventEnhancer.OSMoving = true ;
-									}else{
-										ww.trigger({
-											type:"OStouchmove",
-											originalEv:ev
-										}) ;
-										distX = stx - ev.pageX ;
-										distY = sty - ev.pageY;
-										xx = Math.max(distX, ev.pageX - stx) ;
-										yy = Math.max(distY, ev.pageY - sty) ;
-										way = (xx > yy) ? 'x' : 'y' ;
-										if(xx > range || yy > range){
-											if(way == 'x') 
-												ww.trigger(
-												{
-													type:"OStouchmoveX",
-													distance:distX,
-													originalEv:ev
-												}) ;
-											else 
-												ww.trigger(
-												{
-													type:"OStouchmoveY",
-													distance:distY,
-													originalEv:ev
-												}) ;
-											hastodo = false ;
-											stx = ev.pageX ;
-											sty = ev.pageY ;
-										}
-									}
-									touchmoved = true ;
-								})
-								ww.on('mouseup', touchupclosure = function(ev){
-									ev.cancellable && ev.preventDefault() ;
-									ev.stopPropagation() ;
-									ev.stopImmediatePropagation() ;
-									
-									
-									
-									ww.off('mouseup', touchupclosure) ;
-									ww.off('mousemove', touchmoveclosure) ;
-									
-									if(touchmoved){
-										ww.trigger({
-											type:"OStouchmoveend",
-											originalEv:ev
-										}) ;
-										if(hastodo){
-											if(way == 'x'){
-												if(xx > noactionrange && distX !== 0){
-													ww.trigger(
-													{
-														type:"OStouchmoveX",
-														distance:distX,
-														originalEv:ev
-													}) ;
-												}							
-											}else{
-												if(yy > noactionrange && distY !== 0){
-													ww.trigger(
-													{
-														type:"OStouchmoveY",
-														distance:distY,
-														originalEv:ev
-													}) ;
-												}
-											}
-											hastodo = false ;
-										}
-										EventEnhancer.OSMoving = false ;
-										touchmoved = false ;
-									}
-									
-									setTimeout(function(){ww.trigger({
-										type:"OStouchend",
-										originalEv:ev
-									})}, 30) ;
-								})
-							})
-								
-							
-						}
-					})() ;
-				}
+				
 				
 				if(!!options.arrows){
 				
@@ -489,6 +234,10 @@
 	}) ;
 	
 
+	
+
+
+
     var halted = false;
 
     var pauseBetween = function() {
@@ -528,16 +277,7 @@
         if (!!AT.started && !halted) AT.restoreSystem();
     }) 	
 	
-    /* 
-    $(window).on('OStouchmoveX', function(e){
-        var delta = e.distance > 0 ? + 1 :  - 1 ;
-        alert('TOUCH')  
-        // trace('TOUCH',  delta)  
-    })
-		 */
-
-
-    /**/
+    
 	
 
 })();

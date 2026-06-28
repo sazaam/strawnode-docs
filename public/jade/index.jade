@@ -287,8 +287,6 @@ block content
 			}
 
 			init();
-
-
 	
 
 	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.context
@@ -317,14 +315,12 @@ block content
 						+gen_alpha_link('Enter', null, 'enterlink')
 				//- here should include the correct template along section
 	.shadernav.abs.top0.left0.zi30(class="w-28")
-			+lr_arrows('l', 't', 'Tmar LmarLg')
+		+lr_arrows('l', 't', 'Tmar LmarLg')
 	
-	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/jade.js") 
-	//- script(type="text/javascript", src="/js/strawnode_app/strawnode_modules/strawnode_modules/marked.js") 
 	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/i18next.js")
 	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/shadertoylite.js")
 	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/lazyload.js")
-	script(type="text/javascript", src="/js/strawnode_async.js?starter=./strawnode_app/")
+	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/")
 
 	//- here loading in relative breaks the direct deeplinking feature coming from url with no /#/en/...
 	

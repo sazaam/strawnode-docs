@@ -5,7 +5,6 @@ block content
 	//- +log(typeof module == 'undefined' )
 	
 	- var isHome = response.id == '@' ;
-	- var n = isHome ? 1 : 6 ;
 	- let resid = response.id ;
 
 	case resid
@@ -69,13 +68,8 @@ block content
 				.HpadXXLg.txtL
 					+article_about()
 		default
-			.VpadXLg(class="max-w-80")
-				- for(var i = 0 ; i < n ; i++ ){
-					.HpadXXLg.TpadSm.whitetranspTXT.txtL
-						+article_about()
-					- if(i != n - 1){
-						hr.whitetranspBG.Vmar
-					- }
-				- }
+			.VpadXLg(class="md:max-w-80")
+				.HpadXXLg.TpadSm.whitetranspTXT.txtL
+					+article(response.name + '.article')
 	
 	

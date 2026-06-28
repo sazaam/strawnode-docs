@@ -5,7 +5,7 @@ var RGB = BJS.$.ColorMode.RGB ;
 var HSV = BJS.$.ColorMode.HSV ;
 
 var sectionbehavior = require('./sectionbehavior') ;
-var events = require('./events', {touch:{mobile:1, pc:1}}) ;
+var events = require('./events') ;
 
 
 module.exports = {
@@ -241,8 +241,8 @@ module.exports = {
 			rand += 120 ;
 		}
 
-		var color = res.userData.color = res.userData.color || {h:rand, s:70, v:30} ;
-		
+		var color = res.userData.color = res.userData.color || ((res.name == '@') ? {h: 259, s: 70, v: 30} : {h:rand, s:70, v:30}) ;
+
 		var templateA, templateB ;
 
 		var dims = res.userData.dims = res.userData.dims || {

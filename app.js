@@ -11,7 +11,8 @@
 console.log("Launching in ", process.env.NODE_ENV , "mode...") ;
 
 //////////////////////////////////////// ENVIRONMENT SETTINGS
-require('dotenv').config();
+
+//require('dotenv').config();
 //////////////////////////////////////// END ENVIRONMENT SETTINGS
 
 
@@ -115,87 +116,20 @@ const app = express();
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: false }));
 	app.use(cookieParser());
-	// app.use(logger('tiny'));
+	app.use(logger('tiny'));
+	
 	// access static files
 	
 /////// STATIC 
-// app.use(express.static(path.join(__dirname, 'public'), {fallthrough: true, index:false}));
-app.use(express.static(path.join(__dirname, 'public')));
+	// app.use(express.static(path.join(__dirname, 'public'), {fallthrough: true, index:false}));
+	app.use(express.static(path.join(__dirname, 'public'), {index:false}));
+	// app.use(express.static(path.join(__dirname, 'public')));
 
 	
 })(app);
 
+console.log('SHOULD BE RUNNING')
 
-
-//let i18nextMiddleware = i18.i18nextMiddleware ; 
-
-
-
-
-/*
-
-////////////////////////////////////////// AUTH 
-
-//////// REMEMBER SETTING as 'localhost' fails, while '127.0.0.1' does the trick
-getSiteClient = ()=>{
-	return new GraphQLClient(CONSTANTS.PATH.db + CONSTANTS.PATH.db_graphql, {
-		headers: { Authorization : CONSTANTS.token }
-	}) ;
-}
-
-getUserClient = ()=>{
-	return new GraphQLClient(CONSTANTS.PATH.db + CONSTANTS.PATH.db_graphql, {
-		headers: { Authorization : CONSTANTS.MVUserAuth }
-	}) ;
-}
-
-
-
-// MV USER AUTH -- Username Pwd
-const userLogin = async(app) => {
-	
-	console.log('\n////////  LOGGING IN AS MV USER ////////')
-	
-	let sessiondata = await getUserClient()
-		.request(queries['login'], {
-			id:CONSTANTS.users.mv.identifier,
-			pwd:CONSTANTS.users.mv.password
-			
-		})
-		.catch( err => {});
-	
-	CONSTANTS.MVUserAuth = 'Bearer ' + sessiondata.login.jwt ;
-	CONSTANTS.MVUserClient = getUserClient() ; // store UseClient
-	
-	delete sessiondata ;
-	
-	console.log('\n'+colors.bgBlue('     -->  USER LOGIN SUCCESSFULL !!!      ') + '\n');
-}
-const userLogout = () =>{
-	delete CONSTANTS.MVUserAuth ;
-	console.log(colors.red('          USER LOGGED OUT !!!        \n')) ;
-}
-
-// MV SITE AUTH -- API TOKEN
-const siteLogin = async(app) => {
-	console.log('\n////////  LOGGING IN AS MV CLIENT ////////') ;
-	
-	CONSTANTS.token = 'Bearer ' + CONSTANTS.users.mv_api.token ;
-	CONSTANTS.MVClient = getSiteClient();
-	
-	let proof = await QUERY(queries['user'], {id:1});
-	
-	console.log(colors.bgBlue('     -->  SITE LOGIN SUCCESSFULL !!!      ') + '\n');
-	console.log("SuperAdmin USER : ", proof.usersPermissionsUser.data.attributes) ;
-}
-const siteLogout = () =>{
-	delete CONSTANTS.token ;
-	console.log(colors.red('          SITE LOGGED OUT !!!        \n')) ;
-}
-////////////////////////////////////////// END AUTH 
-
-
-*/
 
 
 // JADESETTINGS
@@ -225,7 +159,6 @@ const {jadeparams} = (()=>{
 
 	}
 	
-	//let i18next = i18.i18next;
 	
   
 	
@@ -477,8 +410,6 @@ let toJSON = (data) => {
 
 //////////////// warning Opera request '/' x3 times !! while FF only once
 
-let stepTree = {} ;
-
 
 const resources = require('./translations') ;
 
@@ -488,29 +419,17 @@ let root = async(req, res) => {
 	const imabot = isbot(req.get("user-agent")) ;
 	console.log('IS BOT >> ', imabot) ;
 
-	// let tt = await QUERY(queries['sections']) ; // When GRAPHQL
 	let tt = JSON.parse(nav_fixtures) ;
 	let topsections = cleanup(tt, 'sections') ;
-	// console.log(topsections) ;
-	
-	// let ttt = JSON.parse(footnav_fixtures) ;
-	// let footnavlinks = cleanup(ttt, 'footlinks') ;
 	
 	await res.render(path.join(__dirname, 'public/jade/index'), jadeparams.merge(jadeparams, {
 		
 		resources:[resources],
-		//langs: req.langs,
-		//lang: req.i18n.language,
-		//t: req.t,
 		lang: 'en',
 		imabot: imabot,
-		// req: req,
 		section: {path:req.url},
 		topsections: topsections,
-		safeCircReplace:routes.safeCircReplace,
-
-		// topsections: toJSON(topsections),
-		// footnavlinks: toJSON(footnavlinks),
+		safeCircReplace:routes.safeCircReplace
 	})) ;
 
 }
@@ -583,7 +502,7 @@ let videos = async(req, res) => {
 
 
 
-
+/* 
 app.get('*', (req, res, next) => {
     const filePath = path.join(__dirname, 'public', req.path);
 
@@ -597,7 +516,7 @@ app.get('*', (req, res, next) => {
         }
     });
 });
-
+ */
 
 app.use((req, res, next) => {
   if (req.path === '/.well-known/appspecific/com.chrome.devtools.json') {
@@ -635,10 +554,12 @@ app.use('/html/', async(req, res) => {
 	await defaultspage(req, res).catch(err => { console.log(err) });
 }) ;
 
+/*
 app.use('/tests/', async(req, res) => {
 	console.log('in here', req.url)
 	await tests(req, res).catch(err => { console.log(err) });
 }) ;
+*/
 
 app.use('/vids/', async(req, res) => {
 	console.log('REQ VIDEOS')
