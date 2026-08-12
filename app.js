@@ -554,12 +554,10 @@ app.use('/html/', async(req, res) => {
 	await defaultspage(req, res).catch(err => { console.log(err) });
 }) ;
 
-/*
 app.use('/tests/', async(req, res) => {
 	console.log('in here', req.url)
 	await tests(req, res).catch(err => { console.log(err) });
 }) ;
-*/
 
 app.use('/vids/', async(req, res) => {
 	console.log('REQ VIDEOS')

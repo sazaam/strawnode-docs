@@ -1,0 +1,13 @@
+<html><head></head><body>
+<script>
+window.addEventListener('strawnode-error', function(e) {
+  console.log('EXTRACTED_MESSAGE:', JSON.stringify(e.detail.error.message));
+  console.log('RAW_STACK:', e.detail.error.stack);
+  // Check for loc in the URL
+  var m = e.detail.error.message;
+  var idx = m.indexOf('_buggymod.js');
+  if (idx !== -1) console.log('LINE_CHUNK:', JSON.stringify(m.substring(idx, idx+20)));
+});
+</script>
+<script src="/js/strawnode_async.js?starter=./_buggymod"></script>
+</body></html>

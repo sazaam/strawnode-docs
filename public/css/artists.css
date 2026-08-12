@@ -9,13 +9,18 @@
     font-family: "ARS-Maquette-Web-Pro-1" ;
 }
 
+.sizeRM{font-size:115%}
+
 
 .extlink{
 	display:block;
 	clear:both;
 	padding:10px 20px;
-	background-color:rgba(255, 255, 255, .25);
+	background-color:rgba(255, 255, 255, .125);
 	border-radius: 0.25rem;
+}
+.extlink:hover{
+	background-color:rgba(255, 255, 255, .25);
 }
 .txtR .extlink{
 	float:right;
@@ -168,6 +173,34 @@ a.justtransp{
 	top:-10px;
 }
 
+
+
+.glass{
+  background: rgba(255, 255, 255, 0.025); /* Required for visibility */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+}   
+
+
+.vision .box .el{
+	width:100px;
+	height:100px;
+	background:rgba(244, 244, 244, .025);
+	border-radius:10px;
+	top:-50px;
+	left:-50px;
+}
+
+.vision .prev, .vision .next{
+	display:none;
+}
+@media screen and (min-width: 512px) {
+	
+	.vision .prev, .vision .next{
+		display:block;
+	}
+
+}
 /* > 1024  */ 
  @media screen and (min-width: 768px) {
 	
@@ -256,7 +289,7 @@ a.justtransp{
   }
 }
 
-.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar {
+.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar , .visionzone::-webkit-scrollbar {
   display: none;
 }
 
@@ -292,11 +325,56 @@ a.justtransp{
 	border-color:rgba(255, 255, 255, .25);
 	/* border-width:.1em !important; */
 }
+
+
 .whitetranspBG{
-	background-color:rgba(255, 255, 255, .25)
+	background-color:rgba(255, 255, 255, .125)
 }
+
+.whitetranspBG:hover{
+	background-color:rgba(255, 255, 255, .25) !important;
+}
+
+
 .blacktranspBG{
 	background-color:rgba(13, 13, 13, .94)
+}
+.vision_visual{
+	background-size:cover;
+	background-position:center;
+}
+.vision_panel{
+	pointer-events:none;
+}
+.vision_panel a{
+	pointer-events:auto;
+}
+.vision_cta a{
+	display:inline-block;
+	padding:.6rem 1.4rem;
+	border-radius:999px;
+	border:1px solid rgba(255,255,255,.55);
+	background:rgba(255,255,255,.12);
+	color:#FFF;
+	text-transform:uppercase;
+	letter-spacing:.14em;
+	transition:background .25s ease, border-color .25s ease, color .25s ease;
+}
+.vision_cta a:hover,
+.vision_cta a:focus{
+	background:rgba(255,255,255,.95);
+	border-color:#FFF;
+	color:#0A0A0A;
+}
+.vision_cta a .arrowindic{
+	transition:opacity .25s ease;
+}
+.vision_cta a:hover .arrowindic,
+.vision_cta a:focus .arrowindic{
+	opacity:1;
+}
+.vision_cta_contact a{
+	border-style:dashed;
 }
 .bordertop{
 	background:#2A2A2A;

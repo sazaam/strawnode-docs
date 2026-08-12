@@ -1,56 +1,13 @@
 
-// what steps are going to do graphically , extracted from './graphics.js'
-// on toggle (both opening / closing) and focus events
-
-var graphics = require('./graphics') ;
-var toggle = graphics.toggle ;
-var focus = graphics.focus ;
-var project_focus = graphics.project_focus ;
-var project_toggle = graphics.project_toggle ;
-var deep_project_focus = graphics.deep_project_focus ;
-var deep_project_toggle = graphics.deep_project_toggle ;
-
-// Express.app.set('liveautoremove', true) ; // erases live-generated regexp steps on close
-
 // hierarchy sections descriptor object written as in 'exports' object
 
-var projects_section ;
+var graphics = require('./graphics') ;
 
-var lambda_indexed = function(urljade){} ;
+var sections = require('./sections')(graphics) ;
+var section = sections.section ;
+var project = sections.project ;
 
-var lambda_deep = function(){
-	var lambda_deep_section = function lambda_deep_section(req, res){
-		if(res.opening){
-			res.userData.urljade = '/jade/artists/section_project.jade' ;
-			res.userData.urljson = 'json/section' ;
-			res.userData.parameters = {response:res} ;
-		}
-		return res ;
-	}
-	lambda_deep_section['@focus'] = project_focus ;
-	lambda_deep_section['@toggle'] = project_toggle ;
-
-	lambda_deep_section.index = function lambda_deep_section_index(req, res){
-		if(res.opening){
-			res.userData.parameters = {response:res} ;
-		}
-		return res ;
-	} ;
-	lambda_deep_section.index['@focus'] = deep_project_focus ;
-	lambda_deep_section.index['@toggle'] = deep_project_toggle ;
-
-
-	lambda_deep_section[/[0-9]+/] = function lambda_deep_section_numeric(req, res){
-		if(res.opening){
-			res.userData.parameters = {response:res} ;
-		}
-		return res ;
-	} ;
-	lambda_deep_section[/[0-9]+/]['@focus'] = deep_project_focus ;
-	lambda_deep_section[/[0-9]+/]['@toggle'] = deep_project_toggle ;
-
-	return lambda_deep_section ;
-}
+// Express.app.set('liveautoremove', true) ; // erases live-generated regexp steps on close
 
 module.exports = {
 	index : (function(){
@@ -64,8 +21,8 @@ module.exports = {
 			return res ;
 		} ;
 		
-		index['@focus'] = focus ;
-		index['@toggle'] = toggle ;
+		index['@focus'] = graphics.focus ;
+		index['@toggle'] = graphics.toggle ;
 		
 		return index ;
 	})(),
@@ -83,9 +40,8 @@ module.exports = {
 			return res ;
 		} ;
 		
-		
-		about.index['@focus'] = focus ;
-		about.index['@toggle'] = toggle ;
+		about.index['@focus'] = graphics.focus ;
+		about.index['@toggle'] = graphics.toggle ;
 		
 		about.intro = function about_intro(req, res){
 			if(res.opening){
@@ -95,40 +51,42 @@ module.exports = {
 			}
 			return res ;
 		} ;
-		about.intro['@focus'] = focus ;
-		about.intro['@toggle'] = toggle ;
+		about.intro['@focus'] = graphics.focus ;
+		about.intro['@toggle'] = graphics.toggle ;
 			
 		
 		return about ;
 	})(),
-	projects : (function(){
+	/////////// WORKS
+	works : (function(){
 		
-		var projects = function projects(req, res){
+		var works = function works (req, res){ return res.ready() ; } ;
+		
+		works.index = function works_index(req, res){
 			if(res.opening){
 				res.userData.urljade = '/jade/artists/section.jade' ;
 				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res} ;
+				res.userData.parameters = {response:res.parentStep} ;
 			}
 			return res ;
 		} ;
+		works.index['@focus'] = graphics.focus ;
+		works.index['@toggle'] = graphics.toggle ;
 		
-		projects['@focus'] = focus ;
-		projects['@toggle'] = toggle ;
-		
-
-		projects.europa = lambda_deep() ;
-		projects.europa['userData'] = {
-			slides:[
+		works.vision = section({}) ;
+		works.make = section({deck:true}, {
+			metavagrant : project([
+				{url:'mv-01.jpg'},
+				{url:'itFlow-01.jpg', x:'20%'},
+				{url:'itFlow-02.jpg', x:'82%'},
+				{url:'itFlow-03.jpg', x:'90%'},
+			]),
+			europa : project([
 				{url:'europa-02.jpg', x:'85%'},
 				{url:'europa-03.jpg', x:'22%'},
 				{url:'europa-01.jpg', x:'48%'},
-			]
-		}
-		
-
-		projects.infinite = lambda_deep() ;
-		projects.infinite['userData'] = {
-			slides:[
+			]),
+			infinite : project([
 				{url:'inifinite_01_s.jpg', x:'20%'},
 				{url:'inifinite_01_side.jpg', x:'80%'},
 				{url:'inifinite_01_frontleft_transp.jpg'},
@@ -140,14 +98,8 @@ module.exports = {
 				{url:'inifinite_real_04.jpg'},
 				{url:'inifinite_real_05.jpg'},
 				{url:'infinite-02.jpg', x:'54%'},
-			]
-		}
-
-
-		
-		projects.dkt = lambda_deep() ;
-		projects.dkt['userData'] = {
-			slides:[
+			]),
+			dkt : project([
 				{url:'dkt-01.jpg', x:'5%'},
 				{url:'dkt-02.jpg', x:'5%'},
 				{url:'dkt-03.jpg', x:'25%'},
@@ -156,12 +108,8 @@ module.exports = {
 				{url:'dkt-06.jpg', x:'0%'},
 				{url:'dkt-07.jpg', x:'75%'},
 				{url:'dummy.jpg', x:'45%', noslide:1},
-			]
-		}
-		
-		projects.hexarmor = lambda_deep() ;
-		projects.hexarmor['userData'] = {
-			slides:[
+			]),
+			hexarmor : project([
 				{url:'hex-01.jpg', x:'50%'},
 				{url:'hex-02.jpg', x:'45%'},
 				{url:'hex-03.jpg', x:'65%'},
@@ -178,22 +126,8 @@ module.exports = {
 				{url:'hex-plan-06.jpg', x:'60%'},
 				{url:'hex-plan-07.jpg', x:'50%'},
 				{url:'dummy.jpg', x:'45%', noslide:1},
-			]
-		}
-
-		projects.metavagrant = lambda_deep() ;
-		projects.metavagrant['userData'] = {
-			slides:[
-				{url:'mv-01.jpg'},
-				{url:'itFlow-01.jpg', x:'20%'},
-				{url:'itFlow-02.jpg', x:'82%'},
-				{url:'itFlow-03.jpg', x:'90%'},
-			]
-		}
-		
-		projects.mmai = lambda_deep() ;
-		projects.mmai['userData'] = {
-			slides:[
+			]),
+			mmai : project([
 				{url:'mmai_01.jpg'},
 				{url:'mmai_02.jpg', x:'50%'},
 				{url:'mmai_03.jpg', x:'50%'},
@@ -206,51 +140,17 @@ module.exports = {
 				{url:'mmai_005.jpg', x:'50%'},
 				{url:'mmai_006.jpg', x:'50%'},
 				{url:'mmai_007.jpg', x:'50%'},
-			]
-		}
-		
-		return projects ;
-	})(),
-	studies:(function(){
-		
-		var studies = function studies(req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/section.jade' ;
-				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res} ;
-			}
-			return res ;
-		} ;
-		
-		studies['@focus'] = focus ;
-		studies['@toggle'] = toggle ;
-
-		
-		studies.sagong = lambda_deep() ;
-		studies.sagong['userData'] = {
-			slides:[
-				{url:'sagong_01.jpg', x:'25%'},
-				{url:'sagong_02.jpg', x:'60%'},
-				{url:'sagong_03.jpg', x:'50%'},
-				{url:'sagong_04.jpg', x:'10%'},
-				{url:'sagong_05.jpg', x:'65%'},
-			]
-		}
-
-		studies.lostinone = lambda_deep() ;
-		studies.lostinone['userData'] = {
-			slides:[
-				{url:'loi_01.jpg'},
-				{url:'loi_02.jpg', x:'20%'},
-				{url:'loi_04.jpg', x:'82%'},
-				{url:'loi_03.jpg', x:'90%'},
-			]
-		}
-		
-
-		studies.ashina = lambda_deep() ;
-		studies.ashina['userData'] = {
-			slides:[
+			]),
+			smythson : project([
+				{url:'smythson-naja-01.jpg', x:'25%'},
+				{url:'smythson-naja-02.jpg', x:'45%'},
+				{url:'smythson-naja-03.jpg', x:'65%'},
+				{url:'smythson-naja-04.jpg', x:'60%'},
+				{url:'dummy.jpg', x:'45%', noslide:1},
+			])
+		}) ;
+		works.light = section({deck:true}, {
+			ashina : project([
 				{url:'Ashina_BW.jpg'},
 				{url:'Ashina_02.jpg', x:'52%'},
 				{url:'ashina_house_01.jpg', x:'41%'},
@@ -258,24 +158,8 @@ module.exports = {
 				{url:'ashina_house_03.jpg', x:'66%'},
 				{url:'Ashina_04.jpg', x:'32%'},
 				{url:'Ashina_01.jpg', x:'35%'},
-			]
-		}
-
-		
-		studies.smythson = lambda_deep() ;
-		studies.smythson['userData'] = {
-			slides:[
-				{url:'smythson-naja-01.jpg', x:'25%'},
-				{url:'smythson-naja-02.jpg', x:'45%'},
-				{url:'smythson-naja-03.jpg', x:'65%'},
-				{url:'smythson-naja-04.jpg', x:'60%'},
-				{url:'dummy.jpg', x:'45%', noslide:1},
-			]
-		}
-
-		studies.modern_art = lambda_deep() ;
-		studies.modern_art['userData'] = {
-			slides:[
+			]),
+			modern_art : project([
 				{url:'exhibition_01.png'},
 				{url:'exhibition_02.png', x:'20%'},
 				{url:'dummy.jpg', noslide:1},
@@ -283,10 +167,48 @@ module.exports = {
 				{url:'dummy.jpg', noslide:1},
 				{url:'dummy.jpg', noslide:1},
 				{url:'dummy.jpg', noslide:1},
-			]
-		}
-		return studies ;
+			])
+		}) ;
+		works.story = section({deck:true}, {
+			sagong : project([
+				{url:'sagong_01.jpg', x:'25%'},
+				{url:'sagong_02.jpg', x:'60%'},
+				{url:'sagong_03.jpg', x:'50%'},
+				{url:'sagong_04.jpg', x:'10%'},
+				{url:'sagong_05.jpg', x:'65%'},
+			]),
+			lostinone : project([
+				{url:'loi_01.jpg'},
+				{url:'loi_02.jpg', x:'20%'},
+				{url:'loi_04.jpg', x:'82%'},
+				{url:'loi_03.jpg', x:'90%'},
+			])
+		}) ;
+		
+		works.build = (function(){
+			
+			var build = function build (req, res){ return res.ready() ; } ;
+			
+			build.index = function build_index(req, res){
+				if(res.opening){
+					res.userData.urljade = '/jade/artists/section.jade' ;
+					res.userData.urljson = 'json/section' ;
+					res.userData.parameters = {response:res.parentStep} ;
+				}
+				return res ;
+			} ;
+			build.index['@focus'] = graphics.focus ;
+			build.index['@toggle'] = graphics.toggle ;
+			
+			// build.code = section({}) ;
+			// build.tech = section({}) ;
+			
+			return build ;
+		})() ;
+		
+		return works ;
 	})(),
+	/////////// DOCS
 	docs : (function(){
 		
 		var docs = function docs (req, res){ return res.ready() } ;
@@ -299,9 +221,12 @@ module.exports = {
 				}
 				return res ;
 			} ;
-			docs.index['@focus'] = focus ;
-			docs.index['@toggle'] = toggle ;
+			docs.index['@focus'] = graphics.focus ;
+			docs.index['@toggle'] = graphics.toggle ;
 			
+
+
+			/*
 			docs.guide = function docs_guide(req, res){
 				if(res.opening){
 					res.userData.urljade = '/jade/artists/section.jade' ;
@@ -310,8 +235,8 @@ module.exports = {
 				}
 				return res ;
 			} ;
-			docs.guide['@focus'] = focus ;
-			docs.guide['@toggle'] = toggle ;
+			docs.guide['@focus'] = graphics.focus ;
+			docs.guide['@toggle'] = graphics.toggle ;
 
 			docs.api = function docs_api(req, res){
 				if(res.opening){
@@ -321,8 +246,8 @@ module.exports = {
 				}
 				return res ;
 			} ;
-			docs.api['@focus'] = focus ;
-			docs.api['@toggle'] = toggle ;
+			docs.api['@focus'] = graphics.focus ;
+			docs.api['@toggle'] = graphics.toggle ;
 			
 			
 			docs.examples = function docs_examples(req, res){ return res.ready() } ;
@@ -335,8 +260,8 @@ module.exports = {
 					}
 					return res ;
 				} ;
-				docs.examples.index['@focus'] = focus ;
-				docs.examples.index['@toggle'] = toggle ;
+				docs.examples.index['@focus'] = graphics.focus ;
+				docs.examples.index['@toggle'] = graphics.toggle ;
 
 				
 				docs.examples[/[0-9]+/] = function docs_examples_numeric(req, res){ return res.ready() } ;
@@ -350,8 +275,8 @@ module.exports = {
 						}
 						return res ;
 					} ;
-					docs.examples[/[0-9]+/].index['@focus'] = focus ;
-					docs.examples[/[0-9]+/].index['@toggle'] = toggle ;
+					docs.examples[/[0-9]+/].index['@focus'] = graphics.focus ;
+					docs.examples[/[0-9]+/].index['@toggle'] = graphics.toggle ;
 					
 					docs.examples[/[0-9]+/].detail = function docs_examples_numeric_detail(req, res){ return res.ready() } ;
 				
@@ -363,8 +288,8 @@ module.exports = {
 							}
 							return res ;
 						} ;
-						docs.examples[/[0-9]+/].detail.index['@focus'] = focus ;
-						docs.examples[/[0-9]+/].detail.index['@toggle'] = toggle ;
+						docs.examples[/[0-9]+/].detail.index['@focus'] = graphics.focus ;
+						docs.examples[/[0-9]+/].detail.index['@toggle'] = graphics.toggle ;
 
 						docs.examples[/[0-9]+/].detail[/[0-9]+/] = function docs_examples_numeric_deep(req, res){ return res.ready() } ;
 							
@@ -376,8 +301,54 @@ module.exports = {
 								}
 								return res ;
 							} ;
-							docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@focus'] = focus ;
-							docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@toggle'] = toggle ;
+			docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@focus'] = graphics.focus ;
+			docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@toggle'] = graphics.toggle ;
+			*/
+			
+			docs.code = (function(){
+
+				var code = function code (req, res){ return res.ready() ; } ;
+
+				code.index = function code_index(req, res){
+					if(res.opening){
+						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljson = 'json/section' ;
+						res.userData.parameters = {response:res.parentStep} ;
+					}
+					return res ;
+				} ;
+				code.index['@focus'] = graphics.focus ;
+				code.index['@toggle'] = graphics.toggle ;
+
+				code.strawnode = section({}) ;
+				code.betweenjs = section({}) ;
+				code.type = section({}) ;
+
+				return code ;
+			})() ;
+
+			docs.tech = (function(){
+
+				var tech = function tech (req, res){ return res.ready() ; } ;
+
+				tech.index = function tech_index(req, res){
+					if(res.opening){
+						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljson = 'json/section' ;
+						res.userData.parameters = {response:res.parentStep} ;
+					}
+					return res ;
+				} ;
+				tech.index['@focus'] = graphics.focus ;
+				tech.index['@toggle'] = graphics.toggle ;
+
+				tech.shaders = section({}) ;
+				tech.modelling = section({}) ;
+				tech.procedural = section({}) ;
+				tech.tweens = section({}) ;
+
+				return tech ;
+			})() ;
 
 		return docs ;
 	})()

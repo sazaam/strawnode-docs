@@ -1,10 +1,17 @@
 extends ../layout
 block content
-  #stage(style="background:#1a1a2e;min-height:100vh;padding:20px;font-family:monospace;perspective:800px")
+  #stage.fullH.flowYauto(style="background:#1a1a2e;min-height:100vh;padding:20px;font-family:monospace;perspective:800px")
 
   script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/")
 
   script(type="text/javascript").
+
     window.addEventListener("strawnode-ready", function(e) {
-      require('./test')
+      trace('strawnode-ready...');
+      require.fetchTree('./test').then(function() {
+        trace('fetched & parsed/evaluated')
+        require('./test');
+      }).catch(function(err) {
+        trace('Failed to pre-fetch test module: ' + err.message);
+      });
     })

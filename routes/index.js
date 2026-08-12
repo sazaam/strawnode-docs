@@ -26,6 +26,21 @@ const safeCircReplace = () => {
 	} ;
 } ;
 
+// server-side mirror of the client hierarchy : each section is a passthrough
+// step whose 'index' child renders section.jade with {response:res.parentStep}
+var ssection = function(){
+	var fn = function(req, res){ return res.ready() } ;
+	fn.index = function ssection_index(req, res){
+		if(res.opening){
+			res.userData.urljade = '/jade/artists/section.jade' ;
+			res.userData.urljson = 'json/section' ;
+			res.userData.parameters = {response:res.parentStep} ;
+		}
+		return res ;
+	} ;
+	return fn ;
+} ;
+
 module.exports = {
 	safeCircReplace:safeCircReplace,
 	tree:undefined,
@@ -86,20 +101,19 @@ module.exports = {
 			
 			return about ;
 		})(),
-		projects : (function(){
+		works : (function(){
 			
-			var projects = function projects(req, res){ return res.ready() } ;
+			var works = ssection() ;
 				
-				projects.index = function projects_index(req, res){
-					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
-						res.userData.urljson = 'json/section' ;
-						res.userData.parameters = {response:res.parentStep} ;
-					}
-					return res ;
-				} ;
+				works.vision = ssection() ;
+				works.make = ssection() ;
+				works.light = ssection() ;
+				works.story = ssection() ;
+				works.build = ssection() ;
+				works.build.code = ssection() ;
+				works.build.tech = ssection() ;
 			
-			return projects ;
+			return works ;
 		})(),
 		docs : (function(){
 			
