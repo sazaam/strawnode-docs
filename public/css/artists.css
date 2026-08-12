@@ -578,3 +578,92 @@ input:autofill:focus {
   transform: scaleY(1);
  }
 }
+
+/* ---- landing asset logger ---- */
+#loadlogger {
+	position: fixed;
+	top: 64px;
+	right: 14px;
+	z-index: 600;
+	width: 380px;
+	max-width: 42vw;
+	background: rgba(16, 16, 18, .86);
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: 6px;
+	overflow: hidden;
+	font-family: "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+	opacity: 0;
+	transform: translateY(-4px);
+	transition: opacity .35s ease, transform .35s ease;
+	pointer-events: none;
+	text-align: left;
+}
+
+#loadlogger.show {
+	opacity: 1;
+	transform: none;
+}
+
+#loadlogger.done {
+	opacity: 0;
+	transform: translateY(-6px);
+}
+
+#loadlogger .loadhead {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 7px 12px;
+	border-bottom: 1px solid rgba(255, 255, 255, .1);
+	font-size: 10px;
+	letter-spacing: .18em;
+	color: rgba(255, 255, 255, .55);
+}
+
+#loadlogger .loadpct {
+	color: rgba(255, 255, 255, .9);
+}
+
+#loadlogger .loadbar {
+	height: 3px;
+	background: rgba(255, 255, 255, .08);
+}
+
+#loadlogger .loadfill {
+	height: 100%;
+	width: 0%;
+	background: linear-gradient(90deg, #7c6fe0, #47b8c8);
+	transition: width .18s linear;
+}
+
+#loadlogger .loadconsole {
+	height: 190px;
+	overflow: hidden;
+	padding: 8px 12px;
+	font-size: 10.5px;
+	line-height: 1.55;
+	color: rgba(255, 255, 255, .72);
+}
+
+#loadlogger .loadline {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#loadlogger .loadline.fetching {
+	color: rgba(255, 255, 255, .45);
+}
+
+#loadlogger .loadline.fetched {
+	color: rgba(120, 220, 160, .9);
+}
+
+#loadlogger .loadline.evaluated {
+	color: rgba(255, 255, 255, .85);
+}
+
+#loadlogger .loadline.error {
+	color: rgba(255, 120, 120, .95);
+}

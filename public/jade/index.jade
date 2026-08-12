@@ -289,6 +289,243 @@ block content
 			init();
 	
 
+	#loadlogger
+		.loadhead
+			span.loadtitle STRAWNODE LOADER
+			span.loadpct 0%
+		.loadbar
+			.loadfill
+		.loadconsole
+
+	script.
+		(function(){
+			var el = document.getElementById('loadlogger') ;
+			if(!el) return ;
+			var consoleEl = el.querySelector('.loadconsole') ;
+			var fillEl = el.querySelector('.loadfill') ;
+			var pctEl = el.querySelector('.loadpct') ;
+			var titleEl = el.querySelector('.loadtitle') ;
+
+			var orig = {} ;
+			var keys = ['log','info','warn','error','debug'] ;
+			for(var i = 0 ; i < keys.length ; i++){
+				var k = keys[i] ;
+				if(window.console && window.console[k]) orig[k] = window.console[k].bind(window.console) ;
+			}
+
+			var tstamp = function(){
+				var d = new Date() ;
+				var mm = ('0' + d.getMinutes()).slice(-2) ;
+				var ss = ('0' + d.getSeconds()).slice(-2) ;
+				var ms = ('00' + d.getMilliseconds()).slice(-3) ;
+				return mm + ':' + ss + '.' + ms ;
+			} ;
+			var shortUrl = function(u){
+				u = String(u || '').split('?')[0] ;
+				var i = u.indexOf('/strawnode_app/') ;
+				if(i === -1) i = u.lastIndexOf('/js/') ;
+				return (i === -1) ? u : u.slice(i + 1) ;
+			} ;
+			var emit = function(cls, text){
+				if(!consoleEl) return ;
+				var line = document.createElement('div') ;
+				line.className = 'loadline' + (cls ? ' ' + cls : '') ;
+				line.textContent = text ;
+				consoleEl.appendChild(line) ;
+				while(consoleEl.childNodes.length > 80) consoleEl.removeChild(consoleEl.firstChild) ;
+				consoleEl.scrollTop = consoleEl.scrollHeight ;
+			} ;
+			var setPct = function(p){
+				p = Math.max(0, Math.min(100, p)) ;
+				fillEl.style.width = p + '%' ;
+				pctEl.textContent = p + '%' ;
+			} ;
+
+			var isMedia = function(u){
+				u = String(u || '') ;
+				return /\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|mp4|webm|mov|og[gv]|m4v|wmv)([?#]|$)/i.test(u) ;
+			} ;
+
+			var seen = 0, lastPct = 0, timer = null, finished = false, readyDone = false ;
+			var phase = { started : 0, completed : 0 } ;
+			var xhrOpen, xhrSend, origFetch ;
+
+			var homeShown = function(){
+				var els = document.querySelectorAll('.zoneall .navzone') ;
+				for(var i = 0 ; i < els.length ; i++){
+					if(parseFloat(window.getComputedStyle(els[i]).opacity) >= 0.99) return true ;
+				}
+				return false ;
+			} ;
+
+			// required (non-media) asset tracking for the home page ; images / videos are excluded
+			var installPhase2 = function(){
+				if(window.XMLHttpRequest && window.XMLHttpRequest.prototype && !xhrOpen){
+					xhrOpen = window.XMLHttpRequest.prototype.open ;
+					xhrSend = window.XMLHttpRequest.prototype.send ;
+					window.XMLHttpRequest.prototype.open = function(m, u){
+						this.__llurl = u || '' ;
+						this.__llmedia = isMedia(this.__llurl) ;
+						return xhrOpen.apply(this, arguments) ;
+					} ;
+					window.XMLHttpRequest.prototype.send = function(){
+						var th = this ;
+						if(th.__llurl && !th.__llmedia && !th.__llcounted){
+							th.__llcounted = true ;
+							phase.started++ ;
+							emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(th.__llurl)) ;
+						}
+						th.addEventListener('load', function(){
+							if(th.__llcounted && !th.__llmedia && !th.__lldone){
+								th.__lldone = true ;
+								phase.completed++ ;
+								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(th.__llurl)) ;
+							}
+						}) ;
+						return xhrSend.apply(this, arguments) ;
+					} ;
+				}
+				if(typeof window.fetch === 'function' && !origFetch){
+					origFetch = window.fetch ;
+					window.fetch = function(){
+						var u = arguments[0] ;
+						u = (typeof u === 'string') ? u : (u && u.url) || '' ;
+						var count = !isMedia(u) ;
+						if(count){
+							phase.started++ ;
+							emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(u)) ;
+						}
+						return origFetch.apply(this, arguments).then(function(resp){
+							if(count){
+								phase.completed++ ;
+								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u)) ;
+							}
+							return resp ;
+						}, function(err){
+							if(count){
+								phase.completed++ ;
+								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u)) ;
+							}
+							throw err ;
+						}) ;
+					} ;
+				}
+			} ;
+
+			var tick = function(){
+				var fb = window.strawnodeLoadingFeedback || [] ;
+				var known = {}, done = {}, st ;
+				for(var i = 0 ; i < fb.length ; i++){
+					st = String(fb[i].status) ;
+					var u = fb[i].url ;
+					if(st === 'fetching' || st === 'fetched' || st === 'evaluating' || st === 'evaluated') known[u] = 1 ;
+					if(st === 'fetched' || st === 'evaluating' || st === 'evaluated') done[u] = 1 ;
+				}
+				for(; seen < fb.length ; seen++){
+					var e = fb[seen], status = String(e.status), cls = 'fetching' ;
+					if(status === 'fetched') cls = 'fetched' ;
+					if(status === 'evaluating' || status === 'evaluated') cls = 'evaluated' ;
+					if(status.indexOf('fail') !== -1) cls = 'error' ;
+					if(status.indexOf('bootstrap') !== -1) cls = 'evaluated' ;
+					emit(cls, '[' + tstamp() + '] ' + status + '  ' + shortUrl(e.url)) ;
+				}
+				var kn = 0, dn = 0, k, d, pct ;
+				for(k in known) kn++ ;
+				for(d in done) dn++ ;
+				if(!readyDone){
+					// bootstrap : 0-70%
+					pct = kn ? Math.round(dn / kn * 70) : 0 ;
+				}else{
+					// home required assets : 70-100%
+					pct = 70 + (phase.started ? Math.round(phase.completed / phase.started * 28) : 0) ;
+					if(homeShown()){ finalize(true) ; return ; }
+				}
+				if(pct > lastPct) lastPct = pct ;
+				setPct(lastPct) ;
+			} ;
+
+			var mirror = function(type, args){
+				var parts = [] ;
+				for(var i = 0 ; i < args.length ; i++){
+					var a = args[i] ;
+					if(typeof a === 'string') parts.push(a) ;
+					else { try { parts.push(JSON.stringify(a)) ; } catch(err) { parts.push(String(a)) ; } }
+				}
+				emit((type === 'error' || type === 'warn') ? 'error' : '', '[' + tstamp() + '] ' + parts.join(' ')) ;
+			} ;
+
+			window.console.log = function(){ orig.log.apply(window.console, arguments) ; mirror('log', arguments) ; } ;
+			if(orig.info) window.console.info = function(){ orig.info.apply(window.console, arguments) ; mirror('info', arguments) ; } ;
+			if(orig.debug) window.console.debug = function(){ orig.debug.apply(window.console, arguments) ; mirror('debug', arguments) ; } ;
+			if(orig.warn) window.console.warn = function(){ orig.warn.apply(window.console, arguments) ; mirror('warn', arguments) ; } ;
+			if(orig.error) window.console.error = function(){ orig.error.apply(window.console, arguments) ; mirror('error', arguments) ; } ;
+
+			var onPageErr = function(ev){
+				emit('error', '[' + tstamp() + '] pageerror: ' + ev.message + (ev.filename ? '  ' + shortUrl(ev.filename) + ':' + ev.lineno : '')) ;
+			} ;
+			var onRej = function(ev){
+				var r = ev.reason ;
+				emit('error', '[' + tstamp() + '] unhandled rejection: ' + (r && r.message ? r.message : String(r))) ;
+			} ;
+			var finalize = function(ok){
+				if(finished) return ;
+				finished = true ;
+				window.clearInterval(timer) ;
+				if(ok){
+					setPct(100) ;
+					titleEl.textContent = 'HOME READY' ;
+				}
+				emit(ok ? 'evaluated' : 'error', '[' + tstamp() + '] ' + (ok ? 'all required assets loaded — home ready' : 'strawnode-error — see console')) ;
+				window.setTimeout(function(){
+					el.classList.add('done') ;
+					window.setTimeout(function(){
+						if(el.parentNode) el.parentNode.removeChild(el) ;
+						detach() ;
+					}, 550) ;
+				}, ok ? 800 : 600) ;
+			} ;
+			var onReady = function(){
+				if(finished || readyDone) return ;
+				readyDone = true ;
+				titleEl.textContent = 'LOADING HOME' ;
+				lastPct = Math.max(lastPct, 70) ;
+				setPct(lastPct) ;
+				emit('evaluated', '[' + tstamp() + '] bootstrap complete — ready for entry') ;
+				installPhase2() ;
+			} ;
+			var onSNErr = function(ev){
+				emit('error', '[' + tstamp() + '] ' + (ev.detail && ev.detail.error ? ev.detail.error.message : 'strawnode-error')) ;
+				finalize(false) ;
+			} ;
+
+			window.addEventListener('error', onPageErr) ;
+			window.addEventListener('unhandledrejection', onRej) ;
+			window.addEventListener('strawnode-ready', onReady) ;
+			window.addEventListener('strawnode-error', onSNErr) ;
+
+			var detach = function(){
+				window.removeEventListener('error', onPageErr) ;
+				window.removeEventListener('unhandledrejection', onRej) ;
+				window.removeEventListener('strawnode-ready', onReady) ;
+				window.removeEventListener('strawnode-error', onSNErr) ;
+				window.console.log = orig.log ;
+				if(orig.info) window.console.info = orig.info ;
+				if(orig.debug) window.console.debug = orig.debug ;
+				if(orig.warn) window.console.warn = orig.warn ;
+				if(orig.error) window.console.error = orig.error ;
+				if(xhrOpen && window.XMLHttpRequest && window.XMLHttpRequest.prototype){
+					window.XMLHttpRequest.prototype.open = xhrOpen ;
+					window.XMLHttpRequest.prototype.send = xhrSend ;
+				}
+				if(origFetch) window.fetch = origFetch ;
+				el = consoleEl = fillEl = pctEl = titleEl = null ;
+			} ;
+
+			requestAnimationFrame(function(){ el.classList.add('show') ; }) ;
+			timer = window.setInterval(tick, 110) ;
+			tick() ;
+		})() ;
+
 	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.context
 		.toprightlinks.lh2.txtC.marXLg.abs.right0.languages(style="z-index:300")
 			ul.langswitch(class="flex flex-row")
