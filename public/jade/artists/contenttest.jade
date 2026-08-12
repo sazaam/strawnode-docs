@@ -6,34 +6,13 @@ block content
 	
 	- var isHome = response.id == '@' ;
 	- let resid = response.id ;
+	- var isDeck = response.userData.deck ;
 
 	case resid
-		when 'projects'
-		when 'studies'
-			div.fullH(class="md:max-w-90 self-center")
-				- var hh = 202 ;
-				.projects_list.fullH.fullW.context.rel.lhXLg.whitetransp(class="txtJ md:border-r")
-					.project_panes.rel.fullW
-						- var els = response.children ;
-						- els = els.length < 6 ? els.concat(els) : els ;
-						- var l = els.length ;
-						- var baseop = .2 ;
-						for el, i in els
-							- var op = i == 0 ? 1 : baseop ;
-							- var top = i < Math.floor(l / 2) ? i * hh : (i-l) * hh ;
-							.abs.project_pane.context(named=el.id + "" straw="project_pane_" + i, style="opacity:#{op};top:#{top}px;width:360px;height:" + hh + "px")
-								
-								.innerslide.fullW.fullH.flowvisible.rel(style="left:0%") 
-									+project_pane(el, false)
-									+extra_panes(el)
-								+lr_arrows_justtransp('r', 'b', 'panenav BmarSm Rmar white sizeM')
-						
-						//- +yt("TJORWNcMoU8", "PHa7_EzqBICBXSi5&amp", 0, 1)
-						
 		when 'intro'
 			//- 
-			.about.slides.sizeR.rel.context.flowvisible(class="md:max-w-128")
-				.about_intro.rel.lhXLg.line(class="txtJ" style="width:300%;left:0%")
+			.about.slides.sizeR.rel.context.flowvisible.unselectable(class="md:max-w-128")
+				.about_intro.rel.lhXLg.line.glass(class="txtJ" style="width:300%;left:0%")
 					- var els = ['reason', 'outside', 'everything_is_step'] ;
 					each ctx, i in els
 						- var rctx = 'about.intro.' + ctx ;
@@ -65,11 +44,76 @@ block content
 			break
 		when 'about'
 			.VpadXLg(class="max-w-80")
-				.HpadXXLg.txtL
+				.HpadXXLg.txtL.unselectable
 					+article_about()
+		when 'vision'
+			.vision.rel.fullH.flowYauto.unselectable.visionzone
+				- var blocks = new Array(11) ;
+				- var len = blocks.length ;
+				- var toDeca = function(n){return (n < 10 ? '0' : '') + n }
+				
+				.vision_panel.fullW(style="height:" + len + "00%;")
+					each art, i in blocks
+						- var pos = parseInt(i) * 100 ;
+						- var rctx = 'explains.ex_' + toDeca(i + 1) ;
+						
+						article.abs.fullW.fullH(class="" style="top:" + pos + "%")
+							
+							.txtL.post.h-full(class="flex flex-row items-center")
+								
+								.vcentered.fullW.context.glass(class="padXXXLg"  style="border:1px solid rgba(235, 235, 235, .25);border-width:1px 0;color:#CCC")
+									
+									
+									.spark.rel
+										- var ll = 30 ;
+										- for(var ii = 0 ; ii < ll ; ii ++){
+											.box.abs(style="top:-200px;left:-200px;") 
+												.el.rel
+										- }
+
+									.hcentered.rel(class="md:max-w-128")
+										h3.sizeLg.Bmar.Lpad(style="border-left:4px solid #CCC;")
+											!= t(rctx)
+										p.sizeRM
+											!= t(rctx, {context:'text'})
+										
+										- if(i > 0){
+											.abs.top0.pad.sizeLg(style="margin-top:-120px")
+												a.prev(href="javascript:void(0)" data-index=i) &uarr;
+										- }
+										- if(i < len - 1){
+											.abs.bottom.pad.sizeLg(style="margin-top:105px")
+												a.next(href="javascript:void(0)" data-index=i) &darr;
+										- }
+
+										.vision_families.flex(class="flex-row gap-4 TmarXXLg")
+											each fam in [['make', t('sections.make')], ['light', t('sections.light')], ['story', t('sections.story')], ['build', t('sections.build')]]
+												a.item.rel.dispBlock.padding.sizeSm.HpadXLg.rounded.white(class="whitetranspBG" href="#/#{lang}/works/#{fam[0]}/")= fam[1]
+										
 		default
-			.VpadXLg(class="md:max-w-80")
-				.HpadXXLg.TpadSm.whitetranspTXT.txtL
-					+article(response.name + '.article')
+			if isDeck
+				div.fullH(class="md:max-w-90 self-center")
+					- var hh = 202 ;
+					.projects_list.fullH.fullW.context.rel.lhXLg.whitetransp(class="txtJ md:border-r")
+						.project_panes.rel.fullW
+							- var els = response.children ;
+							- els = els.length < 6 ? els.concat(els) : els ;
+							- var l = els.length ;
+							- var baseop = .2 ;
+							for el, i in els
+								- var op = i == 0 ? 1 : baseop ;
+								- var top = i < Math.floor(l / 2) ? i * hh : (i-l) * hh ;
+								.abs.project_pane.glass.context(named=el.id + "" straw="project_pane_" + i, style="opacity:#{op};top:#{top}px;width:360px;height:" + hh + "px")
+									
+									.innerslide.fullW.fullH.flowvisible.rel(style="left:0%") 
+										+project_pane(el, false)
+										+extra_panes(el)
+									+lr_arrows_justtransp('r', 'b', 'panenav BmarSm Rmar white sizeM')
+							
+							//- +yt("TJORWNcMoU8", "PHa7_EzqBICBXSi5&amp", 0, 1)
+			else
+				.VpadXLg(class="md:max-w-80")
+					.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
+						+article(response.name + '.article')
 	
 	

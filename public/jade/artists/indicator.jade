@@ -2,6 +2,17 @@
 	- var ttt = 'MetaVagrant'
 	- var isHome = response.id == '@' ;
 	+log("isHome >> " + isHome) 
+	- if(response.path != ''){
+
+		.topmain_lr.rel.sizeR(style="top:-26px")
+			- var p = response.parentStep ;
+			- var prv = p.getPrev() ;
+			- var nxt = p.getNext() ;
+			- var prevlnk = '#/' + lang + (prv && prv.id != '' ? prv : p.getChild(p.getLength()-1)).path + '/' ;
+			- var nextlnk = '#/' + lang + (!!nxt ? nxt : p.getChild(1)).path + '/' ;
+			+lr_arrows_top_justtransp('r', 't', '', prevlnk, nextlnk)
+	- }
+
 
 	h4.Vpadding.sizeR(class=isHome ? "txtC" : "txtL")
 		- var resid = response.id == '' ? response.parentStep.id : response.id ;
@@ -16,7 +27,8 @@
 					span.uppercase(i18='sections.' + resid) !{t('sections.' + resid)}
 				- }
 		- if(response.path != '') {
-			include ./randomizer
+			//- include ./randomizer
+
 			- var parent = response.id == '' ? response.parentStep.parentStep : response.parentStep ;
 			a.abs.fullH.close.right0.top0.typo.padding(href="#/#{lang}#{parent.path}/")
 				span.closebtn(style="margin-left:-11px") x

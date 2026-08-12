@@ -1,0 +1,267 @@
+extends ../layout
+block content
+  #stage(style="background:#1a1a2e;min-height:100vh;padding:20px;font-family:monospace;perspective:800px")
+
+  script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/")
+
+  script(type="text/javascript").
+    window.addEventListener("strawnode-ready", function(e) {
+
+      document.documentElement.style.overflow = 'auto';
+      document.body.style.overflow = 'auto';
+
+      var ROW = 50, GAP = 8, DIST = 300
+      var U = Physical.uniform(5)
+      var A = Physical.accelerate(0.167,0)
+      var E = Physical.exponential(0.15,0.01)
+
+      function makeBtn(label) {
+        return $('<div>').text(label).addClass(
+          'inline-block text-xs text-white cursor-pointer select-none'
+        ).css({
+          background:'#444', padding:'6px 16px', borderRadius:'2px', marginTop:'8px'
+        })
+      }
+
+      function sep() {
+        $('<div>').css({
+          height:'1px', background:'rgba(255,255,255,0.15)',
+          margin:'20px auto', width:'570px'
+        }).appendTo('#stage')
+      }
+
+      // ——————— SECTION 1 : BASIC ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        var basic = [
+          {id:'u', label:'uniform(5)',            color:'#4fc3f7', ease:U},
+          {id:'a', label:'accelerate(0.167,0)',   color:'#81c784', ease:A},
+          {id:'e', label:'exponential(0.15,0.01)',color:'#e57373', ease:E},
+          {id:'x', label:'Expo.easeOut (ref)',    color:'#ffd54f', ease:Expo.easeOut}
+        ]
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 BASIC PHYSICAL EASES</div>').appendTo(sec)
+        var tweens = []
+        for(var i=0;i<basic.length;i++){
+          var t=basic[i]
+          var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          var el = $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row)
+          var tw = BJS.create({target:el[0],to:{left:DIST},time:1,ease:t.ease})
+          tw.onComplete=function(){ trace('basic complete') }
+          tweens.push({el:el, tw:tw})
+        }
+        makeBtn('Play').appendTo(sec).on('mousedown',function(){
+          for(var i=0;i<tweens.length;i++){
+            tweens[i].el.css('left',0)
+            tweens[i].tw.restart()
+          }
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 2 : REVERSED ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 REVERSED TWEEN (Physical.uniform)</div>').appendTo(sec)
+        var rows = [
+          {id:'fw', label:'Forward', color:'#4fc3f7'},
+          {id:'rv', label:'Reversed', color:'#4fc3f7'}
+        ]
+        for(var i=0;i<rows.length;i++){
+          var t=rows[i]
+          var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row).addClass('s2-'+t.id)
+        }
+        var fwEl=$('.s2-fw'), rvEl=$('.s2-rv')
+        var fw=BJS.create({target:fwEl[0],to:{left:DIST},time:1,ease:U})
+        fw.onComplete=function(){ trace('forward complete') }
+        var base=BJS.create({target:rvEl[0],to:{left:DIST},time:1,ease:U})
+        var rev=BJS.reverse(base)
+        rev.onComplete=function(){ trace('reversed complete') }
+        makeBtn('Play').appendTo(sec).on('mousedown',function(){
+          fwEl.css('left',0)
+          rvEl.css('left',0)
+          fw.restart(); rev.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 3 : SLICED ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 SLICED TWEEN (Physical.uniform, begin:0.25 end:0.75)</div>').appendTo(sec)
+        var rows = [
+          {id:'fu', label:'Full (0\u21921)', color:'#81c784'},
+          {id:'sl', label:'Sliced (0.25\u21920.75)', color:'#81c784'}
+        ]
+        for(var i=0;i<rows.length;i++){
+          var t=rows[i]
+          var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row).addClass('s3-'+t.id)
+        }
+        var fuEl=$('.s3-fu'), slEl=$('.s3-sl')
+        var fu=BJS.create({target:fuEl[0],to:{left:DIST},time:1,ease:U})
+        fu.onComplete=function(){ trace('full slice complete') }
+        var base=BJS.create({target:slEl[0],to:{left:DIST},time:1,ease:U})
+        var sl=BJS.slice(base, 0.25, 0.75)
+        sl.onComplete=function(){ trace('sliced complete') }
+        makeBtn('Play').appendTo(sec).on('mousedown',function(){
+          fuEl.css('left',0)
+          slEl.css('left',0)
+          fu.restart(); sl.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 4 : SERIAL ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 SERIAL TWEEN [Physical.uniform + Physical.exponential]</div>').appendTo(sec)
+        var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+        $('<div class="text-xs" style="color:#aaa">').text('segments: uniform\u2192exponential').appendTo(row)
+        var el = $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:#ba68c8">').appendTo(row).addClass('s4-bar')
+        var seg1=BJS.create({target:el[0],to:{left:150},time:0.5,ease:U})
+        var seg2=BJS.create({target:el[0],to:{left:DIST},time:0.5,ease:E})
+        var serial=BJS.serial(seg1, seg2)
+        serial.onComplete=function(){ trace('serial complete') }
+        makeBtn('Play').appendTo(sec).on('mousedown',function(){
+          el.css('left',0)
+          serial.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 5 : TRANSFORM ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 CSS TRANSFORM via {transform:{translateX,rotate}}</div>').appendTo(sec)
+        var rows = [
+          {id:'tr', label:'translateX(200px) \u2014 Expo.easeOut', color:'#ffb74d'},
+          {id:'trr', label:'translateX(200px) + rotate(360deg) \u2014 Expo.easeOut', color:'#ffb74d'}
+        ]
+        for(var i=0;i<rows.length;i++){
+          var t=rows[i]
+          var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row).addClass('s5-'+t.id)
+        }
+        var trEl=$('.s5-tr'), trrEl=$('.s5-trr')
+        var tr=BJS.create({target:trEl[0],to:{transform:{translateX:200}},time:1,ease:Expo.easeOut})
+        tr.onComplete=function(){ trace('transform:translateX complete') }
+        var trr=BJS.create({target:trrEl[0],to:{transform:{translateX:200,rotate:360}},time:1.5,ease:Expo.easeOut})
+        trr.onComplete=function(){ trace('transform:translateX+rotate complete') }
+        makeBtn('Play').appendTo(sec).on('mousedown',function(){
+          trEl.css({left:0,transform:'none'})
+          trrEl.css({left:0,transform:'none'})
+          tr.restart(); trr.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 6 : 3D TRANSFORM ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative;perspective:800px;transform-style:preserve-3d">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 CSS 3D TRANSFORM via {transform:{translateX,translateY,rotateX...}}</div>').appendTo(sec)
+        var rows6 = [
+          {id:'3d', label:'translateX(150px) rotateY(90deg) \u2014 Expo.easeOut', color:'#4db6ac'},
+          {id:'z',  label:'translateZ(150px) \u2014 Expo.easeOut (perspective:800px on parent)', color:'#4dd0e1'},
+          {id:'f',  label:'translateX(100) translateZ(100) rotateY(45deg) \u2014 Expo', color:'#26c6da'}
+        ]
+        for(var i=0;i<rows6.length;i++){
+          var t=rows6[i]
+          var row = $('<div class="flex flex-col mb-[8px]" style="transform-style:preserve-3d">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row).addClass('s6-'+t.id)
+        }
+        var tw3d  = BJS.create({target:$('.s6-3d')[0],to:{transform:{translateX:150,translateY:0,rotateY:90}},time:1.5,ease:Expo.easeOut})
+        var twZ   = BJS.create({target:$('.s6-z')[0], to:{transform:{translateZ:150}},time:1.5,ease:Expo.easeOut})
+        var twF   = BJS.create({target:$('.s6-f')[0], to:{transform:{translateX:100,translateZ:100,rotateY:45}},time:1.5,ease:Expo.easeOut})
+        tw3d.onComplete=function(){ trace('3d complete') }
+        twZ.onComplete=function(){ trace('z complete') }
+        twF.onComplete=function(){ trace('full 3d complete') }
+        makeBtn('Play All 3D').appendTo(sec).on('mousedown',function(){
+          $('[class^=s6-]').css({left:0,transform:''})
+          tw3d.restart(); twZ.restart(); twF.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 7 : TIMEOUT / FUNC / LOAD SERIAL ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 TIMEOUT / FUNC / LOAD in serial() chains</div>').appendTo(sec)
+        var rows7 = [
+          {id:'to', label:'BJS.timeout(0.6s, cb) \u2192 tween \u2192 onComplete', color:'#ef9a9a'},
+          {id:'fn', label:'BJS.func(cb).delay(0.9s) \u2192 tween \u2192 onComplete', color:'#ce93d8'},
+          {id:'ld', label:'BJS.load /tests/ (cb) \u2192 tween \u2192 onComplete', color:'#90caf9'}
+        ]
+        for(var i=0;i<rows7.length;i++){
+          var t=rows7[i]
+          var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+          $('<div class="text-xs" style="color:#aaa">').text(t.label).appendTo(row)
+          $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:'+t.color+'">').appendTo(row).addClass('s7-'+t.id)
+        }
+
+        function seg(el, x, color){
+          return BJS.create({target:el,to:{left:x,background:color},time:0.4,ease:Expo.easeOut})
+        }
+
+        var elTo = $('.s7-to')
+        var toChain = BJS.serial(
+          BJS.timeout(0.6, function(){ trace('timeout fired') }),
+          seg(elTo[0], 100, '#e57373')
+        )
+        toChain.onComplete = function(){ trace('timeout-chain complete') }
+
+        var elFn = $('.s7-fn')
+        var fnTw = BJS.func(function(){ trace('func fired') }).delay(0.9)
+        var fnChain = BJS.serial(
+          fnTw,
+          seg(elFn[0], 100, '#7b1fa2')
+        )
+        fnChain.onComplete = function(){ trace('func-chain complete') }
+
+        var elLd = $('.s7-ld')
+        var ldChain = BJS.serial(
+          BJS.load('/tests/', function(){
+            trace('load complete, response length: '+(this.response||'').length)
+          }),
+          seg(elLd[0], 100, '#1565c0')
+        )
+        ldChain.onComplete = function(){ trace('load-chain complete') }
+
+        makeBtn('Play All Chains').appendTo(sec).on('mousedown',function(){
+          elTo.css({left:0,background:'#ef9a9a'})
+          elFn.css({left:0,background:'#ce93d8'})
+          elLd.css({left:0,background:'#90caf9'})
+          toChain.restart()
+          fnChain.restart()
+          ldChain.restart()
+        })
+      })()
+      sep()
+
+      // ——————— SECTION 8 : INTERVAL STANDALONE (manual clear) ———————
+      ;(function(){
+        var sec = $('<div class="mx-auto" style="width:570px;position:relative">').appendTo('#stage')
+        $('<div class="text-gray-500 text-sm mb-2">\u25B8 INTERVAL standalone (auto-cleared after 5 fires)</div>').appendTo(sec)
+        var row = $('<div class="flex flex-col mb-[8px]">').appendTo(sec)
+        $('<div class="text-xs" style="color:#aaa">').text('interval(0.3s, cb); auto-cleared at 5 fires').appendTo(row)
+        var el = $('<div class="relative rounded-md opacity-90" style="left:0;width:50px;height:'+ROW+'px;background:#f48fb1">').appendTo(row).addClass('s8-iv')
+        var ivCount = 0, ivTw
+        makeBtn('Start Interval').appendTo(sec).on('mousedown',function(){
+          if(ivTw && ivTw.isPlaying) BJS.clearInterval(ivTw)
+          ivCount = 0
+          ivTw = BJS.interval(0.3, function(){
+            ivCount++
+            el.css('background', ivCount%2===0 ? '#f48fb1' : '#c2185b')
+            trace('interval standalone #'+ivCount)
+            if(ivCount >= 5) BJS.clearInterval(ivTw)
+          })
+          ivTw.play()
+        })
+      })()
+
+    })

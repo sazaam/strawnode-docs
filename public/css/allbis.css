@@ -1,4 +1,4 @@
-/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
 @import url('https://fonts.cdnfonts.com/css/montserrat');
 @layer properties;
 html {
@@ -780,9 +780,6 @@ a {
   color: inherit;
   text-decoration: none;
   outline: none !important;
-}
-a:hover, a:focus, .active a {
-  color: inherit !important;
 }
 .inactive {
   color: #444 !important;
@@ -2709,12 +2706,18 @@ body, html {
 .typo {
   font-family: "ARS-Maquette-Web-Pro-1";
 }
+.sizeRM {
+  font-size: 115%;
+}
 .extlink {
   display: block;
   clear: both;
   padding: 10px 20px;
-  background-color: rgba(255, 255, 255, .25);
+  background-color: rgba(255, 255, 255, .125);
   border-radius: 0.25rem;
+}
+.extlink:hover {
+  background-color: rgba(255, 255, 255, .25);
 }
 .txtR .extlink {
   float: right;
@@ -2836,6 +2839,27 @@ a.justtransp {
 .brackets {
   top: -10px;
 }
+.glass {
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.vision .box .el {
+  width: 100px;
+  height: 100px;
+  background: rgba(244, 244, 244, .025);
+  border-radius: 10px;
+  top: -50px;
+  left: -50px;
+}
+.vision .prev, .vision .next {
+  display: none;
+}
+@media screen and (min-width: 512px) {
+  .vision .prev, .vision .next {
+    display: block;
+  }
+}
 @media screen and (min-width: 768px) {
   .brackets {
     top: 60px;
@@ -2906,7 +2930,7 @@ a.justtransp {
     opacity: 0;
   }
 }
-.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar {
+.scrollingzone::-webkit-scrollbar, .mainscrollingzone::-webkit-scrollbar , .visionzone::-webkit-scrollbar {
   display: none;
 }
 .limited {
@@ -2934,10 +2958,48 @@ a.justtransp {
   border-color: rgba(255, 255, 255, .25);
 }
 .whitetranspBG {
-  background-color: rgba(255, 255, 255, .25);
+  background-color: rgba(255, 255, 255, .125);
+}
+.whitetranspBG:hover {
+  background-color: rgba(255, 255, 255, .25) !important;
 }
 .blacktranspBG {
   background-color: rgba(13, 13, 13, .94);
+}
+.vision_visual {
+  background-size: cover;
+  background-position: center;
+}
+.vision_panel {
+  pointer-events: none;
+}
+.vision_panel a {
+  pointer-events: auto;
+}
+.vision_cta a {
+  display: inline-block;
+  padding: .6rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.55);
+  background: rgba(255,255,255,.12);
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+}
+.vision_cta a:hover, .vision_cta a:focus {
+  background: rgba(255,255,255,.95);
+  border-color: #FFF;
+  color: #0A0A0A;
+}
+.vision_cta a .arrowindic {
+  transition: opacity .25s ease;
+}
+.vision_cta a:hover .arrowindic, .vision_cta a:focus .arrowindic {
+  opacity: 1;
+}
+.vision_cta_contact a {
+  border-style: dashed;
 }
 .bordertop {
   background: #2A2A2A;
@@ -3106,14 +3168,18 @@ input:autofill, input:autofill:hover, input:autofill:focus {
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-gray-500: oklch(55.1% 0.027 264.364);
     --color-black: #000;
+    --color-white: #fff;
     --spacing: 0.25rem;
+    --text-xs: 0.75rem;
+    --text-xs--line-height: calc(1 / 0.75);
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
     --radius-md: 0.375rem;
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --default-transition-duration: 150ms;
-    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
   }
@@ -3306,6 +3372,15 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .mx-4 {
     margin-inline: calc(var(--spacing) * 4);
   }
+  .mx-auto {
+    margin-inline: auto;
+  }
+  .mb-2 {
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+  .mb-\[8px\] {
+    margin-bottom: 8px;
+  }
   .box-border {
     box-sizing: border-box;
   }
@@ -3330,38 +3405,8 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .inline-block {
     display: inline-block;
   }
-  .inline-table {
-    display: inline-table;
-  }
-  .list-item {
-    display: list-item;
-  }
   .table {
     display: table;
-  }
-  .table-caption {
-    display: table-caption;
-  }
-  .table-cell {
-    display: table-cell;
-  }
-  .table-column {
-    display: table-column;
-  }
-  .table-column-group {
-    display: table-column-group;
-  }
-  .table-footer-group {
-    display: table-footer-group;
-  }
-  .table-header-group {
-    display: table-header-group;
-  }
-  .table-row {
-    display: table-row;
-  }
-  .table-row-group {
-    display: table-row-group;
   }
   .h-64 {
     height: calc(var(--spacing) * 64);
@@ -3405,11 +3450,11 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .grow {
     flex-grow: 1;
   }
-  .border-collapse {
-    border-collapse: collapse;
-  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  }
+  .cursor-pointer {
+    cursor: pointer;
   }
   .resize {
     resize: both;
@@ -3432,6 +3477,9 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .content-start {
     align-content: flex-start;
   }
+  .items-center {
+    align-items: center;
+  }
   .justify-center {
     justify-content: center;
   }
@@ -3446,6 +3494,9 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   }
   .justify-items-start {
     justify-items: start;
+  }
+  .gap-4 {
+    gap: calc(var(--spacing) * 4);
   }
   .gap-6 {
     gap: calc(var(--spacing) * 6);
@@ -3464,6 +3515,9 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   }
   .rounded {
     border-radius: 0.25rem;
+  }
+  .rounded-md {
+    border-radius: var(--radius-md);
   }
   .border {
     border-style: var(--tw-border-style);
@@ -3487,6 +3541,20 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .p-8 {
     padding: calc(var(--spacing) * 8);
   }
+  .text-sm {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+  .text-xs {
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .text-gray-500 {
+    color: var(--color-gray-500);
+  }
+  .text-white {
+    color: var(--color-white);
+  }
   .uppercase {
     text-transform: uppercase;
   }
@@ -3497,14 +3565,11 @@ input:autofill, input:autofill:hover, input:autofill:focus {
     --tw-ordinal: ordinal;
     font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
   }
-  .line-through {
-    text-decoration-line: line-through;
-  }
-  .overline {
-    text-decoration-line: overline;
-  }
   .underline {
     text-decoration-line: underline;
+  }
+  .opacity-90 {
+    opacity: 90%;
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
@@ -3537,11 +3602,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
-  .transition {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
   .ease-in {
     --tw-ease: var(--ease-in);
     transition-timing-function: var(--ease-in);
@@ -3553,6 +3613,10 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .ease-out {
     --tw-ease: var(--ease-out);
     transition-timing-function: var(--ease-out);
+  }
+  .select-none {
+    -webkit-user-select: none;
+    user-select: none;
   }
   .hover\:bg-red-500 {
     &:hover {

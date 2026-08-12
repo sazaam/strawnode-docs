@@ -12,7 +12,7 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-ite
 				
 				.none.imageslinks
 					for el, i in res.userData.slides
-						- var xpos = el.x || '50%' ;
+						- var xpos = '0%' ;
 						- var loaded = el['loaded'] ;
 						
 						- if(loaded){
@@ -23,9 +23,11 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-ite
 						- }
 		
 		.scrollzone.abs.fullW.fullH.top0.right0.bottom0(class="self-start")
-			.scrollingzone.abs.left0.right0.bottommed.topped.flowYauto(style="margin:100px 0 100px;")
-				.innerdesc.mist.BmarginXXXXXLg.HmarXXLg.txtR.marked(style="z-index:1200;" i18n=res.id + '.desc' md=1)
-					| !{marked.marked(t(res.id + '.desc_00',  { defaultValue: "" } ))}
+			
+				.scrollingzone.abs.left0.right0.bottommed.topped.flowYauto(style="margin:100px 0 100px;")
+					.innerdesc.mist.BmarginXXXXXLg.HmarXXLg.txtR.marked(style="z-index:1200;" i18n=res.id + '.desc' md=1)
+						| !{marked.marked(t(res.id + '.desc_00',  { defaultValue: "" } ))}
+			
 		.whitetransp.context(style="bottom:2px;" class="border-l-1 grow justify-start justify-items-start self-end")
 			.textes.txtL.mist.marXXXXXLg.VpadXXLg
 				+lr_arrows('r', 'b', 'projectsectionpanesnav BmarXXXXXLg white sizeM RmarXLg Rpad bottommed')

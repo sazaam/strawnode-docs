@@ -39,7 +39,7 @@ window.trace = console.log;
 		for (var i = scripts.length - 1; i >= 0; i--) {
 			var s = scripts[i];
 			var src = s.getAttribute('src', -1) || s.src || '';
-			if (src.indexOf('strawnode.js') !== -1 || src.indexOf('starter=') !== -1) {
+			if (src.indexOf('strawnode_async.js') !== -1 || src.indexOf('starter=') !== -1) {
 				script = s;
 				break;
 			}
@@ -193,29 +193,46 @@ window.trace = console.log;
 		return xhttp;
 	};
 
-	var trySyncFetch = function trySyncFetch(url) {
-		try {
+	var tryAsyncFetch = function tryAsyncFetch(url) {
+		if (ModuleLoader.cache[url]) return;
+		if (url in ModuleLoader._fetching) return;
+		ModuleLoader._fetching[url] = true;
+
+		if (typeof fetch === 'function') {
+			fetch(url).then(function (resp) {
+				if (!resp.ok) { delete ModuleLoader._fetching[url]; return; }
+				return resp.text();
+			}).then(function (text) {
+				if (text) {
+					if (/^\s*</.test(text)) {
+						console.warn('[StrawNode] tryAsyncFetch: fetch returned HTML instead of JavaScript');
+						console.warn('  url: ' + url);
+						console.warn('  first 200 chars: ' + text.slice(0, 200));
+					} else {
+						ModuleLoader.cache[url] = text;
+					}
+				}
+				delete ModuleLoader._fetching[url];
+			}).catch(function () {
+				delete ModuleLoader._fetching[url];
+			});
+		} else {
 			var xhr = new XMLHttpRequest();
-			xhr.open('GET', url, false);
-			xhr.send(null);
-			if (xhr.status === 200 || xhr.status === 304 || xhr.status === 0) {
+			xhr.open('GET', url, true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState !== 4) return;
+				delete ModuleLoader._fetching[url];
+				if (xhr.status !== 200 && xhr.status !== 304 && xhr.status !== 0) return;
 				var text = xhr.responseText;
 				if (/^\s*</.test(text)) {
-					console.warn('[StrawNode] trySyncFetch: fetch returned HTML instead of JavaScript');
+					console.warn('[StrawNode] tryAsyncFetch: fetch returned HTML instead of JavaScript');
 					console.warn('  url: ' + url);
-					console.warn('  status: ' + xhr.status);
-					console.warn('  first 200 chars: ' + text.slice(0, 200));
-					console.warn('  VERBOSE: The server likely returned index.html for a missing module.');
-					console.warn('  VERBOSE: Check that the file exists at the resolved path, or use the correct module name.');
-					return null;
+				} else {
+					ModuleLoader.cache[url] = text;
 				}
-				ModuleLoader.cache[url] = text;
-				return text;
-			}
-		} catch (e) {
-			console.warn('[StrawNode] trySyncFetch: request failed for ' + url, e.message);
+			};
+			xhr.send(null);
 		}
-		return null;
 	};
 
 	var setPostData = function setPostData(postData) {
@@ -360,7 +377,7 @@ window.trace = console.log;
 		var script_root = baseparams.script_root;
 		module.params = params;
 		var source = resp.replace(
-			/^(?:\s*\/\/[^\n]*\n|\s*\/\*[\s\S]*?\*\/\s*)*\s*(['"])\s*use\s+strict\s*\1\s*;?\s*/,
+			/^(?:\s*\/\/[^\n]*\n|\s*\/\*[\s\S]*?\*\/\s*)?\s*(['"])\s*use\s+strict\s*\1\s*;?\s*/,
 			function(m) { return 'void 0;' + m; }
 		) + ';\n//# sourceURL=' + (module.dirname + module.filename);
 
@@ -441,22 +458,49 @@ window.trace = console.log;
 		}
 	};
 
-	var extractDependencies = function (source) {
+	var extractDependencies = function (source, url) {
 		var deps = [];
 		if (!source) return deps;
 
-		// Strip comments before extracting dependencies to avoid loading commented-out requires
+		// Skip minified/bundled files — false positives are expensive and never useful
+		if (url && /\.min\.js$/i.test(url)) return deps;
+
+		// Strip comments before extracting dependencies
 		var cleanSource = source
-			.replace(/\/\*[\s\S]*?\*\//g, ' ') // Strip multi-line comments
-			.replace(/\/\/.*/g, ' ');          // Strip single-line comments
+			.replace(/\/\*[\s\S]*?\*\//g, ' ') // multi-line comments
+			.replace(/\/\/.*/g, ' ');          // single-line comments
+
+		// Remove string literal CONTENTS while keeping the outer quotes and
+		// preserving real require() calls. We do this by:
+		//   1. Temporarily replacing require('...') / require("...") patterns
+		//      with a safe placeholder.
+		//   2. Replacing all remaining string contents with a space.
+		//   3. Restoring placeholders so the require regex finds real deps.
+		var REQ_MARKER = '__REQ__';
+		var placeholderMap = {};
+		var markerIdx = 0;
+		cleanSource = cleanSource.replace(
+			/(require\s*\(\s*)(['"])([^'"]+)\2/g,
+			function (m, prefix, quote, path) {
+				var key = REQ_MARKER + (markerIdx++) + REQ_MARKER;
+				placeholderMap[key] = m;
+				return key;
+			}
+		);
+		// Strip remaining string literal bodies (single and double quoted)
+		cleanSource = cleanSource
+			.replace(/'[^'\\]*(?:\\.[^'\\]*)*'/g, "' '")
+			.replace(/"[^"\\]*(?:\\.[^"\\]*)*"/g, '" "');
+		// Restore require-placeholders
+		for (var key in placeholderMap) {
+			cleanSource = cleanSource.replace(key, placeholderMap[key]);
+		}
 
 		// Agnostic heuristic: If this is a pre-bundled file (Webpack, Browserify, or UMD),
 		// we skip parsing its internal `require` calls to prevent false-positive pre-fetches.
-		// We look for common bundler signatures in the first 3000 characters.
-		var head = cleanSource.substring(0, 3000);
 		var bundlerSignatures = /__webpack_require__|\bdefine\.amd\b|typeof\s+require\s*={2,3}\s*['"]function['"]\s*&&\s*require|['"]function['"]\s*={2,3}\s*typeof\s+require\s*&&\s*require/;
 
-		if (bundlerSignatures.test(head)) {
+		if (bundlerSignatures.test(cleanSource)) {
 			// File is bundled; it manages its own internal requires.
 			return deps;
 		}
@@ -491,7 +535,7 @@ window.trace = console.log;
 
 		var processSourceWithExternalDeps = function (fetchedUrl, source, extraDeps) {
 			logLoad(fetchedUrl, "fetched");
-			var deps = extractDependencies(source);
+			var deps = extractDependencies(source, fetchedUrl);
 			var allDeps = deps.map(function (d) { return { id: d, type: 'unknown' }; })
 				.concat(extraDeps);
 
@@ -630,11 +674,16 @@ window.trace = console.log;
 		var typeExists = checkTypeExists();
 		var oldpath = typeExists ? Type.hackpath : '';
 
+		var requireFail = function (url) {
+			tryAsyncFetch(url);
+			throw new Error('[StrawNode] Module "' + url + '" was not pre-fetched. Use fetchModuleTree() before require(), or add it to the dependency tree.');
+		};
+
 		if (asType === 'file') {
 			var fileUrl = ensureExtension(ModuleLoader.concatRoot(requestedid, base));
 			resp = ModuleLoader.cache[fileUrl];
-			if (!resp) resp = trySyncFetch(fileUrl);
 			if (!resp) {
+				tryAsyncFetch(fileUrl);
 				asType = 'dir';
 			}
 		}
@@ -650,7 +699,7 @@ window.trace = console.log;
 					var index = pakageJSON.main || pakageJSON.index || './' + DEFAULT_JS_NAME + '.js';
 					indexUrl = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/') + index, base);
 					resp = ModuleLoader.cache[indexUrl];
-					if (!resp) resp = trySyncFetch(indexUrl);
+					if (!resp) requireFail(indexUrl);
 
 					var newRoot = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/'), base);
 					ModuleLoader.setModuleRoot(newRoot);
@@ -675,7 +724,7 @@ window.trace = console.log;
 
 				} else {
 					resp = ModuleLoader.cache[indexUrl];
-					if (!resp) resp = trySyncFetch(indexUrl);
+					if (!resp) requireFail(indexUrl);
 					var newRoot = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/'), base);
 					ModuleLoader.setModuleRoot(newRoot);
 					if (typeExists) Type.hackpath = '';
@@ -687,7 +736,7 @@ window.trace = console.log;
 			} else if (asType === 'file') {
 				var finalFileUrl = ensureExtension(ModuleLoader.concatRoot(requestedid, base));
 				resp = ModuleLoader.cache[finalFileUrl];
-				if (!resp) resp = trySyncFetch(finalFileUrl);
+				if (!resp) requireFail(finalFileUrl);
 				var dirPart = requestedid.indexOf('/') !== -1 ? requestedid.replace(path_to_dirname_r, '/') : './';
 				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot(dirPart, base));
 				if (typeExists) Type.hackpath = '';
@@ -699,7 +748,7 @@ window.trace = console.log;
 				var modId = requestedid.indexOf('strawnode_modules/') === 0 ? requestedid.substring('strawnode_modules/'.length) : requestedid;
 				var nodeModUrl = ModuleLoader.concatRoot('./strawnode_modules/' + modId, base);
 				resp = ModuleLoader.cache[nodeModUrl];
-				if (!resp) resp = trySyncFetch(nodeModUrl);
+				if (!resp) requireFail(nodeModUrl);
 				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot('./strawnode_modules/', base));
 				if (typeExists) Type.hackpath = '';
 
@@ -737,6 +786,7 @@ window.trace = console.log;
 	var strawnodebaseparams;
 
 	ModuleLoader.cache = {};
+	ModuleLoader._fetching = {};
 	ModuleLoader.depEdges = {};
 	ModuleLoader.depStack = [];
 	ModuleLoader.js_root = '';
@@ -757,6 +807,12 @@ window.trace = console.log;
 
 		return evaluateModule(id, newparams, false, ModuleLoader.js_root);
 	}
+
+	require.fetchTree = function fetchTree(id, params) {
+		var asType = resolveModuleType(id);
+		var base = ModuleLoader.js_root;
+		return fetchModuleTree(id, params || {}, asType, base);
+	};
 
 	require.resolve = function resolve(id) {
 		var base = ModuleLoader.js_root || (getBaseParams ? getBaseParams().dirname : location.href);

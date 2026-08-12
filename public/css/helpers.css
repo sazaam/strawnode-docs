@@ -18,9 +18,9 @@ a				{
 
 
 
-a:hover, 
+/* a:hover, 
 a:focus, 
-.active a		{color:inherit !important}
+.active a		{color:inherit !important} */
 .inactive 		{color:#444 !important}
 .inactive:hover , 
 .inactive:focus	{color:inherit !important}

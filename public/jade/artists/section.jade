@@ -4,7 +4,7 @@ block content
 		include ./nav
 		include ./indicator
 		
-		unless /(projects|studies)/.test(response.id)
+		unless response.userData.deck
 			include ./navsection
 		else 
 			include ./navsection_project

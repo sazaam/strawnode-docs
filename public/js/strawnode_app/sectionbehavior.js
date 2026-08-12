@@ -1,10 +1,15 @@
 
 
-var slidings_sections = ['projects', 'studies'] ;
+// deck-ness is data : stamped by section({deck:true}) on the route handler's userData
+var isDeck = function(res){
+    return !!(res && res.userData && res.userData.deck) ;
+} ;
 var about_type_sliding_sections = ['about'] ;
 
 var GestureManager = require('./strawnode_modules/gesture') ;
 var KeyboardManager = require('./strawnode_modules/keyboard') ;
+var Reactive = require('./strawnode_modules/reactive') ;
+var ReactiveI18n = require('./strawnode_modules/reactive-i18n') ;
 
 module.exports = {
     /////////////////////////////////// CHECK & ADD|REMOVE CLASS ALONG CONDITION
@@ -35,6 +40,148 @@ module.exports = {
 
         // Home Catchphrases
         this.home_catchphrases(cond, res) ;
+
+        this.vision(cond, res) ;
+    },
+
+    vision:function(cond, res){
+        if(res.name != 'vision') return ;
+        
+        if(cond){
+            
+            var makeRand = function(w, h){ return { w: Math.random() * w , h: Math.random() * h} } ;
+            
+            var zone = $('.spark') ;
+            var scroller = $('.vision').get(0) ;
+            var obs = null ;
+            var activeTw = null ;
+
+            // per-zone orbit tween, not started yet.
+            // resume = true re-enters the frozen state seamlessly (same radius, resumes at the frozen angle)
+            var buildOrbit = function(z, resume){
+                var tws = [] ;
+                z.find('.box').each(function(ii, ell){
+                    var box = $(ell) ;
+                    // orbit center = the random placement applied at focus
+                    var c = box.data('sparkc') ;
+                    // keep the per-box radius across entries so re-activation is seamless
+                    var rad = parseFloat(box.data('sparkr')) ;
+                    if(isNaN(rad)){
+                        rad = 4 + Math.random() * 20 ;
+                        box.data('sparkr', rad) ;
+                    }
+                    // per-box scale cycle : own phase, kept across entries.
+                    // phase-only (no frequency multiplier) keeps scale periodic over one
+                    // orbit, so the scale returns to its own start when the tween restarts
+                    var sp = parseFloat(box.data('sparkp')) ;
+                    if(isNaN(sp)){
+                        sp = Math.random() * Math.PI * 2 ;
+                        box.data('sparkp', sp) ;
+                    }
+                    var dur = 1.8 + Math.random() * 2.4 ;
+                    var dir = Math.random() > .5 ? 1 : -1 ;
+                    var start = resume
+                        ? Math.atan2(parseFloat(box.css('top')) - c.y, parseFloat(box.css('left')) - c.x)
+                        : Math.random() * Math.PI * 2 ;
+                    var el = box.find('.el').get(0) ;
+                    var phaser = { ang : start } ;
+                    var twbox = BJS.create({
+                        target:phaser,
+                        to:{ ang : start + dir * Math.PI * 2 },
+                        // time:dur,
+                        ease:Physical.uniform(.02),
+                        onUpdate:function(){
+                            var a = phaser.ang ;
+                            box.css({
+                                'left' : (c.x + rad * Math.cos(a)) + 'px',
+                                'top'  : (c.y + rad * Math.sin(a)) + 'px'
+                            }) ;
+                            // depth illusion : each box scales 80-120% over its own cycle
+                            if(!!el){
+                                var s = .8 + .4 * (.5 + .5 * Math.sin(a + sp)) ;
+                                el.style.transform = 'scale(' + s.toFixed(3) + ')' ;
+                            }
+                        }
+                    }) ;
+                    tws.push(twbox) ;
+                })
+                return BJS.parallelTweens(tws) ;
+            }
+
+            var setActive = function(z){
+                if(!!activeTw) activeTw.stop() ;
+                activeTw = null ;
+                if(!!!z || !z.length) return ;
+                var resume = !!z.data('sparkplayed') ;
+                z.data('sparkplayed', true) ;
+                var tw = buildOrbit(z, resume) ;
+                activeTw = tw ;
+                tw.play().stopOnComplete = 0 ;
+            }
+
+            // place every spark's boxes once, keeping the centers for the orbits
+            zone.each(function(i, el){
+                var z = $(el) ;
+                var w = z.width(), h = z.parent().height() ;
+                var mw = w >> 1, mh = h >> 1 ;
+
+                z.find('.box').each(function(ii, ell){
+                    var rand = makeRand(w, h) ;
+                    var box = $(ell) ;
+                    box.css({'left':rand.w + 'px', 'top':rand.h + 'px'}) ;
+                    box.data('sparkc', { x: rand.w, y: rand.h }) ;
+                })
+            })
+
+            // scrollytelling : animate the article zone entering the scope, stop the previous one
+            if('IntersectionObserver' in window){
+                obs = new IntersectionObserver(function(entries){
+                    entries.forEach(function(en){
+                        if(!!en.isIntersecting){
+                            setActive($(en.target).find('.spark')) ;
+                        }
+                    })
+                }, { root : scroller, threshold : .5 }) ;
+                zone.each(function(i, el){
+                    obs.observe(el.closest('article')) ;
+                })
+            }else{
+                // no IO support : keep the first zone only
+                setActive(zone.eq(0)) ;
+            }
+
+            res.userData = res.userData || {} ;
+            res.userData.visionCleanup = function(){
+                if(!!obs) obs.disconnect() ;
+                if(!!activeTw) activeTw.stop() ;
+                activeTw = null ;
+            } ;
+
+            $('.vision a.prev, .vision a.next').click(function(e){
+                e.preventDefault() ;
+                var tg = $(e.target) ;
+                var isNext = tg.hasClass('next') ;
+                var i = parseInt(tg.attr('data-index')) ;
+                var animtg = $('.vision') ;
+                var top = (isNext ? i + 1 : i - 1) * (animtg.height()) ;
+                
+                var scrolltw = BJS.create({
+                    target:animtg, 
+                    to:{'scrollTop':top},
+                    time:.25, ease:Expo.easeOut
+                }) ;
+
+                scrolltw.play() ;
+
+            }) ;
+
+
+
+
+
+        }else{
+            if(!!res.userData && !!res.userData.visionCleanup) res.userData.visionCleanup() ;
+        }
     },
     home_catchphrases:function(cond, res){
         if(res.name!='@') return ;
@@ -61,7 +208,7 @@ module.exports = {
             var ql = qarr.length ;
             var rand = res.userData.rand || parseInt(Math.random() * ql) ;
             var bracketstxt = $('<div>').addClass('rel').css('white-space','pre-line').appendTo(brackets) ;
-            var bracketsbox = $('<div>').addClass('animz').css({'padding':'20px', 'background':'#FFFFFF11'}).appendTo(bracketstxt) ;
+            var bracketsbox = $('<div>').addClass('animz glass').css({'padding':'20px'}).appendTo(bracketstxt) ;
             var txt = $('<div>').addClass('quote sizeM').css({'opacity': 0}).html(qarr[rand]).appendTo(bracketsbox) ;
             
             var lr = $('<div class="abs typo animz">').css({'bottom':'-20px', 'right':'20px'}).appendTo(bracketstxt) ;
@@ -389,7 +536,7 @@ module.exports = {
     },
 
     project_hide:function project_hide(cond, res){
-        if(!res.id.test(slidings_sections)) return ;
+        if(!isDeck(res)) return ;
 
         if(cond){
             $('.navzoneinside, .content').removeClass('hidden') ;
@@ -558,7 +705,7 @@ module.exports = {
     ///////////////////////////////////////////////////// SLIDES FROM THE PROJECT-LEVEL STEP
     deep_slides:function deep_slides(cond, res){
         
-        if(res.depth == 1 || !!res.parentStep.parentStep && !res.parentStep.parentStep.id.test(slidings_sections)) return ;
+        if(res.depth == 1 || !res.parentStep.parentStep || !isDeck(res.parentStep.parentStep) || !(res.parentStep.userData && res.parentStep.userData.slides)) return ;
 
         var tt = this ;
 
@@ -604,9 +751,10 @@ module.exports = {
             })
 
 
-            tt.ensureTranslates(res, project_zone) ;
-            
-            var index_res = parseInt(res.name) ;
+			tt.ensureTranslates(res, project_zone) ;
+			ReactiveI18n.bindContainer(project_zone, { stepId: res.id }) ;
+			
+			var index_res = parseInt(res.name) ;
             index_res = isNaN(index_res) ? 0 : index_res ;
 
             var curSlide = res.parentStep.userData.slides[isNaN(index_res) ? 0 : index_res] ;
@@ -685,19 +833,20 @@ module.exports = {
             
 
 
-        }else{
-            var tw_back = res.userData.tw_back ;
-            if(!!tw_back) {
-                tw_back.stop() ;
-            }
-            
-            paneimg.css('background-position-x', '0%') ;
+		}else{
+			ReactiveI18n.cleanup() ;
+			var tw_back = res.userData.tw_back ;
+			if(!!tw_back) {
+				tw_back.stop() ;
+			}
+			
+			paneimg.css('background-position-x', '0%') ;
 
-            // Restore touch-action lock on parent's zoneall when returning from deep section
-            $('.zoneall').addClass('touch-action') ;
+			// Restore touch-action lock on parent's zoneall when returning from deep section
+			$('.zoneall').addClass('touch-action') ;
 
-            // Ensures it Hides/Unhides ParentSection Content only if it is leaving the stage
-            if(Unique.getInstance().hierarchy.changer.leavesNode() == -1){
+			// Ensures it Hides/Unhides ParentSection Content only if it is leaving the stage
+			if(Unique.getInstance().hierarchy.changer.leavesNode() == -1){
                 if(Unique.getInstance().hierarchy.changer.getFutureDepth() < 2){
                     $('.navzoneinside, .content').removeClass('hidden')
                 }
@@ -709,7 +858,7 @@ module.exports = {
     },
     ///////////////////////////////////////////////////// ENSURE THAT PROJECTS ARE WELL DISPLAYED ON SLIDE-LEVEL STEP
     ensure_slides:function ensure_slides(cond, res){
-        if(!res.parentStep.id.test(slidings_sections)) return ; // return if we are NOT in the right section
+        if(!isDeck(res.parentStep)) return ; // return if we are NOT in the right section
         
         if(cond){
             res.parentStep.userData.getTo(res.index) ;
@@ -773,7 +922,7 @@ module.exports = {
     /////////////////////////////////// ACTUAL PROJECTS SLIDE ENABLING
     project_slides:function project_slides(cond, res){
         
-        if(!res.id.test(slidings_sections)) return ;
+        if(!isDeck(res)) return ;
 
         if(cond){
             var tt = this ;
@@ -869,7 +1018,7 @@ module.exports = {
                 if(!way) {
                     if(!fast) {
                         
-                        h = '#/' + lang + '/' + res.id + '/' ;
+						h = '#/' + lang + res.path + '/' ;
                         var mid_h = h + (el.attr('named')) + '/' ;
                         var panind = el.data('index') ;
                         
@@ -1263,7 +1412,8 @@ module.exports = {
                 
 
                 var i = 0 , l = sh.shaders.length ;
-                var startid = parseInt(Math.random() * (l-1)) ;
+                // var startid = parseInt(Math.random() * (l-1)) ;
+                var startid = 10 ;
                 var localID = parseInt(localStorage.shaderID || startid) ;
                 i = localID ;
                 var idshade = sh.shaders[localID] ;

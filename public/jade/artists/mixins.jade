@@ -45,7 +45,7 @@ mixin webm(src, w, h)
 
 mixin article(txtvar)
 	article.article.context
-		- var mk = marked.marked(t(txtvar))
+		- var mk = marked.marked(t(txtvar, {lang:lang}))
 		div.article_content.HpadXSm!= mk
 
 
@@ -55,9 +55,9 @@ mixin article_about(right)
 
 		.context.txtR.TmarginLg.Bmargin(class="")
 			if(right)
-				+gen_alpha_link_r(t('about.intro_read'), '#/' + lang + '/about/intro/')
+				+gen_alpha_link_r(t('about.intro_read'), '#/' + lang + '/about/intro/', 'furtherlink')
 			else 
-				+gen_alpha_link(t('about.intro_read'), '#/' + lang + '/about/intro/')
+				+gen_alpha_link(t('about.intro_read'), '#/' + lang + '/about/intro/', 'furtherlink')
 
 
 
@@ -95,6 +95,15 @@ mixin lr_arrows_justtransp(lr, tb, extra)
 		a.prev.justtransp.unselectable(href="javascript:void(0)")= "<"
 		span.unselectable= "     "
 		a.next.unselectable(href="javascript:void(0)")= ">"
+
+mixin lr_arrows_top_justtransp(lr, tb, extra, href1, href2)
+	- var cl = lr == 'r' ? 'right0 RmarSm' : 'left0 LmarSm' ;
+	- cl += ' ' + (tb == 't' ? 'top0' : 'bottom0') ;
+	- cl += ' ' + extra ;
+	.abs.lr_arrows.flex-row.typo(class=cl)
+		a.prev.unselectable(href=href1)= "<"
+		span.unselectable= "     "
+		a.next.unselectable(href=href2)= ">"
 
 mixin ud_arrows(extra)
 	- var cl = extra || 'right0' ;

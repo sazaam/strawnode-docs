@@ -1,0 +1,154 @@
+@layer vanilla-scroll-sky {
+  @scope (.vss) {
+    :scope {
+      --vss-scene-duration: 220svh;
+      --vss-caption-delay: 40svh;
+      --vss-caption-motion-distance: 80vw;
+      --vss-caption-start-x: 0;
+      --vss-caption-start-y: 0;
+      --vss-caption-end-x: 0;
+      --vss-caption-end-y: 0;
+      --vss-image-stick-top: 0;
+      --vss-image-height: 66svh;
+      --vss-image-start-offset: 4rem;
+      --vss-image-start-scale: .96;
+      --vss-image-start-x: 0;
+      --vss-image-start-y: var(--vss-image-start-offset);
+      --vss-scene-exit-space: 55svh;
+      --vss-caption-max-width: 52rem;
+      --vss-caption-padding: clamp(1.5rem, 4vw, 3rem);
+      --vss-image-fit: cover;
+      --vss-image-position: center;
+
+      min-height: var(--vss-scene-duration);
+      position: relative;
+      overflow-x: clip;
+      padding-block-end: var(--vss-scene-exit-space);
+      container: vss / inline-size;
+    }
+
+    :scope.vss--image-left {
+      --vss-image-start-x: calc(-1 * var(--vss-image-start-offset));
+      --vss-image-start-y: 0;
+    }
+
+    :scope.vss--image-right {
+      --vss-image-start-x: var(--vss-image-start-offset);
+      --vss-image-start-y: 0;
+    }
+
+    :scope.vss--image-top {
+      --vss-image-start-x: 0;
+      --vss-image-start-y: calc(-1 * var(--vss-image-start-offset));
+    }
+
+    :scope.vss--image-bottom {
+      --vss-image-start-x: 0;
+      --vss-image-start-y: var(--vss-image-start-offset);
+    }
+
+    :scope.vss--image-none {
+      --vss-image-start-x: 0;
+      --vss-image-start-y: 0;
+    }
+
+    :scope.vss--caption-left-center {
+      --vss-caption-start-x: calc(-1 * var(--vss-caption-motion-distance));
+      --vss-caption-end-x: 0;
+    }
+
+    :scope.vss--caption-right-center {
+      --vss-caption-start-x: var(--vss-caption-motion-distance);
+      --vss-caption-end-x: 0;
+    }
+
+    :scope.vss--caption-left-right {
+      --vss-caption-start-x: calc(-1 * var(--vss-caption-motion-distance));
+      --vss-caption-end-x: var(--vss-caption-motion-distance);
+    }
+
+    :scope.vss--caption-right-left {
+      --vss-caption-start-x: var(--vss-caption-motion-distance);
+      --vss-caption-end-x: calc(-1 * var(--vss-caption-motion-distance));
+    }
+
+    .vss__image {
+      position: sticky;
+      top: var(--vss-image-stick-top);
+      z-index: 1;
+      height: var(--vss-image-height);
+      width: 100%;
+      overflow: clip;
+      opacity: 0;
+      transform: translate(var(--vss-image-start-x), var(--vss-image-start-y)) scale(var(--vss-image-start-scale));
+      animation: vss-image-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+      background: #31422c;
+    }
+
+    .vss__image > :is(img, svg, video) {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: var(--vss-image-fit);
+      object-position: var(--vss-image-position);
+    }
+
+    .vss__caption {
+      position: relative;
+      z-index: 2;
+      max-width: var(--vss-caption-max-width);
+      margin: var(--vss-caption-delay) auto 0;
+      padding: var(--vss-caption-padding);
+      color: #241f1a;
+      background: #fff4d6;
+      box-shadow: 0 .75rem 2rem rgb(36 31 26 / .18);
+      transform: translate(var(--vss-caption-start-x), var(--vss-caption-start-y));
+      animation: vss-caption-move linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 65%;
+    }
+
+    .vss__caption:empty {
+      display: none;
+    }
+
+    @container vss (max-width: 44rem) {
+      .vss__caption {
+        margin-inline: 1rem;
+      }
+    }
+
+    @keyframes vss-image-in {
+      to {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+    }
+
+    @keyframes vss-caption-move {
+      to {
+        transform: translate(var(--vss-caption-end-x), var(--vss-caption-end-y));
+      }
+    }
+
+    @supports not (animation-timeline: view()) {
+      .vss__image,
+      .vss__caption {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .vss__image,
+      .vss__caption {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+    }
+  }
+}
