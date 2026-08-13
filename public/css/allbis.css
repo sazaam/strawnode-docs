@@ -3167,12 +3167,9 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   z-index: 600;
   width: 380px;
   max-width: 42vw;
-  background: rgba(16, 16, 18, .86);
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
   font-family: "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
   opacity: 0;
   transform: translateY(-4px);
   transition: opacity .35s ease, transform .35s ease;
