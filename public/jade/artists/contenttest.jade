@@ -61,15 +61,14 @@ block content
 							
 							.txtL.post.h-full(class="flex flex-row items-center")
 								
-								.vcentered.fullW.context.glass(class="padXXXLg"  style="border:1px solid rgba(235, 235, 235, .25);border-width:1px 0;color:#CCC")
-									
-									
-									.spark.rel
-										- var ll = 30 ;
-										- for(var ii = 0 ; ii < ll ; ii ++){
-											.box.abs(style="top:-200px;left:-200px;") 
-												.el.rel
-										- }
+								.vcentered.fullW.rel(class="padXXXLg"  style="border:1px solid rgba(235, 235, 235, .25);border-width:1px 0;color:#CCC")
+									.fullW.fullH.abs.top0.left0.context.glass
+										.spark.rel
+											- var ll = 30 ;
+											- for(var ii = 0 ; ii < ll ; ii ++){
+												.box.abs(style="top:-200px;left:-200px;") 
+													.el.rel
+											- }
 
 									.hcentered.rel(class="md:max-w-128")
 										h3.sizeLg.Bmar.Lpad(style="border-left:4px solid #CCC;")

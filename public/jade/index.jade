@@ -289,7 +289,7 @@ block content
 			init();
 	
 
-	#loadlogger
+	#loadlogger.glass
 		.loadhead
 			span.loadtitle STRAWNODE LOADER
 			span.loadpct 0%
@@ -299,6 +299,7 @@ block content
 
 	script.
 		(function(){
+			//trace('strawnode Exists', ) ;
 			var el = document.getElementById('loadlogger') ;
 			if(!el) return ;
 			var consoleEl = el.querySelector('.loadconsole') ;
