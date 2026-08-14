@@ -84,10 +84,11 @@ block content
 											.abs.bottom.pad.sizeLg(style="margin-top:105px")
 												a.next(href="javascript:void(0)" data-index=i) &darr;
 										- }
-
-										.vision_families.flex(class="flex-row gap-4 TmarXXLg")
-											each fam in [['make', t('sections.make')], ['light', t('sections.light')], ['story', t('sections.story')], ['build', t('sections.build')]]
-												a.item.rel.dispBlock.padding.sizeSm.HpadXLg.rounded.white(class="whitetranspBG" href="#/#{lang}/works/#{fam[0]}/")= fam[1]
+										- if(0){
+											.vision_families.flex(class="flex-row gap-4 TmarXXLg")
+												each fam in [['make', t('sections.make')], ['light', t('sections.light')], ['story', t('sections.story')], ['build', t('sections.build')]]
+													a.item.rel.dispBlock.padding.sizeSm.HpadXLg.rounded.white(class="whitetranspBG" href="#/#{lang}/works/#{fam[0]}/")= fam[1]
+										- }
 										
 		default
 			if isDeck
