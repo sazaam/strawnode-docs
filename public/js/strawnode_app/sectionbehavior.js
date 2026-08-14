@@ -10,6 +10,9 @@ var GestureManager = require('./strawnode_modules/gesture') ;
 var KeyboardManager = require('./strawnode_modules/keyboard') ;
 var Reactive = require('./strawnode_modules/reactive') ;
 var ReactiveI18n = require('./strawnode_modules/reactive-i18n') ;
+var i18next = require('./strawnode_modules/strawnode_modules/i18next.js') ;
+var LazyLoad = require('./strawnode_modules/strawnode_modules/lazyload.js') ;
+var ShaderToyLite = require('./strawnode_modules/strawnode_modules/shadertoylite.js') ;
 
 module.exports = {
     /////////////////////////////////// CHECK & ADD|REMOVE CLASS ALONG CONDITION

@@ -639,11 +639,45 @@ input:autofill:focus {
 
 #loadlogger .loadconsole {
 	height: 190px;
-	overflow: hidden;
+	overflow-y: auto;
 	padding: 8px 12px;
 	font-size: 10.5px;
 	line-height: 1.55;
 	color: rgba(255, 255, 255, .72);
+	pointer-events: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+
+.req_explain{
+	position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: -25px;
+}
+
+.tophacked{
+	top:-75px;
+}
+
+
+#loadlogger .loadconsole::-webkit-scrollbar {
+	width: 8px;
+}
+
+#loadlogger .loadconsole::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+#loadlogger .loadconsole::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, .22);
+	border-radius: 4px;
+}
+
+#loadlogger .loadconsole::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, .35);
 }
 
 #loadlogger .loadline {
@@ -660,10 +694,18 @@ input:autofill:focus {
 	color: rgba(120, 220, 160, .9);
 }
 
+#loadlogger .loadline.evaluating {
+	color: rgba(160, 165, 175, .55);
+}
+
 #loadlogger .loadline.evaluated {
-	color: rgba(255, 255, 255, .85);
+	color: rgba(255, 220, 90, .95);
 }
 
 #loadlogger .loadline.error {
 	color: rgba(255, 120, 120, .95);
+}
+
+#loadlogger .loadline.warn {
+	color: #62a4d3;
 }

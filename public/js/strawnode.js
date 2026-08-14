@@ -332,8 +332,10 @@ window.trace = console.log;
 
 	// Loading Feedback Array
 	var loadingFeedback = window.strawnodeLoadingFeedback = [];
+	var snLifecycle = 'idle';
 	var logLoad = function (url, status) {
 		loadingFeedback.push({ url: url, status: status, time: new Date().getTime() });
+		if (Logger.active) Logger.flush();
 		if(window.Debug) console.log("[StrawNode Loader]", status, url);
 	};
 
@@ -516,22 +518,23 @@ window.trace = console.log;
 	var fetchStack = [];
 	// Recursively resolved and fetch module source + dependencies
 	var fetchModuleTree = function (url, params, asType, base) {
+		var finalUrl = resolveModuleUrl(url, asType, base);
+
+		var initialUrl = finalUrl;
+		// Cached/in-flight short-circuit first: shared dependencies (diamonds) are
+		// NOT circular — re-requesting a URL that is already being fetched must
+		// dedup silently instead of being mis-flagged as a cycle.
+		if (fetchCache[initialUrl]) {
+			return fetchCache[initialUrl];
+		}
+		if (ModuleLoader.cache[initialUrl]) {
+			return Promise.resolve({ url: initialUrl, source: ModuleLoader.cache[initialUrl], type: asType, rootUrl: url });
+		}
+
 		if (fetchStack.indexOf(url) !== -1) {
 			console.warn("[StrawNode Loader] Circular dependency detected: " + fetchStack.concat([url]).join(' -> '));
 		}
 		fetchStack.push(url);
-
-		var finalUrl = resolveModuleUrl(url, asType, base);
-
-		var initialUrl = finalUrl;
-		if (fetchCache[initialUrl]) {
-			fetchStack.pop();
-			return fetchCache[initialUrl];
-		}
-		if (ModuleLoader.cache[initialUrl]) {
-			fetchStack.pop();
-			return Promise.resolve({ url: initialUrl, source: ModuleLoader.cache[initialUrl], type: asType, rootUrl: url });
-		}
 
 		var processSourceWithExternalDeps = function (fetchedUrl, source, extraDeps) {
 			logLoad(fetchedUrl, "fetched");
@@ -862,7 +865,12 @@ window.trace = console.log;
 			origin = baseparams.src;
 		}
 
+		if (startParams && startParams.logger && String(startParams.logger) !== '0') {
+			Logger.init(window.strawnodesettings.logger || {});
+		}
+
 		var asType = resolveModuleType(startId);
+		snLifecycle = 'fetching';
 
 		logLoad(startId, "initiating bootstrap");
 		fetchModuleTree(startId, startParams, asType, ModuleLoader.js_root).then(function () {
@@ -872,23 +880,343 @@ window.trace = console.log;
 			} catch (evalErr) {
 				console.error("[StrawNode Loader] FATAL: Failed to evaluate application.", evalErr);
 				console.warn("[StrawNode Loader] Hint: A module in the dependency tree may have a syntax error or be the wrong file type.");
+				snLifecycle = 'error';
 				dispatchSNEvent("strawnode-error", { starter: startId, error: evalErr, hint: "A module in the dependency tree may have a syntax error or be the wrong file type." });
 				return;
 			}
 
-			logLoad(startId, "bootstrap complete");
+			logLoad(startId, "bootstrap complete") ;
+			snLifecycle = 'bootstrapped';
+			dispatchSNEvent("strawnode-bootstrapped", { starter: startId, graph: require.getGraph() });
+
 			ModuleLoader.setModuleRoot(
 				startId.indexOf('/') !== -1 ?
 					ModuleLoader.concatRoot(startId.replace(/[^/]*$/, ''), baseparams.dirname) :
 					baseparams.dirname
 			);
+			snLifecycle = 'ready';
 			dispatchSNEvent("strawnode-ready", { starter: startId });
 		}).catch(function (err) {
 			console.error("[StrawNode Loader] FATAL: Failed to bootstrap application.", err);
 			console.warn("[StrawNode Loader] Hint: Did you verify the path to the starter is correct? \"" + startId + "\"");
+			snLifecycle = 'error';
 			dispatchSNEvent("strawnode-error", { starter: startId, error: err, hint: "Did you verify the path to the starter is correct? \"" + startId + "\"" });
 		});
 	};
+
+	// LOAD LOGGER — optional, opt-in view controller.
+	// Consumes window.strawnodeLoadingFeedback + lifecycle events. The project
+	// owns the overlay markup (#loadlogger) and its CSS; strawnode owns the
+	// drain/emit/pct/finalize/detach state machine.
+	// Enable via ?starter=...&logger=1 (startParams.logger) or require.logger.init(opts).
+	// Options may also come from a global window.strawnodesettings = { logger: {...} }
+	// defined before strawnode.js loads:
+	//   { container, mirror, until, homeReady, phase2Filter, titles,
+	//     readyText, className }
+	//   until: 'bootstrap' (default — done when all JS modules are fetched +
+	//          evaluated) or 'home' (done when the home sections are loaded too;
+	//          requires homeReady() as the "home is ready" signal).
+	var Logger = (function () {
+		var DEFAULTS = {
+			container: '#loadlogger',
+			mirror: true,
+			until: 'bootstrap',
+			homeReady: null,
+			phase2Filter: null,
+			titles: null,
+			readyText: null,
+			className: 'loadline'
+		};
+
+		var S = {
+			active: false,
+			el: null, consoleEl: null, fillEl: null, pctEl: null, titleEl: null,
+			orig: {},
+			seen: 0, lastPct: 0, timer: null, finished: false, readyDone: false,
+			phase: { started: 0, completed: 0 },
+			xhrOpen: null, xhrSend: null, origFetch: null,
+			opts: DEFAULTS
+		};
+
+		var isMedia = function (u) {
+			u = String(u || '');
+			return /\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|mp4|webm|mov|og[gv]|m4v|wmv)([?#]|$)/i.test(u);
+		};
+
+		var tstamp = function () {
+			var d = new Date();
+			return ('0' + d.getMinutes()).slice(-2) + ':' + ('0' + d.getSeconds()).slice(-2) + '.' + ('00' + d.getMilliseconds()).slice(-3);
+		};
+
+		var shortUrl = function (u) {
+			u = String(u || '').split('?')[0];
+			var i = u.indexOf('/strawnode_app/');
+			if (i === -1) i = u.lastIndexOf('/js/');
+			return (i === -1) ? u : u.slice(i + 1);
+		};
+
+		var setTitle = function (t) {
+			if (S.titleEl) S.titleEl.textContent = t;
+		};
+		var setPct = function (p) {
+			p = Math.max(0, Math.min(100, p));
+			if (S.fillEl) S.fillEl.style.width = p + '%';
+			if (S.pctEl) S.pctEl.textContent = p + '%';
+		};
+
+		var emit = function (cls, text) {
+			if (!S.consoleEl) return;
+			var nearBottom = S.consoleEl.scrollTop + S.consoleEl.clientHeight >= S.consoleEl.scrollHeight - 12;
+			var line = document.createElement('div');
+			line.className = S.opts.className + (cls ? ' ' + cls : '');
+			line.textContent = text;
+			S.consoleEl.appendChild(line);
+			if (nearBottom) S.consoleEl.scrollTop = S.consoleEl.scrollHeight;
+		};
+
+		var phase2Filter = function (u) {
+			var f = S.opts.phase2Filter;
+			return f ? !!f(u) : !isMedia(u);
+		};
+
+		var installPhase2 = function () {
+			if (window.XMLHttpRequest && window.XMLHttpRequest.prototype && !S.xhrOpen) {
+				S.xhrOpen = window.XMLHttpRequest.prototype.open;
+				S.xhrSend = window.XMLHttpRequest.prototype.send;
+				window.XMLHttpRequest.prototype.open = function (m, u) {
+					this.__llurl = u || '';
+					this.__llmedia = !phase2Filter(this.__llurl);
+					return S.xhrOpen.apply(this, arguments);
+				};
+				window.XMLHttpRequest.prototype.send = function () {
+					var th = this;
+					if (th.__llurl && !th.__llmedia && !th.__llcounted) {
+						th.__llcounted = true;
+						S.phase.started++;
+						emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(th.__llurl));
+					}
+					th.addEventListener('load', function () {
+						if (th.__llcounted && !th.__llmedia && !th.__lldone) {
+							th.__lldone = true;
+							S.phase.completed++;
+							emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(th.__llurl));
+						}
+					});
+					return S.xhrSend.apply(this, arguments);
+				};
+			}
+			if (typeof window.fetch === 'function' && !S.origFetch) {
+				S.origFetch = window.fetch;
+				window.fetch = function () {
+					var u = arguments[0];
+					u = (typeof u === 'string') ? u : (u && u.url) || '';
+					var count = phase2Filter(u);
+					if (count) {
+						S.phase.started++;
+						emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(u));
+					}
+					return S.origFetch.apply(this, arguments).then(function (resp) {
+						if (count) {
+							S.phase.completed++;
+							emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u));
+						}
+						return resp;
+					}, function (err) {
+						if (count) {
+							S.phase.completed++;
+							emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u));
+						}
+						throw err;
+					});
+				};
+			}
+		};
+
+		var finalize = function (ok) {
+			if (S.finished) return;
+			S.finished = true;
+			window.clearInterval(S.timer);
+			if (ok) {
+				setPct(100);
+				if (S.opts.titles && S.opts.titles.ready) setTitle(S.opts.titles.ready);
+			}
+			var text = ok ? (S.opts.readyText || 'all required assets loaded') : 'strawnode-error — see console';
+			emit(ok ? 'evaluated' : 'error', '[' + tstamp() + '] ' + text);
+			window.setTimeout(function () {
+				if (!ok) return;
+				S.el.classList.add('done');
+				window.setTimeout(function () {
+					if (S.el.parentNode) S.el.parentNode.removeChild(S.el);
+					detach();
+				}, 550);
+			}, 400);
+		};
+
+		var mirror = function (type, args) {
+			var parts = [], l = args.length;
+			for (var i = 0; i < l; i++) {
+				var a = args[i];
+				if (typeof a === 'string') parts.push(a);
+				else { try { parts.push(JSON.stringify(a)); } catch (e) { parts.push(String(a)); } }
+			}
+			emit((type === 'error' || type === 'warn') ? 'error' : '', '[' + tstamp() + '] ' + parts.join(' '));
+		};
+
+		var onPageErr = function (ev) {
+			emit('error', '[' + tstamp() + '] pageerror: ' + ev.message + (ev.filename ? '  ' + shortUrl(ev.filename) + ':' + ev.lineno : ''));
+		};
+		var onRej = function (ev) {
+			var r = ev.reason;
+			emit('error', '[' + tstamp() + '] unhandled rejection: ' + (r && r.message ? r.message : String(r)));
+		};
+		var onReady = function () {
+			if (S.finished || S.readyDone) return;
+			S.readyDone = true;
+			if (S.opts.titles && S.opts.titles.loading) setTitle(S.opts.titles.loading);
+			S.lastPct = Math.max(S.lastPct, S.opts.until === 'home' ? 70 : 100);
+			setPct(S.lastPct);
+			emit('evaluated', '[' + tstamp() + '] bootstrap complete — ready for entry');
+			if (S.opts.until === 'home') installPhase2();
+		};
+		var onSNErr = function (ev) {
+			emit('error', '[' + tstamp() + '] ' + (ev.detail && ev.detail.error ? ev.detail.error.message : 'strawnode-error'));
+			finalize(false);
+		};
+
+		var drain = function () {
+			if (S.finished) return;
+			var fb = window.strawnodeLoadingFeedback || [];
+			var l = fb.length, known = {}, done = {}, st;
+			for (var i = 0; i < l; i++) {
+				st = String(fb[i].status);
+				var u = fb[i].url;
+				if (st === 'fetching' || st === 'fetched' || st === 'evaluating' || st === 'evaluated') known[u] = 1;
+				if (st === 'fetched' || st === 'evaluating' || st === 'evaluated') done[u] = 1;
+			}
+			for (; S.seen < l; S.seen++) {
+				var e = fb[S.seen], status = String(e.status), cls = 'fetching';
+				if (status === 'fetched') cls = 'fetched';
+				if (status === 'evaluating') cls = 'evaluating';
+				if (status === 'evaluated') cls = 'evaluated';
+				if (status.indexOf('fail') !== -1) cls = 'error';
+				if (status.indexOf('bootstrap') !== -1) cls = 'evaluated';
+				if (e.cls) cls = e.cls;
+				emit(cls, '[' + tstamp() + '] ' + status + '  ' + shortUrl(e.url));
+			}
+			var kn = 0, dn = 0, k, d, pct, policyMet;
+			for (k in known) kn++;
+			for (d in done) dn++;
+			if (!S.readyDone) {
+				pct = kn ? Math.round(dn / kn * (S.opts.until === 'home' ? 70 : 100)) : 0;
+			} else if (S.opts.until === 'home') {
+				pct = 70 + (S.phase.started ? Math.round(S.phase.completed / S.phase.started * 28) : 0);
+				policyMet = !!(S.opts.homeReady && S.opts.homeReady());
+				if (policyMet) {
+					finalize(true);
+					return;
+				}
+			} else {
+				pct = 100;
+				finalize(true);
+				return;
+			}
+			if (pct > S.lastPct) S.lastPct = pct;
+			setPct(S.lastPct);
+		};
+
+		var detach = function () {
+			window.removeEventListener('error', onPageErr);
+			window.removeEventListener('unhandledrejection', onRej);
+			window.removeEventListener('strawnode-ready', onReady);
+			window.removeEventListener('strawnode-error', onSNErr);
+			window.console.log = S.orig.log;
+			if (S.orig.info) window.console.info = S.orig.info;
+			if (S.orig.debug) window.console.debug = S.orig.debug;
+			if (S.orig.warn) window.console.warn = S.orig.warn;
+			if (S.orig.error) window.console.error = S.orig.error;
+			if (S.xhrOpen && window.XMLHttpRequest && window.XMLHttpRequest.prototype) {
+				window.XMLHttpRequest.prototype.open = S.xhrOpen;
+				window.XMLHttpRequest.prototype.send = S.xhrSend;
+			}
+			if (S.origFetch) window.fetch = S.origFetch;
+			S.active = false;
+			S.el = S.consoleEl = S.fillEl = S.pctEl = S.titleEl = null;
+		};
+
+		var init = function (opts) {
+			if (S.active) return S;
+			if (typeof document === 'undefined') return S;
+			var o = {};
+			for (var k in DEFAULTS) o[k] = DEFAULTS[k];
+			if (opts) for (var k2 in opts) o[k2] = opts[k2];
+			S.opts = o;
+			S.el = document.getElementById(String(o.container).replace(/^#/, ''));
+			if (!S.el) return S;
+			S.consoleEl = S.el.querySelector('.loadconsole');
+			S.fillEl = S.el.querySelector('.loadfill');
+			S.pctEl = S.el.querySelector('.loadpct');
+			S.titleEl = S.el.querySelector('.loadtitle');
+
+			var keys = ['log', 'info', 'warn', 'error', 'debug'];
+			for (var i = 0; i < keys.length; i++) {
+				var k3 = keys[i];
+				if (window.console && window.console[k3]) S.orig[k3] = window.console[k3].bind(window.console);
+			}
+
+			window.addEventListener('error', onPageErr);
+			window.addEventListener('unhandledrejection', onRej);
+			window.addEventListener('strawnode-ready', onReady);
+			window.addEventListener('strawnode-error', onSNErr);
+
+			if (o.mirror) {
+				window.console.log = function () { S.orig.log.apply(window.console, arguments); mirror('log', arguments); };
+				if (S.orig.info) window.console.info = function () { S.orig.info.apply(window.console, arguments); mirror('info', arguments); };
+				if (S.orig.debug) window.console.debug = function () { S.orig.debug.apply(window.console, arguments); mirror('debug', arguments); };
+				if (S.orig.warn) window.console.warn = function () { S.orig.warn.apply(window.console, arguments); mirror('warn', arguments); };
+				if (S.orig.error) window.console.error = function () { S.orig.error.apply(window.console, arguments); mirror('error', arguments); };
+			}
+
+			S.active = true;
+			window.emit = emit;
+
+			if (snLifecycle === 'bootstrapped' || snLifecycle === 'ready') onReady();
+			if (snLifecycle === 'error') finalize(false);
+
+			requestAnimationFrame(function () { S.el.classList.add('show'); });
+			S.timer = window.setInterval(tick, 110);
+			drain();
+			return S;
+		};
+
+		var tick = function () { drain(); };
+
+		return {
+			init: init,
+			emit: emit,
+			log: function (status, url, cls) {
+				window.strawnodeLoadingFeedback.push({ url: url, status: status, cls: cls, time: new Date().getTime() });
+				if (S.active) drain();
+			},
+			setPct: setPct,
+			setTitle: setTitle,
+			progress: function (started, completed) {
+				if (started !== undefined) S.phase.started = started;
+				if (completed !== undefined) S.phase.completed = completed;
+			},
+			done: function () { finalize(true); },
+			fail: function (err) {
+				emit('error', '[' + tstamp() + '] ' + (err && err.message ? err.message : String(err)));
+				finalize(false);
+			},
+			flush: drain,
+			detach: detach,
+			get active() { return S.active; }
+		};
+	})();
+
+	require.logger = Logger;
+	window.strawnode = window.strawnode || {};
+	window.strawnode.logger = Logger;
 
 	if (!!starter) {
 		startAsync(starter, starterparams);
