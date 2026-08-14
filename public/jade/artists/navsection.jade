@@ -1,5 +1,8 @@
 ul.sections.txtL.unselectable
 	- var sections = response.alphachildren ;
+	- if(response.name == 'vision'){
+		- sections = [].concat(response.parentStep.children).slice(2) ;
+	- }
 	- for(var s in sections) {
 		- var res = sections[s] ;
 		- if(res.id == '') continue ;

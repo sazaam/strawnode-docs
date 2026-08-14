@@ -70,7 +70,7 @@ mixin gen_simple_link(txt, href, cl)
 
 mixin gen_alpha_link(txt, href, cl)
 	- if(!!!href) href = 'javascript:void(0);'
-	a.block.floatL.clear.item.padding.HpadXLg.rel.dispBlock(class="rounded whitetranspBG "+ cl, href=href)= txt
+	a.block.floatL.clear.item.padding.HpadXLg.rel.dispBlock(class="rounded glass "+ cl, href=href)= txt
 		span.typo.Vpadding.RpadSm.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
 
 mixin gen_alpha_link_r(txt, href, cl)
