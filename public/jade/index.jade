@@ -17,7 +17,7 @@ block content
 		#logocont
 			canvas(id="glcanvas" style="width: 150px; height: 150px;")
 		
-		+log(topsections)
+		//- +log(topsections)
 		
 		script.
 			var trace = console.log ;
@@ -52,7 +52,10 @@ block content
 
 			let startTime = Date.now();
 			let animateToggle = document.getElementById('animateToggle');
-
+			var am = localStorage.animMode ;
+			trace('AM', am)
+			let animMode = localStorage.animMode = (isNaN(am) ? 1 : am ) || 1 ; // 1 = MetaVibrant, 2 = Prism Surge, 3 = Confetti Mosaic, 4 = Mondrian Flow, 5 = Halftone Riso, 6 = Glitch CRT, 7 = Firefly Sparks, 8 = VHS Glitch, 9 = Liquid Flow, 10 = Matrix Rain, 0 = static vector
+			const total_anims = 11 ;
 			async function init() {
 				// Load fragment shader
 				//- const response = await fetch('shader.frag');
@@ -111,9 +114,31 @@ block content
 					// Intersection of outer circle AND the space inside the V gap
 					float dTop = max(dOuter, dTopOuter);
 
-					// Return the minimum distance between the two pieces (A union of the solids)
-					return min(dSide, dTop);
-				}
+				// Return the minimum distance between the two pieces (A union of the solids)
+				return min(dSide, dTop);
+			}
+
+			// Cheap hash for the generative mosaic
+			float hash12(vec2 p) {
+				p = fract(p * vec2(123.34, 456.21));
+				p += dot(p, p + 45.32);
+				return fract(p.x * p.y);
+			}
+
+			// VHS content field: rolling static, scanlines, tint and a running tracking line
+			vec3 vhsContent(vec2 q) {
+				float n = hash12(vec2(floor(q.x * 26.0), floor(q.y * 26.0) + floor(iTime * 24.0)));
+				vec3 c = vec3(0.30) + 0.70 * vec3(n);
+				c *= 0.80 + 0.20 * sin(q.y * 55.0);
+				c += vec3(0.5, 0.15, 0.35) * (0.5 + 0.5 * sin(q.y * 3.0 - iTime * 1.4)) * 0.4;
+				float lineY = 2.0 * fract(iTime * 0.22) - 1.0;
+				float lineD = abs(q.y - lineY);
+				float edgeJit = 0.5 + 0.5 * sin(q.x * 22.0 - iTime * 9.0);
+				float band = smoothstep(0.05 * (0.7 + 0.6 * edgeJit), 0.0, lineD);
+				float stat = hash12(vec2(floor((q.x + lineY) * 48.0), floor(iTime * 30.0)));
+				c = mix(c, vec3(0.85, 0.95, 1.0) * (0.4 + 0.6 * stat), band);
+				return c;
+			}
 
 				void main() {
 					// Standardize fragment coordinates from -1.0 to 1.0
@@ -126,10 +151,12 @@ block content
 					p.y += 0.05;
 
 					vec3 col = vec3(0.0);
+					// HEX #121212 background converted to RGB 0.0-1.0 space: 18 / 255.0 = 0.0706
+					vec3 bgColor = vec3(0.0706);
 					float dist = 0.0;
-					
+
 					if (iAnimate == 1) {
-						// ------ ANIMATION EFFECTS ------
+						// ------ MetaVibrant -- > ORIGINAL ANIMATION (kept, switch with the M key) ------
 						
 						// 1. Fluid distortion (adds a gentle waving motion matching the physics)
 						vec2 distortedP = p;
@@ -163,9 +190,6 @@ block content
 						// The famous Inigo Quilez color palette formula: a + b * cos(2pi * (c*t + d))
 						vec3 innerColor = a + b * cos(6.28318 * (c * colorT + d));
 						
-						// HEX #121212 background converted to RGB 0.0-1.0 space: 18 / 255.0 = 0.0706
-						vec3 bgColor = vec3(0.0706);
-
 						// Darken it slightly near the very edges based on distance for pseudo-3D volume
 						// but never drop below bgColor (to avoid black fringing)
 						float edgeDarken = smoothstep(0.0, -0.1, dist) * 0.7 + 0.15;
@@ -188,6 +212,407 @@ block content
 						// vec3 backgroundWithGlow = bgColor + glowColor;
 						col = mix(bgColor, innerColor, alpha);
 
+					} else if (iAnimate == 2) {
+						// ------ NEW: "PRISM SURGE" ------
+						// The exact same SDF map(), but fed a gently breathing,
+						// slowly swaying input so the whole emblem stays alive.
+
+						float breathe = 1.0 + 0.025 * sin(iTime * 0.8);
+						float sway    = 0.05 * sin(iTime * 0.22);
+						float cs = cos(sway), sn = sin(sway);
+						vec2 q = mat2(cs, -sn, sn, cs) * (p * breathe);
+						float dd = map(q);
+						float dp = map(p); // aura distance on the resting emblem
+
+						// Polar coordinates inside the emblem (rotating wheel basis)
+						float ang = atan(q.y, q.x);
+						float rad = length(q);
+
+						// 1. Rotating "energy spokes": angular bands drifting around
+						float spokes = 0.5 + 0.5 * sin(ang * 5.0 - iTime * 1.2);
+						// 2. Expanding interference rings from the center (Newton's rings)
+						float ripple = 0.5 + 0.5 * sin(rad * 16.0 - iTime * 2.0);
+						// 3. Slow spiral flow
+						float flow = iTime * 0.4 + ang / 6.28318 * 1.8 + 0.3 * sin(rad * 5.0 - iTime * 0.8);
+
+						// Iridescent prism palette: deep indigo / teal / violet / magenta / gold
+						vec3 a = vec3(0.5);
+						vec3 b = vec3(0.5);
+						vec3 c = vec3(1.0);
+						vec3 ph = vec3(0.10, 0.30, 0.45);
+
+						vec3 inner = a + b * cos(6.28318 * (c * (flow + spokes * 0.18 + ripple * 0.10) + ph));
+
+						// 4. Orbiting specular glint: a bright light sweeping the emblem
+						float orbit = iTime * 0.35;
+						float sep = ang - orbit;
+						float sepD = atan(sin(sep), cos(sep)); // wrapped angle difference
+						float glint = exp(-sepD * sepD * 1.7) * exp(-rad * 1.4);
+						inner += glint * vec3(1.0, 0.93, 0.78) * 1.15;
+
+						// 5. Inner fresnel rim: a hue that orbits independently
+						float rimGlow = exp(clamp(dd, -1.0, 0.0) * 6.0) * 0.75;
+						vec3 rimCol = a + b * cos(6.28318 * (c * (iTime * 0.06) + ph));
+						inner = mix(inner, rimCol, rimGlow);
+
+						// Fine shimmering grain for an organic feel
+						float grain = fract(sin(dot(q * 3.0, vec2(12.9898, 78.233))) * 43758.5453);
+						inner += (grain - 0.5) * 0.05;
+
+						// HARD FLOOR CONSTRAINT + soft center hotspot + breathing luminance
+						inner = max(inner, bgColor);
+						inner *= 0.82 + 0.3 * exp(-rad * rad * 1.5);
+						inner = mix(bgColor, inner, 0.9 + 0.1 * sin(iTime * 1.1 + rad * 3.0));
+
+						// 6. Magnetic aura outside: same field, hue-orbiting glow
+						float aura = exp(-abs(dp) * 9.0);
+						vec3 auraCol = a + b * cos(6.28318 * (c * (iTime * 0.05) + ph));
+						col = bgColor + auraCol * aura * 0.14;
+
+						// Composite the emblem mask over the aura
+						float alpha = smoothstep(0.005, -0.005, dd);
+						col = mix(col, inner, alpha);
+
+					} else if (iAnimate == 3) {
+						// ------ NEW: "CONFETTI MOSAIC" (graphic pop, crisp silhouette) ------
+						float mdd = map(p);
+
+						// Slowly gliding lattice + breathing emblem
+						float lrot = iTime * 0.06;
+						float lc = cos(lrot), ls = sin(lrot);
+						vec2 lp = mat2(lc, -ls, ls, lc) * (p * (1.0 + 0.02 * sin(iTime * 1.2)));
+
+						// 4x4 cell lattice across the emblem
+						vec2 cg = lp * 4.0;
+						vec2 cell = floor(cg);
+						vec2 cf = fract(cg) - 0.5;
+
+						// per-cell identity
+						float hh = hash12(cell);
+						float hx = hash12(cell + vec2(7.13, 3.71));
+						float sz = 0.34 + 0.10 * fract(hx * 3.7);
+						float ph = hash12(cell + vec2(1.0));
+						float sp = 0.25 + 0.75 * fract(hx * 1.3);
+
+						// each tile morphs shape + cycles hue at its own rhythm
+						float morph = 0.5 + 0.5 * sin(6.28318 * (ph + iTime * sp * 0.28));
+						float hueCycle = fract(hx + iTime * sp * 0.10);
+
+						// each tile spins at its own speed
+						float trot = iTime * sp * 0.6;
+						float tc = cos(trot), ts = sin(trot);
+						vec2 tf = mat2(tc, -ts, ts, tc) * cf;
+
+						// extravagant pop palette (6 spot colors)
+						vec3 pal[6];
+						pal[0] = vec3(1.00, 0.20, 0.45);
+						pal[1] = vec3(0.10, 0.50, 1.00);
+						pal[2] = vec3(0.55, 0.92, 0.08);
+						pal[3] = vec3(1.00, 0.82, 0.08);
+						pal[4] = vec3(0.75, 0.30, 1.00);
+						pal[5] = vec3(0.00, 0.90, 0.95);
+						int iA = clamp(int(floor(hh * 6.0)), 0, 5);
+						int iB = (iA + 1) % 6;
+						vec3 tile = mix(pal[iA], pal[iB], hueCycle);
+
+						// square <-> circle morph per tile
+						float dSq = max(abs(tf.x), abs(tf.y));
+						float dCi = length(tf);
+						float dCell = mix(dSq, dCi, morph) - sz;
+						float mShape = smoothstep(0.025, -0.025, dCell);
+
+						// bright punch dot at the tile core
+						float dDot = length(tf) - sz * 0.42;
+						float mDot = smoothstep(0.02, -0.02, dDot);
+
+						vec3 inner = mix(bgColor, tile, mShape);
+						inner = mix(inner, vec3(1.0, 1.0, 0.96), mDot * 0.8);
+
+						// crisp light keyline just inside the silhouette (no outer glow)
+						float key = smoothstep(0.0, -0.02, mdd);
+						float keyBand = 1.0 - smoothstep(-0.02, -0.09, mdd);
+						inner = mix(inner, vec3(1.0), keyBand * key * 0.5);
+
+						float malpha = smoothstep(0.004, -0.004, mdd);
+						col = mix(bgColor, inner, malpha);
+
+					} else if (iAnimate == 4) {
+						// ------ NEW: "MONDRIAN FLOW" (flat poster graphics) ------
+						float m4d = map(p);
+
+						// flat sliding bands, De Stijl palette
+						float nbands = 6.0;
+						float b = p.y * nbands - iTime * 0.5;
+						float band = floor(b);
+						float fband = fract(b);
+						int bi = int(mod(band, 6.0));
+						vec3 palM[6];
+						palM[0] = vec3(0.90, 0.13, 0.15); // red
+						palM[1] = vec3(0.10, 0.36, 0.92); // blue
+						palM[2] = vec3(0.98, 0.84, 0.10); // yellow
+						palM[3] = vec3(0.95, 0.94, 0.90); // white
+						palM[4] = vec3(0.06, 0.06, 0.08); // black
+						palM[5] = vec3(1.00, 0.25, 0.55); // pink
+						vec3 inner4 = palM[bi];
+
+						// occasional punched rectangle drifting across a band
+						float hg = hash12(vec2(float(bi), floor(iTime * 0.8)));
+						if (hg > 0.45) {
+							float bx = 0.5 + 0.5 * sin(iTime * 0.6 + hg * 6.28318);
+							float bw = 0.25 + 0.2 * fract(hg * 3.7);
+							float bar = smoothstep(bw, bw - 0.02, abs(p.x - bx));
+							inner4 = mix(inner4, palM[(bi + 3) % 6], bar * 0.9);
+						}
+
+						// thin cream seam lines between bands
+						float seam = smoothstep(0.9, 1.0, fband);
+						inner4 = mix(inner4, vec3(0.95, 0.94, 0.90), seam * 0.9);
+
+						// crisp light keyline, no outer glow
+						float key4 = smoothstep(0.0, -0.02, m4d);
+						float keyB4 = 1.0 - smoothstep(-0.02, -0.09, m4d);
+						inner4 = mix(inner4, vec3(1.0), keyB4 * key4 * 0.5);
+
+						float a4 = smoothstep(0.004, -0.004, m4d);
+						col = mix(bgColor, inner4, a4);
+
+					} else if (iAnimate == 5) {
+						// ------ NEW: "HALFTONE RISO" (print dot raster, duotone) ------
+						float m5d = map(p);
+
+						// two riso screens at different angles, breathing wave
+						float base = iTime * 0.5;
+						float breathe5 = 1.0 + 0.02 * sin(iTime * 1.1);
+						vec2 pp5 = p * breathe5;
+
+						// screen A: riso bright pink, rotated +45 deg
+						float angA = 0.785 + 0.02 * sin(iTime * 0.3);
+						float cA5 = cos(angA), sA5 = sin(angA);
+						vec2 gA = mat2(cA5, -sA5, sA5, cA5) * pp5 / 0.09;
+						vec2 cA = floor(gA);
+						vec2 fA = fract(gA) - 0.5;
+						float waveA = 0.5 + 0.5 * sin(length(cA) * 2.2 - base * 1.6);
+						float rA = 0.22 + 0.20 * waveA;
+						float dotA = smoothstep(rA, rA - 0.02, length(fA));
+
+						// screen B: riso cyan, rotated -30 deg, slower wave
+						float angB = -0.524 + 0.02 * sin(iTime * 0.23);
+						float cB5 = cos(angB), sB5 = sin(angB);
+						vec2 gB = mat2(cB5, -sB5, sB5, cB5) * pp5 / 0.12;
+						vec2 cB = floor(gB);
+						vec2 fB = fract(gB) - 0.5;
+						float waveB = 0.5 + 0.5 * sin(length(cB) * 1.8 + base * 1.1);
+						float rB = 0.20 + 0.18 * waveB;
+						float dotB = smoothstep(rB, rB - 0.02, length(fB));
+
+						// riso duotone ink (additive on dark)
+						vec3 inkA = vec3(1.00, 0.10, 0.45);
+						vec3 inkB = vec3(0.10, 0.75, 1.00);
+						vec3 inner5 = bgColor + inkA * dotA + inkB * dotB * 0.85;
+						inner5 = min(inner5, vec3(1.0));
+
+						// crisp light keyline, no outer glow
+						float key5 = smoothstep(0.0, -0.02, m5d);
+						float keyB5 = 1.0 - smoothstep(-0.02, -0.09, m5d);
+						inner5 = mix(inner5, vec3(1.0), keyB5 * key5 * 0.45);
+
+						float a5 = smoothstep(0.004, -0.004, m5d);
+						col = mix(bgColor, inner5, a5);
+
+					} else if (iAnimate == 6) {
+						// ------ NEW: "GLITCH CRT" (neon chromatic glitch) ------
+						float m6d = map(p);
+						float t6 = iTime;
+
+						// continuous glitch field
+						float g1 = sin(p.y * 9.0 - t6 * 2.3);
+						float g2 = sin(p.y * 17.0 + t6 * 3.7);
+						float g3 = sin(p.y * 4.0 - t6 * 0.7);
+						float tear = floor(0.5 + 0.5 * g1 * 3.0) / 3.0; // stepped tears
+						float sl = tear * 0.10 + 0.03 * g2;
+						float split = 0.015 + 0.03 * (0.5 + 0.5 * g2);
+
+						// pixel blocks
+						vec2 pp6 = floor(p * 11.0) / 11.0;
+
+						// RGB channel separation of a moving wave
+						float wr = 0.5 + 0.5 * sin((pp6.x + sl + split) * 6.0 - t6 * 1.8) * cos(pp6.y * 5.0 + t6 * 1.1);
+						float wg = 0.5 + 0.5 * sin((pp6.x + sl) * 6.0 - t6 * 1.8) * cos(pp6.y * 5.0 + t6 * 1.1);
+						float wb = 0.5 + 0.5 * sin((pp6.x + sl - split) * 6.0 - t6 * 1.8) * cos(pp6.y * 5.0 + t6 * 1.1);
+
+						// push the gray field into a neon spectrum
+						vec3 inner6 = 0.5 + 0.5 * cos(6.28318 * (vec3(wr, wg, wb) * 0.5 + vec3(0.0, 0.33, 0.67)));
+
+						// CRT scanlines + rolling hold bar
+						inner6 *= 0.78 + 0.22 * sin(p.y * 44.0);
+						inner6 *= 0.86 + 0.14 * sin(p.y * 2.0 - t6 * 0.8);
+						float bar6 = smoothstep(0.0, 0.02, 1.0 - abs(p.y - 0.7 * sin(t6 * 0.9)));
+						inner6 += vec3(0.55, 0.8, 1.0) * bar6 * 0.4;
+
+						// crisp light keyline, no outer glow
+						float key6 = smoothstep(0.0, -0.02, m6d);
+						float keyB6 = 1.0 - smoothstep(-0.02, -0.09, m6d);
+						inner6 = mix(inner6, vec3(1.0), keyB6 * key6 * 0.35);
+
+						float a6 = smoothstep(0.004, -0.004, m6d);
+						col = mix(bgColor, inner6, a6);
+
+					} else if (iAnimate == 7) {
+						// ------ NEW: "FIREFLY SPARKS" (drifting eased particles filling the logo) ------
+						float m7d = map(p);
+						float t7 = iTime;
+
+						// dense grid of 1px particles scattered across the logo area
+						float cell7 = 0.06;
+						vec2 g7 = floor(p / cell7);
+						vec2 f7 = fract(p / cell7) - 0.5;
+						float rnd7 = hash12(g7);
+
+						// each particle: independent base position, hue, loop phase and speed
+						vec2 jit7 = vec2(hash12(g7 + vec2(13.1, 7.7)), hash12(g7 + vec2(5.5, 11.3))) - 0.5;
+						float ph7 = hash12(g7 + vec2(9.9, 3.3));
+						float span7 = 2.0 + 4.0 * hash12(g7 + vec2(1.1, 8.8)); // loop length per particle
+						float tt7 = fract(t7 / span7 + ph7);
+
+						// the particle slides around its cell over the loop, so sparks
+						// drift lazily inside the logo instead of sitting still
+						float ang7 = tt7 * 6.28318 + ph7 * 12.566;
+						float wob7 = 0.3 + 0.3 * hash12(g7 + vec2(3.3, 8.8));
+						vec2 drift7 = vec2(cos(ang7), sin(ang7)) * wob7;
+						vec2 pos7 = f7 - (jit7 * 0.5 + drift7);
+						float d7 = length(pos7);
+
+						// strong exponential ease-in, short hold, strong ease-out
+						float easeIn7 = 1.0 - exp(-tt7 * 16.0);                 // exponential in
+						float easeOut7 = exp(-max(tt7 - 0.3, 0.0) * 16.0);      // exponential out
+						float life7 = easeIn7 * easeOut7;
+
+						// random choppy flicker: every spark blinks unpredictably
+						float flick7 = hash12(vec2(floor(t7 * 5.0 + rnd7 * 13.0), g7.x * 0.31 + g7.y * 7.7));
+						life7 *= 0.2 + 0.8 * flick7;
+
+						// 1px-ish dot plus generous firefly halo, random hue, white-hot core
+						float dot7 = smoothstep(0.035, 0.0, d7);
+						float halo7 = exp(-d7 * 9.0) * 0.7;
+						vec3 hue7 = 0.5 + 0.5 * cos(6.28318 * (rnd7 + vec3(0.0, 0.33, 0.67)));
+						float pop7 = (dot7 + halo7) * life7;
+						vec3 inner7 = bgColor + hue7 * pop7 * 4.0 + vec3(0.9) * dot7 * life7;
+
+						// tight rim-light right on the SDF boundary so the silhouette
+						// stays readable even between individual fireflies
+						float rim7 = exp(-abs(m7d) * 42.0) * 0.9;
+						inner7 += hue7 * rim7 * 0.8;
+
+						// only light up particles inside the logo silhouette
+						float a7 = smoothstep(0.004, -0.004, m7d);
+						col = mix(bgColor, inner7, a7);
+
+					} else if (iAnimate == 8) {
+						// ------ NEW: "VHS GLITCH" (tracking line + edge chromatic aberration) ------
+						float m8d = map(p);
+
+						// base VHS content sampled three times with horizontal offsets
+						float edge8 = 1.0 - smoothstep(0.15, 0.6, abs(p.x));
+						float sep8 = edge8 * 0.045 * (0.5 + 0.5 * sin(iTime * 2.3 + p.y * 2.0));
+						vec3 cr8 = vhsContent(p + vec2(sep8, 0.0));
+						vec3 cg8 = vhsContent(p);
+						vec3 cb8 = vhsContent(p - vec2(sep8, 0.0));
+
+						// left/right aberration: shift R and B channels, keep G centered
+						vec3 inner8 = vec3(cr8.r, cg8.g, cb8.b);
+						inner8 = mix(cg8, inner8, edge8);
+
+						// rolling hold bar (full-width line) with white flash
+						float line8 = 2.0 * fract(iTime * 0.3) - 1.0;
+						float hold8 = smoothstep(0.05, 0.0, abs(p.y - line8));
+						inner8 = mix(inner8, vec3(1.0, 1.0, 0.95), hold8 * 0.55);
+
+						// extra glitch tear bands
+						float tear8 = step(0.93, sin(p.y * 13.0 + iTime * 5.0));
+						inner8 = mix(inner8, inner8.yxz, tear8 * 0.4);
+
+						// crisp light keyline, no outer glow
+						float key8 = smoothstep(0.0, -0.02, m8d);
+						float keyB8 = 1.0 - smoothstep(-0.02, -0.09, m8d);
+						inner8 = mix(inner8, vec3(1.0), keyB8 * key8 * 0.35);
+
+						float a8 = smoothstep(0.004, -0.004, m8d);
+						col = mix(bgColor, inner8, a8);
+
+					} else if (iAnimate == 9) {
+						// ------ NEW: "LIQUID FLOW" (warped blobs, slow hue loop) ------
+						float m9d = map(p);
+						float t9 = iTime;
+
+						// layered flow warps make the interior behave like slow liquid
+						vec2 q9 = p;
+						q9 += 0.22 * vec2(sin(q9.y * 2.2 + t9 * 0.5), cos(q9.x * 2.2 + t9 * 0.4));
+						q9 += 0.14 * vec2(sin(q9.x * 3.1 - t9 * 0.3), cos(q9.y * 3.1 - t9 * 0.3));
+
+						// slow hue loop: a full trip around the wheel every ~15s
+						float hue9 = t9 * 0.067;
+
+						// liquid blobs drift through the field and tint the hue
+						float blob9 = sin(q9.x * 4.5 + sin(q9.y * 3.5 - t9 * 0.4) * 1.5)
+						           + cos(q9.y * 4.0 + cos(q9.x * 3.2 + t9 * 0.3) * 1.5);
+						vec3 inner9 = 0.5 + 0.5 * cos(6.28318 * (hue9 + blob9 * 0.5 + vec3(0.0, 0.33, 0.67)));
+
+						// meniscus-style darkening near the edge keeps it liquid-like
+						float edge9 = smoothstep(0.0, -0.12, m9d);
+						inner9 = mix(bgColor, inner9, 1.0 - edge9 * 0.5);
+
+						// crisp light keyline, no outer glow
+						float key9 = smoothstep(0.0, -0.02, m9d);
+						float keyB9 = 1.0 - smoothstep(-0.02, -0.09, m9d);
+						inner9 = mix(inner9, vec3(1.0), keyB9 * key9 * 0.35);
+
+						float a9 = smoothstep(0.004, -0.004, m9d);
+						col = mix(bgColor, inner9, a9);
+
+					} else if (iAnimate == 10) {
+						// ------ NEW: "MATRIX RAIN" (tiny blue drops falling with trails) ------
+						float m10d = map(p);
+
+						// dense vertical columns across the logo
+						float colW10 = 0.04;
+						float col10 = floor(p.x / colW10 + 0.5);
+						float r10 = hash12(vec2(col10, 12.9898));
+
+						// vertical coordinate normalized over the logo's height
+						float yN10 = fract((p.y + 0.8) * 0.65);
+						float speed10 = 0.25 + 0.2 * hash12(vec2(col10, 78.233));
+
+						// five interleaved streams per column so bright heads and trails
+						// cover the whole column top to bottom (no empty regions).
+						// fract(yN - head) is small when a head is just below the fragment,
+						// so min picks the closest head BELOW -> the fading trail above it
+						float bestRel10 = 1.0;
+						for (int k10 = 0; k10 < 5; k10++) {
+							float headK10 = fract(r10 + float(k10) * 0.2 - iTime * speed10);
+							bestRel10 = min(bestRel10, fract(yN10 - headK10));
+						}
+						float rel10 = bestRel10;
+
+						// short trailing glint above the head (kept tiny so drops read ~1px)
+						float trail10 = exp(-rel10 * 30.0) * smoothstep(0.03, 0.0, rel10);
+
+						// subtle time-varying shimmer so the whole field feels alive
+						float shimmer10 = 0.55 + 0.45 * sin(iTime * 13.0 + col10 * 5.0 + rel10 * 30.0);
+
+						// ~1px bright head dot + short fading glint, all moving
+						float headDot10 = exp(-rel10 * 220.0);
+						float drop10 = headDot10 * 2.6 + trail10 * shimmer10 * 1.2;
+
+						// blue matrix palette (kept below clipping so drops read as blue, not white)
+						vec3 matrixBlue = vec3(0.2, 0.5, 1.0);
+						vec3 matrixDeep = vec3(0.04, 0.18, 0.55);
+						float dropSat10 = clamp(drop10 * 1.2, 0.0, 1.0);
+						vec3 inner10 = bgColor + mix(matrixDeep, matrixBlue, dropSat10) * drop10 * 1.9;
+
+						// no keyline, no glow: just the rain inside the logo
+						float a10 = smoothstep(0.004, -0.004, m10d);
+						col = mix(bgColor, inner10, a10);
+
 					} else {
 						// ------ STATIC VECTOR RENDERING ------
 						dist = map(p); 
@@ -195,7 +620,6 @@ block content
 						// Mathematically sharp smooth-step antialiasing edge like an SVG
 						float alpha = smoothstep(0.005, -0.005, dist);
 						
-						vec3 bgColor = vec3(0.0706);
 						// Output pure #121212 background and pure white vector
 						col = mix(bgColor, vec3(1.0), alpha); 
 					}
@@ -274,7 +698,7 @@ block content
 					// Set the uniforms (like shadertoy variables)
 					gl.uniform2f(programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height);
 					gl.uniform1f(programInfo.uniformLocations.time, now);
-					gl.uniform1i(programInfo.uniformLocations.animate, 1);
+					gl.uniform1i(programInfo.uniformLocations.animate, animMode);
 
 					// Draw the quad
 					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -287,6 +711,18 @@ block content
 			}
 
 			init();
+
+			// M key cycles the logo animation: 1 = Prism Surge, 2 = original, 3 = Confetti Mosaic, 4 = Mondrian Flow, 5 = Halftone Riso, 6 = Glitch CRT, 7 = Firefly Sparks, 8 = VHS Glitch, 9 = Liquid Flow, 10 = Matrix Rain, 0 = static vector
+			window.addEventListener('keydown', function(e){
+				if(e.key === 'm' || e.key === 'M'){
+					var am = parseInt(animMode ) ;
+					trace(am) ;
+					animMode = parseInt(( animMode || 0 )) + (e.key === 'M' ? -1 : 1);
+					animMode = (total_anims + animMode) % total_anims ;
+					localStorage.animMode = animMode ;
+					trace('glcanvas animation mode: ' + animMode);
+				}
+			});
 	
 
 	#loadlogger.glass
@@ -297,235 +733,22 @@ block content
 			.loadfill
 		.loadconsole
 
-	script.
-		(function(){
-			//trace('strawnode Exists', ) ;
-			var el = document.getElementById('loadlogger') ;
-			if(!el) return ;
-			var consoleEl = el.querySelector('.loadconsole') ;
-			var fillEl = el.querySelector('.loadfill') ;
-			var pctEl = el.querySelector('.loadpct') ;
-			var titleEl = el.querySelector('.loadtitle') ;
-
-			var orig = {} ;
-			var keys = ['log','info','warn','error','debug'] ;
-			for(var i = 0 ; i < keys.length ; i++){
-				var k = keys[i] ;
-				if(window.console && window.console[k]) orig[k] = window.console[k].bind(window.console) ;
+	script(type="text/javascript").
+		// Enable in the strawnode script tag --> src=url?starter={starterfolder}&logger=1
+		window.strawnodesettings = {
+			logger:{
+				until: 'home',
+				titles: { loading: 'LOADING METAVAGRANT', ready: 'METAVAGRANT READY' },
+				readyText: 'all required assets loaded — home ready',
+				homeReady: function(){
+					var els = document.querySelectorAll('.zoneall .navzone') ;
+					for(var i = 0 ; i < els.length ; i++){
+						if(parseFloat(window.getComputedStyle(els[i]).opacity) >= 0.99) return true ;
+					}
+					return false ;
+				}
 			}
-
-			var tstamp = function(){
-				var d = new Date() ;
-				var mm = ('0' + d.getMinutes()).slice(-2) ;
-				var ss = ('0' + d.getSeconds()).slice(-2) ;
-				var ms = ('00' + d.getMilliseconds()).slice(-3) ;
-				return mm + ':' + ss + '.' + ms ;
-			} ;
-			var shortUrl = function(u){
-				u = String(u || '').split('?')[0] ;
-				var i = u.indexOf('/strawnode_app/') ;
-				if(i === -1) i = u.lastIndexOf('/js/') ;
-				return (i === -1) ? u : u.slice(i + 1) ;
-			} ;
-			var emit = function(cls, text){
-				if(!consoleEl) return ;
-				var line = document.createElement('div') ;
-				line.className = 'loadline' + (cls ? ' ' + cls : '') ;
-				line.textContent = text ;
-				consoleEl.appendChild(line) ;
-				while(consoleEl.childNodes.length > 80) consoleEl.removeChild(consoleEl.firstChild) ;
-				consoleEl.scrollTop = consoleEl.scrollHeight ;
-			} ;
-			var setPct = function(p){
-				p = Math.max(0, Math.min(100, p)) ;
-				fillEl.style.width = p + '%' ;
-				pctEl.textContent = p + '%' ;
-			} ;
-
-			var isMedia = function(u){
-				u = String(u || '') ;
-				return /\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|mp4|webm|mov|og[gv]|m4v|wmv)([?#]|$)/i.test(u) ;
-			} ;
-
-			var seen = 0, lastPct = 0, timer = null, finished = false, readyDone = false ;
-			var phase = { started : 0, completed : 0 } ;
-			var xhrOpen, xhrSend, origFetch ;
-
-			var homeShown = function(){
-				var els = document.querySelectorAll('.zoneall .navzone') ;
-				for(var i = 0 ; i < els.length ; i++){
-					if(parseFloat(window.getComputedStyle(els[i]).opacity) >= 0.99) return true ;
-				}
-				return false ;
-			} ;
-
-			// required (non-media) asset tracking for the home page ; images / videos are excluded
-			var installPhase2 = function(){
-				if(window.XMLHttpRequest && window.XMLHttpRequest.prototype && !xhrOpen){
-					xhrOpen = window.XMLHttpRequest.prototype.open ;
-					xhrSend = window.XMLHttpRequest.prototype.send ;
-					window.XMLHttpRequest.prototype.open = function(m, u){
-						this.__llurl = u || '' ;
-						this.__llmedia = isMedia(this.__llurl) ;
-						return xhrOpen.apply(this, arguments) ;
-					} ;
-					window.XMLHttpRequest.prototype.send = function(){
-						var th = this ;
-						if(th.__llurl && !th.__llmedia && !th.__llcounted){
-							th.__llcounted = true ;
-							phase.started++ ;
-							emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(th.__llurl)) ;
-						}
-						th.addEventListener('load', function(){
-							if(th.__llcounted && !th.__llmedia && !th.__lldone){
-								th.__lldone = true ;
-								phase.completed++ ;
-								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(th.__llurl)) ;
-							}
-						}) ;
-						return xhrSend.apply(this, arguments) ;
-					} ;
-				}
-				if(typeof window.fetch === 'function' && !origFetch){
-					origFetch = window.fetch ;
-					window.fetch = function(){
-						var u = arguments[0] ;
-						u = (typeof u === 'string') ? u : (u && u.url) || '' ;
-						var count = !isMedia(u) ;
-						if(count){
-							phase.started++ ;
-							emit('fetching', '[' + tstamp() + '] fetching  ' + shortUrl(u)) ;
-						}
-						return origFetch.apply(this, arguments).then(function(resp){
-							if(count){
-								phase.completed++ ;
-								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u)) ;
-							}
-							return resp ;
-						}, function(err){
-							if(count){
-								phase.completed++ ;
-								emit('fetched', '[' + tstamp() + '] fetched  ' + shortUrl(u)) ;
-							}
-							throw err ;
-						}) ;
-					} ;
-				}
-			} ;
-
-			var tick = function(){
-				var fb = window.strawnodeLoadingFeedback || [] ;
-				var known = {}, done = {}, st ;
-				for(var i = 0 ; i < fb.length ; i++){
-					st = String(fb[i].status) ;
-					var u = fb[i].url ;
-					if(st === 'fetching' || st === 'fetched' || st === 'evaluating' || st === 'evaluated') known[u] = 1 ;
-					if(st === 'fetched' || st === 'evaluating' || st === 'evaluated') done[u] = 1 ;
-				}
-				for(; seen < fb.length ; seen++){
-					var e = fb[seen], status = String(e.status), cls = 'fetching' ;
-					if(status === 'fetched') cls = 'fetched' ;
-					if(status === 'evaluating' || status === 'evaluated') cls = 'evaluated' ;
-					if(status.indexOf('fail') !== -1) cls = 'error' ;
-					if(status.indexOf('bootstrap') !== -1) cls = 'evaluated' ;
-					emit(cls, '[' + tstamp() + '] ' + status + '  ' + shortUrl(e.url)) ;
-				}
-				var kn = 0, dn = 0, k, d, pct ;
-				for(k in known) kn++ ;
-				for(d in done) dn++ ;
-				if(!readyDone){
-					// bootstrap : 0-70%
-					pct = kn ? Math.round(dn / kn * 70) : 0 ;
-				}else{
-					// home required assets : 70-100%
-					pct = 70 + (phase.started ? Math.round(phase.completed / phase.started * 28) : 0) ;
-					if(homeShown()){ finalize(true) ; return ; }
-				}
-				if(pct > lastPct) lastPct = pct ;
-				setPct(lastPct) ;
-			} ;
-
-			var mirror = function(type, args){
-				var parts = [] ;
-				for(var i = 0 ; i < args.length ; i++){
-					var a = args[i] ;
-					if(typeof a === 'string') parts.push(a) ;
-					else { try { parts.push(JSON.stringify(a)) ; } catch(err) { parts.push(String(a)) ; } }
-				}
-				emit((type === 'error' || type === 'warn') ? 'error' : '', '[' + tstamp() + '] ' + parts.join(' ')) ;
-			} ;
-
-			window.console.log = function(){ orig.log.apply(window.console, arguments) ; mirror('log', arguments) ; } ;
-			if(orig.info) window.console.info = function(){ orig.info.apply(window.console, arguments) ; mirror('info', arguments) ; } ;
-			if(orig.debug) window.console.debug = function(){ orig.debug.apply(window.console, arguments) ; mirror('debug', arguments) ; } ;
-			if(orig.warn) window.console.warn = function(){ orig.warn.apply(window.console, arguments) ; mirror('warn', arguments) ; } ;
-			if(orig.error) window.console.error = function(){ orig.error.apply(window.console, arguments) ; mirror('error', arguments) ; } ;
-
-			var onPageErr = function(ev){
-				emit('error', '[' + tstamp() + '] pageerror: ' + ev.message + (ev.filename ? '  ' + shortUrl(ev.filename) + ':' + ev.lineno : '')) ;
-			} ;
-			var onRej = function(ev){
-				var r = ev.reason ;
-				emit('error', '[' + tstamp() + '] unhandled rejection: ' + (r && r.message ? r.message : String(r))) ;
-			} ;
-			var finalize = function(ok){
-				if(finished) return ;
-				finished = true ;
-				window.clearInterval(timer) ;
-				if(ok){
-					setPct(100) ;
-					titleEl.textContent = 'HOME READY' ;
-				}
-				emit(ok ? 'evaluated' : 'error', '[' + tstamp() + '] ' + (ok ? 'all required assets loaded — home ready' : 'strawnode-error — see console')) ;
-				window.setTimeout(function(){
-					el.classList.add('done') ;
-					window.setTimeout(function(){
-						if(el.parentNode) el.parentNode.removeChild(el) ;
-						detach() ;
-					}, 550) ;
-				}, ok ? 800 : 600) ;
-			} ;
-			var onReady = function(){
-				if(finished || readyDone) return ;
-				readyDone = true ;
-				titleEl.textContent = 'LOADING HOME' ;
-				lastPct = Math.max(lastPct, 70) ;
-				setPct(lastPct) ;
-				emit('evaluated', '[' + tstamp() + '] bootstrap complete — ready for entry') ;
-				installPhase2() ;
-			} ;
-			var onSNErr = function(ev){
-				emit('error', '[' + tstamp() + '] ' + (ev.detail && ev.detail.error ? ev.detail.error.message : 'strawnode-error')) ;
-				finalize(false) ;
-			} ;
-
-			window.addEventListener('error', onPageErr) ;
-			window.addEventListener('unhandledrejection', onRej) ;
-			window.addEventListener('strawnode-ready', onReady) ;
-			window.addEventListener('strawnode-error', onSNErr) ;
-
-			var detach = function(){
-				window.removeEventListener('error', onPageErr) ;
-				window.removeEventListener('unhandledrejection', onRej) ;
-				window.removeEventListener('strawnode-ready', onReady) ;
-				window.removeEventListener('strawnode-error', onSNErr) ;
-				window.console.log = orig.log ;
-				if(orig.info) window.console.info = orig.info ;
-				if(orig.debug) window.console.debug = orig.debug ;
-				if(orig.warn) window.console.warn = orig.warn ;
-				if(orig.error) window.console.error = orig.error ;
-				if(xhrOpen && window.XMLHttpRequest && window.XMLHttpRequest.prototype){
-					window.XMLHttpRequest.prototype.open = xhrOpen ;
-					window.XMLHttpRequest.prototype.send = xhrSend ;
-				}
-				if(origFetch) window.fetch = origFetch ;
-				el = consoleEl = fillEl = pctEl = titleEl = null ;
-			} ;
-
-			requestAnimationFrame(function(){ el.classList.add('show') ; }) ;
-			timer = window.setInterval(tick, 110) ;
-			tick() ;
-		})() ;
+		} ;
 
 	#frame.frame.abs.left0.top0.right0.bottom0.fullW.fullH.context
 		.toprightlinks.lh2.txtC.marXLg.abs.right0.languages(style="z-index:300")
@@ -542,23 +765,25 @@ block content
 			.zoneall(class="h-full flex flex-col md:flex-row")
 
 				.none.landing.rel(class="h-full grow flex justify-center justify-items-center content-center")
-					.firstlink(class="self-center flex flex-col max-w-64")
-						+svg_mv()
-						.req_explain.none(class="")
+					.firstlink.rel(class="self-center flex flex-col max-w-64")
+						+svg_mv(undefined, true)
+						+gen_alpha_link('Enter', null, 'enterlink TmarXLg tophacked')
+						.req_explain.none
 							p.BmarXLg.HpadXXLg.sizeSm.whitetranspTXT
 								| For an enhanced experience and best graphic performance, we suggest you using
 							a.block.Hmar.sizeR(href="https://brave.com/download/" target='_blank') Brave browser.
 							p.BmarXLg.HpadXXLg.sizeSm.whitetranspTXT
 								| <br> Otherwise, from your phone. <br> You may also just continue normally.
-						+gen_alpha_link('Enter', null, 'enterlink')
 				//- here should include the correct template along section
 	.shadernav.abs.top0.left0.zi30(class="w-28")
 		+lr_arrows('l', 't', 'Tmar LmarLg')
 	
-	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/i18next.js")
-	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/shadertoylite.js")
-	script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/lazyload.js")
-	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/")
+
+	//- script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/i18next.js")
+	//- script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/shadertoylite.js")
+	//- script(type="text/javascript" src="/js/strawnode_app/strawnode_modules/strawnode_modules/lazyload.js")
+
+	script(type="text/javascript", src="/js/strawnode.js?starter=./strawnode_app/&logger=1")
 
 	//- here loading in relative breaks the direct deeplinking feature coming from url with no /#/en/...
 	
@@ -570,26 +795,29 @@ block content
 
 		// i18next
 		let resources = !{JSON.stringify(resources)} ;
-		//trace(resources[0])
-		i18next.init({
-			//- lng: 'en', // if you're using a language detector, do not define the lng option
-			//- debug: true,
-			fallbackLng: ["en"],
-			resources: resources[0]
+
+
+		window.addEventListener("strawnode-bootstrapped", function(e) {
+			trace('bootstrap state — evaluated modules: ' + Object.keys(e.detail.graph.cache).length + ' — eval stack: ' + JSON.stringify(e.detail.graph.stack)) ;
 		}) ;
 
-		
-
-		//- When having sections given through express/jade
-		//- let sections_JSON = !{JSON.stringify(topsections)} ;
-		//- window.Data = sections_JSON ;
-		
-
 		window.addEventListener("strawnode-ready", function(e) {
+
+			require.logger.emit('fetched', "StrawNode is fully loaded! The starter package was: "+ e.detail);
+			require.logger.emit('warn', 'Click Enter to continue...') ;
+
 			
+			i18next.init({
+				//- lng: 'en', // if you're using a language detector, do not define the lng option
+				//- debug: true,
+				fallbackLng: ["en"],
+				resources: resources[0]
+			}) ;
+
+
 			//- trace(window.strawnodeLoadingFeedback)
 			done = true ;
-			console.log("StrawNode is fully loaded! The starter package was:", e.detail);
+			
 			// Hide your loading screen
 			// Initialize your SPA router
 			// Do Web 3.0 things!
@@ -597,23 +825,26 @@ block content
 			var startSite = function(delayed){
 				$('.landing').remove() ;
 				return setTimeout(function(){
-					
 					Express.app.fire('JSAddress') ;
 				}, 1) ;
 			}
 
 			if(1){
-
-			
+				
 				/////////////////////////////////////////// LANDING PAGE
 				var need_landing = parseInt(localStorage.need_landing || 1) ;
-				var isBrave = Kompat.instance.isBrave ;
-				trace('isBrave', isBrave)
-				isBrave = isBrave || Kompat.instance.isMobile ;
+				var needs_warning = Kompat.instance.isBrave ;
+				
+				needs_warning = needs_warning || Kompat.instance.isMobile ;
 				if(need_landing){
 					$('.landing').removeClass('none') ;
-					if(!isBrave) $('.req_explain').removeClass('none') ;
-					$('.enterlink').on('mousedown', function(e){
+					
+					if(!needs_warning) $('.req_explain').removeClass('none') ;
+					
+					
+					$('.enterlink').on('click', function(e){
+						
+						//- window.strawlogs = $('.loadconsole').text() ;
 						$('.enterlink').remove() ;
 						
 						localStorage.need_landing = 0 ;
