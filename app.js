@@ -12,7 +12,7 @@ console.log("Launching in ", process.env.NODE_ENV , "mode...") ;
 
 //////////////////////////////////////// ENVIRONMENT SETTINGS
 
-require('dotenv').config() ;
+require('dotenv').config({ path: require('path').join(__dirname, '.env') }) ;
 //////////////////////////////////////// END ENVIRONMENT SETTINGS
 
 
