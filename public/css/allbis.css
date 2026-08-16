@@ -1,5 +1,4 @@
 /*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
-@import url('https://fonts.cdnfonts.com/css/montserrat');
 @layer properties;
 html {
   background: none repeat scroll 0 0 #FFFFFF;
@@ -2374,57 +2373,81 @@ hr {
   zoom: 1;
 }
 @font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/Montserrat-Regular-latin.woff2") format("woff2"), url("./fonts/Montserrat-Regular-latin.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  font-style: italic;
+  font-weight: 400;
+  src: url("./fonts/Montserrat-Italic-latin.woff2") format("woff2"), url("./fonts/Montserrat-Italic-latin.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
   font-family: "ARS-Maquette-Web-Pro-1";
   font-style: normal;
-  src: url("./fonts/arsmaquettewebproone-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-SH.ttf") format("truetype");
+  font-weight: 400;
+  src: url("./fonts/arsmaquettewebproone-SH.woff2") format("woff2"), url("./fonts/arsmaquettewebproone-SH.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "ARS-Maquette-Web-Pro-1";
   font-style: italic;
-  src: url("./fonts/arsmaquettewebproone-italic-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-italic-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-italic-SH.ttf") format("truetype");
+  font-weight: 400;
+  src: url("./fonts/arsmaquettewebproone-italic-SH.woff2") format("woff2"), url("./fonts/arsmaquettewebproone-italic-SH.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "ARS-Maquette-Web-Pro-1";
   font-style: normal;
   font-weight: bold;
-  src: url("./fonts/arsmaquettewebproone-bold-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-bold-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-bold-SH.ttf") format("truetype");
+  src: url("./fonts/arsmaquettewebproone-bold-SH.woff2") format("woff2"), url("./fonts/arsmaquettewebproone-bold-SH.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "ARS-Maquette-Web-Pro-1";
   font-style: italic;
   font-weight: bold;
-  src: url("./fonts/arsmaquettewebproone-bolditalic-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-bolditalic-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-bolditalic-SH.ttf") format("truetype");
+  src: url("./fonts/arsmaquettewebproone-bolditalic-SH.woff2") format("woff2"), url("./fonts/arsmaquettewebproone-bolditalic-SH.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "U.S. 101";
   font-style: normal;
-  src: url("./fonts/us101-webfont.eot?iefix") format("eot"), url("./fonts/us101-webfont.woff") format("woff"), url("./fonts/us101-webfont.ttf") format("truetype");
+  font-weight: 400;
+  src: url("./fonts/us101-webfont.woff2") format("woff2"), url("./fonts/us101-webfont.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: 'sansserifexbflfcond';
-  src: url('./fonts/sansserifexbflfcond.eot');
-  src: url('./fonts/sansserifexbflfcond.eot?#iefix') format('embedded-opentype'), url('./fonts/sansserifexbflfcond.woff') format('woff'), url('./fonts/sansserifexbflfcond.ttf') format('truetype'), url('./fonts/sansserifexbflfcond.svg#SaintsSquareRegular') format('svg');
+  src: url('./fonts/sansserifexbflfcond.woff2') format('woff2'), url('./fonts/sansserifexbflfcond.woff') format('woff');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: 'BentonSans';
-  src: url('./fonts/Bold.eot?#iefix') format('embedded-opentype'),	url('./fonts/Bold.woff') format('woff'),	url('./fonts/Bold.ttf') format('truetype'),	url('./fonts/Bold.svg#web') format('svg');
+  src: url('./fonts/Bold.woff2') format('woff2'),	url('./fonts/Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: 'BentonSans';
-  src: url('./fonts/Thin.eot?#iefix') format('embedded-opentype'),	url('./fonts/Thin.woff') format('woff'),	url('./fonts/Thin.ttf') format('truetype'),	url('./fonts/Thin.svg#web') format('svg');
+  src: url('./fonts/Thin.woff2') format('woff2'),	url('./fonts/Thin.woff') format('woff');
   font-weight: 100;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: 'SaintsSquareRegular';
-  src: url('./fonts/saintssquare-webfont.eot');
-  src: url('./fonts/saintssquare-webfont.eot?#iefix') format('embedded-opentype'), url('./fonts/saintssquare-webfont.woff') format('woff'), url('./fonts/saintssquare-webfont.ttf') format('truetype'), url('./fonts/saintssquare-webfont.svg#SaintsSquareRegular') format('svg');
+  src: url('./fonts/saintssquare-webfont.woff2') format('woff2'), url('./fonts/saintssquare-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 @media screen and (min-width: 0px) {
   .XXLg {
@@ -3318,8 +3341,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --default-transition-duration: 150ms;
-    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
   }
@@ -3491,126 +3512,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .static {
     position: static;
   }
-  .top-1 {
-    top: calc(var(--spacing) * 1);
-  }
-  .top-2 {
-    top: calc(var(--spacing) * 2);
-  }
-  .top-3 {
-    top: calc(var(--spacing) * 3);
-  }
-  .top-4 {
-    top: calc(var(--spacing) * 4);
-  }
-  .top-5 {
-    top: calc(var(--spacing) * 5);
-  }
-  .top-6 {
-    top: calc(var(--spacing) * 6);
-  }
-  .top-7 {
-    top: calc(var(--spacing) * 7);
-  }
-  .top-8 {
-    top: calc(var(--spacing) * 8);
-  }
-  .top-9 {
-    top: calc(var(--spacing) * 9);
-  }
-  .top-10 {
-    top: calc(var(--spacing) * 10);
-  }
-  .right-1 {
-    right: calc(var(--spacing) * 1);
-  }
-  .right-2 {
-    right: calc(var(--spacing) * 2);
-  }
-  .right-3 {
-    right: calc(var(--spacing) * 3);
-  }
-  .right-4 {
-    right: calc(var(--spacing) * 4);
-  }
-  .right-5 {
-    right: calc(var(--spacing) * 5);
-  }
-  .right-6 {
-    right: calc(var(--spacing) * 6);
-  }
-  .right-7 {
-    right: calc(var(--spacing) * 7);
-  }
-  .right-8 {
-    right: calc(var(--spacing) * 8);
-  }
-  .right-9 {
-    right: calc(var(--spacing) * 9);
-  }
-  .right-10 {
-    right: calc(var(--spacing) * 10);
-  }
-  .bottom-1 {
-    bottom: calc(var(--spacing) * 1);
-  }
-  .bottom-2 {
-    bottom: calc(var(--spacing) * 2);
-  }
-  .bottom-3 {
-    bottom: calc(var(--spacing) * 3);
-  }
-  .bottom-4 {
-    bottom: calc(var(--spacing) * 4);
-  }
-  .bottom-5 {
-    bottom: calc(var(--spacing) * 5);
-  }
-  .bottom-6 {
-    bottom: calc(var(--spacing) * 6);
-  }
-  .bottom-7 {
-    bottom: calc(var(--spacing) * 7);
-  }
-  .bottom-8 {
-    bottom: calc(var(--spacing) * 8);
-  }
-  .bottom-9 {
-    bottom: calc(var(--spacing) * 9);
-  }
-  .bottom-10 {
-    bottom: calc(var(--spacing) * 10);
-  }
-  .left-1 {
-    left: calc(var(--spacing) * 1);
-  }
-  .left-2 {
-    left: calc(var(--spacing) * 2);
-  }
-  .left-3 {
-    left: calc(var(--spacing) * 3);
-  }
-  .left-4 {
-    left: calc(var(--spacing) * 4);
-  }
-  .left-5 {
-    left: calc(var(--spacing) * 5);
-  }
-  .left-6 {
-    left: calc(var(--spacing) * 6);
-  }
-  .left-7 {
-    left: calc(var(--spacing) * 7);
-  }
-  .left-8 {
-    left: calc(var(--spacing) * 8);
-  }
-  .left-9 {
-    left: calc(var(--spacing) * 9);
-  }
-  .left-10 {
-    left: calc(var(--spacing) * 10);
-  }
   .container {
     width: 100%;
     @media (width >= 40rem) {
@@ -3668,9 +3569,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .table {
     display: table;
   }
-  .table-cell {
-    display: table-cell;
-  }
   .h-64 {
     height: calc(var(--spacing) * 64);
   }
@@ -3707,23 +3605,14 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .flex-none {
     flex: none;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .shrink {
     flex-shrink: 1;
   }
   .shrink-0 {
     flex-shrink: 0;
   }
-  .flex-grow {
-    flex-grow: 1;
-  }
   .grow {
     flex-grow: 1;
-  }
-  .border-collapse {
-    border-collapse: collapse;
   }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
@@ -3833,9 +3722,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .text-white {
     color: var(--color-white);
   }
-  .lowercase {
-    text-transform: lowercase;
-  }
   .uppercase {
     text-transform: uppercase;
   }
@@ -3883,15 +3769,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
-  .backdrop-filter {
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-    backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  }
-  .transition {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
   .ease-in {
     --tw-ease: var(--ease-in);
     transition-timing-function: var(--ease-in);
@@ -3933,11 +3810,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   .md\:max-w-90 {
     @media (width >= 48rem) {
       max-width: calc(var(--spacing) * 90);
-    }
-  }
-  .md\:max-w-112 {
-    @media (width >= 48rem) {
-      max-width: calc(var(--spacing) * 112);
     }
   }
   .md\:max-w-128 {
@@ -4152,42 +4024,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
   syntax: "*";
   inherits: false;
 }
-@property --tw-backdrop-blur {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-brightness {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-contrast {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-grayscale {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-hue-rotate {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-invert {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-opacity {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-saturate {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-sepia {
-  syntax: "*";
-  inherits: false;
-}
 @property --tw-ease {
   syntax: "*";
   inherits: false;
@@ -4234,15 +4070,6 @@ input:autofill, input:autofill:hover, input:autofill:focus {
       --tw-drop-shadow-color: initial;
       --tw-drop-shadow-alpha: 100%;
       --tw-drop-shadow-size: initial;
-      --tw-backdrop-blur: initial;
-      --tw-backdrop-brightness: initial;
-      --tw-backdrop-contrast: initial;
-      --tw-backdrop-grayscale: initial;
-      --tw-backdrop-hue-rotate: initial;
-      --tw-backdrop-invert: initial;
-      --tw-backdrop-opacity: initial;
-      --tw-backdrop-saturate: initial;
-      --tw-backdrop-sepia: initial;
       --tw-ease: initial;
     }
   }

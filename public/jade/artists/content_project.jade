@@ -11,15 +11,17 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-ite
 				.gridtransp.abs.fullW.fullH(style="background:url(/css/skin/grid_transp.png) repeat left top;opacity:1")
 				
 				.none.imageslinks
+					- var _webp = (function(){ try{ return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') == 0 ; }catch(e){ return false } })()
 					for el, i in res.userData.slides
 						- var xpos = '0%' ;
 						- var loaded = el['loaded'] ;
+						- var iurl = _webp ? ('/img/' + el.url).replace(/\.(jpe?g|png)$/i, '.webp') : '/img/' + el.url ;
 						
 						- if(loaded){
-							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + '/img/' + el.url + ");background-position-x:" + xpos + ";")
+							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + iurl + ");background-position-x:" + xpos + ";")
 						- }else{
 							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:none;background-position-x:" + xpos + ";")
-								+lazyimg("/img/" + el.url)
+								+lazyimg(iurl)
 						- }
 		
 		.scrollzone.abs.fullW.fullH.top0.right0.bottom0(class="self-start")

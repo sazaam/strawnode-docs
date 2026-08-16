@@ -17,7 +17,8 @@ html(lang=lang, class="rel fullW fullH context")
 		link(rel="icon" type="image/png" sizes="16x16" href="/css/icons/favicon-16x16.png")
 		link(rel="manifest" href="/css/icons/site.webmanifest")
 		
-		link(rel="stylesheet", type="text/css", href="/css/allbis.css")
+		link(rel="stylesheet", type="text/css", href="/css/allbis.css?v=#{version}")
+		link(rel="preload" as="font" type="font/woff2" href="/css/fonts/Montserrat-Regular-latin.woff2" crossorigin)
 		
 	body(class="rel montserrat txtC fullW fullH context")
 		block content

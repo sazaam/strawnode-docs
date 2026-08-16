@@ -224,9 +224,17 @@ const {jadeparams} = (()=>{
 		return right;
 	}
 	
+	const gitVersion = (() => {
+		try {
+			return require('child_process').execSync('git rev-parse --short HEAD', {cwd: __dirname})
+				.toString().trim();
+		} catch(e) { return 'dev'; }
+	})();
+	
 	let params = CONSTANTS.jadeparams = {
 		basedir: jadebasedir,
 		title: CONSTANTS.SITE.title,
+		version: gitVersion,
 		require: require,
 		render: jade.render,
 		renderFile: jade.renderFile,

@@ -160,8 +160,8 @@ module.exports = {
 				{url:'Ashina_01.jpg', x:'35%'},
 			]),
 			modern_art : project([
-				{url:'exhibition_01.png'},
-				{url:'exhibition_02.png', x:'20%'},
+				{url:'exhibition_01.jpg'},
+				{url:'exhibition_02.jpg', x:'20%'},
 				{url:'dummy.jpg', noslide:1},
 				{url:'dummy.jpg', noslide:1},
 				{url:'dummy.jpg', noslide:1},
