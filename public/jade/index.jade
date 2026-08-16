@@ -804,10 +804,10 @@ block content
 		window.addEventListener("strawnode-ready", function(e) {
 
 			require.logger.emit('fetched', "StrawNode is fully loaded! The starter package was: "+ e.detail);
-			require.logger.emit('warn', 'Click Enter to continue...') ;
 
 			
 			window.DocsArticles.load(resources, function(){
+				require.logger.emit('warn', 'Click Enter to continue...') ;
 				i18next.init({
 					//- lng: 'en', // if you're using a language detector, do not define the lng option
 					//- debug: true,

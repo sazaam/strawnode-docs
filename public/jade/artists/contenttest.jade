@@ -9,6 +9,14 @@ block content
 	- var isDeck = response.userData.deck ;
 
 	case resid
+		when '@'
+			break
+		
+		when 'about'
+			.VpadXLg(class="max-w-80")
+				.HpadXXLg.txtL.unselectable
+					+article_about()
+		
 		when 'intro'
 			//- 
 			.about.slides.sizeR.rel.context.flowvisible.unselectable(class="md:max-w-128")
@@ -39,13 +47,7 @@ block content
 						|  /  #{els.length}
 				
 				+lr_arrows('l', 'b', 'LmarXXLg Bmar')
-					
-		when '@'
-			break
-		when 'about'
-			.VpadXLg(class="max-w-80")
-				.HpadXXLg.txtL.unselectable
-					+article_about()
+		
 		when 'contact'
 			.VpadXLg(class="max-w-96")
 				.HpadXXLg.txtL.unselectable
@@ -69,6 +71,7 @@ block content
 							span.submit_label= t('contact.submit')
 					.contact_status.none.sizeSm.txtL.whitetranspTXT.Tmar
 					.contact_success.sizeSm.txtL.whitetranspTXT.Tmar.none(style="min-height:200px" class="flex flex-row items-center")!= t('contact.success')
+		
 		when 'vision'
 			.vision.rel.fullH.flowYauto.unselectable.visionzone
 				- var blocks = new Array(11) ;
@@ -130,6 +133,22 @@ block content
 			.docs_leaf.VpadXLg.glass(class="md:max-w-240")
 				.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
 					+article('type.article', 'doc_article')
+		when 'shaders'
+			.docs_leaf.VpadXLg.glass(class="md:max-w-240")
+				.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
+					+article('shaders.article', 'doc_article')
+		when 'modelling'
+			.docs_leaf.VpadXLg.glass(class="md:max-w-240")
+				.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
+					+article('modelling.article', 'doc_article')
+		when 'procedural'
+			.docs_leaf.VpadXLg.glass(class="md:max-w-240")
+				.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
+					+article('procedural.article', 'doc_article')
+		when 'tweens'
+			.docs_leaf.VpadXLg.glass(class="md:max-w-240")
+				.HpadXXLg.TpadSm.whitetranspTXT.txtL.unselectable.sizeRM
+					+article('tweens.article', 'doc_article')
 		default
 			if isDeck
 				div.fullH(class="md:max-w-90 self-center")

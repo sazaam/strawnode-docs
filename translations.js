@@ -229,7 +229,7 @@ module.exports = {
                 invalid_email:'Please enter a valid email address.',
             },
             docs:{
-                article:`## these are the Documents<br><br> *Exclusive*\n*** \n [myLink](https://metavagrant.com)\n<a href="#/{{lang}}/about/intro/" class="block clear item padding HpadXLg rel dispBlock rounded whitetranspBG undefined">Read the Introduction<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>`
+                article:`## these Documents are here to help understanding the various concepts we used throughout this project.<br> \n*** \n <h6 class="Tmar BmarSm">Code</h6> \n<a href="#/{{lang}}/docs/code/strawnode/" class="block clear item padding rel dispBlock rounded whitetranspBG">Strawnode<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n<a href="#/{{lang}}/docs/code/betweenjs/" class="block clear item padding rel dispBlock rounded whitetranspBG">BetweenJS<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n<a href="#/{{lang}}/docs/code/type/" class="block clear item padding rel dispBlock rounded whitetranspBG">Type<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n <h6 class="Tmar BmarSm">Tech</h6> \n<a href="#/{{lang}}/docs/tech/shaders/" class="block clear item padding rel dispBlock rounded whitetranspBG">Shaders<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n<a href="#/{{lang}}/docs/tech/modelling/" class="block clear item padding rel dispBlock rounded whitetranspBG">Modelling<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n<a href="#/{{lang}}/docs/tech/procedural/" class="block clear item padding rel dispBlock rounded whitetranspBG">Procedural<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>\n<a href="#/{{lang}}/docs/tech/tweens/" class="block clear item padding rel dispBlock rounded whitetranspBG">Tweens<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>`
             },
             works:{
                 article:`## The Works<br><br> A family of expressions — visions, objects, lights and stories — gathered under one wandering name.\n \n Wander through the families, each a deck of works made with the same tools : design, code, and an eye for the essential.\n*** \n [vision](/#/{{lang}}/works/vision/)\n\n\n [make](/#/{{lang}}/works/make/)\n\n\n [light](/#/{{lang}}/works/light/)\n\n\n [story](/#/{{lang}}/works/story/)\n\n\n [build](/#/{{lang}}/works/build/)`
@@ -463,7 +463,7 @@ module.exports = {
                 cta_contact:'떠돌이와 함께 일하기',
             },
             docs:{
-                article:`## 이 문서들<br><br> *전용*\n*** \n [myLink](https://metavagrant.com)\n<a href="#/{{lang}}/about/intro/" class="block clear item padding HpadXLg rel dispBlock rounded whitetranspBG undefined">서론을 읽기<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>`
+                article:`## 이 문서들<br><br> *전용*\n*** \n [myLink](https://metavagrant.com)\n<a href="#/{{lang}}/about/intro/" class="block clear item padding rel dispBlock rounded whitetranspBG undefined">서론을 읽기<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>`
             },
             about:{
                 about_main:'최신 웹 친화적 <span class="bold">프로토타이핑 프레임워크</span>',

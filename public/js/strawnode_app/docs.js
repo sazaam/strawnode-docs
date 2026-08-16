@@ -1,7 +1,7 @@
 
 
 window.DocsArticles = {
-	_leaves: ['strawnode', 'betweenjs', 'type'],
+	_leaves: ['strawnode', 'betweenjs', 'type', 'shaders', 'modelling', 'procedural', 'tweens'],
 
 	load : function(resources, done){
 		var target = resources[0] ;
@@ -18,10 +18,10 @@ window.DocsArticles = {
 					if(target.ko && target.ko.translation[leaf])
 						delete target.ko.translation[leaf].article ;
 				}
-				if(--pending === 0 && done) done() ;
+				if(--pending === 0 && done) setTimeout(done, 0) ;
 			} ;
 			xhr.onerror = function(){
-				if(--pending === 0 && done) done() ;
+				if(--pending === 0 && done) setTimeout(done, 0) ;
 			} ;
 			xhr.send() ;
 		}) ;

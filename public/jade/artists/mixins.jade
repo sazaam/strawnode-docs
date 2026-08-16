@@ -46,7 +46,7 @@ mixin webm(src, w, h)
 mixin article(txtvar, klass)
 	article.article.context(class=klass)
 		- var mk = marked.marked(t(txtvar, {lang:lang}))
-		div.article_content.HpadXSm!= mk
+		div.article_content!= mk
 
 
 mixin article_about(right)
