@@ -33,12 +33,16 @@ mixin videoblock()
 mixin webm(src, w, h)
 	.webms.BmarXLg.context
 		.webmcont.BmarXXXXXLg.floatR.LmarLg.blackBG(style="width:" + w + "px; height:" + h + "px")
-			img.fullW.fullH(src='/img/webm/'+ src +'.png')
+			picture
+				source(srcset='/img/webm/'+ src +'.webp' type="image/webp")
+				img.fullW.fullH(src='/img/webm/'+ src +'.jpg')
 			video.webm.none(controls, loop)
 				source(src='/img/webm/' + src + '.webm' type="video/webm")
 			legend.sizeSm.txtC.Tmar Procedural
 		.BmarXXXXXLg.floatR.blackBG(style="width:" + w + "px; height:" + h + "px")
-			img.fullW.fullH(src='/img/webm/'+ src +'.png')
+			picture
+				source(srcset='/img/webm/'+ src +'.webp' type="image/webp")
+				img.fullW.fullH(src='/img/webm/'+ src +'.jpg')
 			legend.sizeSm.txtC.Tmar Original
 	.clear 
 		//

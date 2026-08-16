@@ -6,6 +6,26 @@ var isDeck = function(res){
 } ;
 var about_type_sliding_sections = ['about'] ;
 
+// cached WebP support probe — swap /img/...jpg -> /img/...webp when supported
+var supportsWebP = (function(){
+    try{
+        return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') == 0 ;
+    }catch(e){
+        return false ;
+    }
+})() ;
+
+var webpUrl = function(url){
+    return supportsWebP ? url.replace(/\.(jpe?g|png)$/i, '.webp') : url ;
+} ;
+
+// warm the browser cache for a slide image so the lazy/background load is instant
+var preloadImage = function(url){
+    if(!url) return ;
+    var i = new Image() ;
+    i.src = webpUrl(url) ;
+} ;
+
 var GestureManager = require('./strawnode_modules/gesture') ;
 var KeyboardManager = require('./strawnode_modules/keyboard') ;
 var Reactive = require('./strawnode_modules/reactive') ;
@@ -485,7 +505,7 @@ module.exports = {
                         var el = $(elm) ;
                         
                         var img = el.parent() ;
-                        var url = el.attr('lazy') ;
+                        var url = webpUrl(el.attr('lazy')) ;
                         var target = el ;
                         target.find('hr.backindic').css('width', '100%') ;
                         var ac = new AjaxCommand(url, function(jxhr, r){
@@ -783,16 +803,17 @@ module.exports = {
                 /// SKIP X-SCROLL ON ASPECT RATIO
                 if(pW / pH <= cineratio) {
 
-                    var tw_back = res.userData.tw_back = BJS.delay(BJS.create({
+                    var tw_back = BJS.create({
                         target:paneimg,
                         to:{'background-position-x::%':100},
                         from:{'background-position-x::%':0},
                         time:5,
                         ease:Physical.uniform(.3)
-                    }), 0, 2) ;
-                    
-                    tw_back.stopOnComplete = 0 ;
-                    tw_back.restart() ;
+                    }) ;
+                    var tw_pano = res.userData.tw_pano = BJS.serial(
+                        BJS.delay(tw_back, 0, 2), BJS.delay(BJS.reverse(tw_back), 0, 2)) ;
+                    tw_pano.stopOnComplete = 0 ;
+                    tw_pano.restart() ;
                     
                 }
                 project_zone.addClass('touch-action') ;
@@ -838,9 +859,9 @@ module.exports = {
 
 		}else{
 			ReactiveI18n.cleanup() ;
-			var tw_back = res.userData.tw_back ;
-			if(!!tw_back) {
-				tw_back.stop() ;
+			var tw_pano = res.userData.tw_pano ;
+			if(!!tw_pano) {
+				tw_pano.stop() ;
 			}
 			
 			paneimg.css('background-position-x', '0%') ;
@@ -941,6 +962,10 @@ module.exports = {
             
             var oldCurIndex = res.userData.currentIndex || 0 ;
             res.userData.currentIndex = 0 ;
+
+            // preload the current slide's image so the first view is instant
+            var firstLazy = $('.imglink .lazy').eq(0).attr('lazy') ;
+            preloadImage(firstLazy) ;
 
             var getTo = res.userData.getTo = function(n){
                 

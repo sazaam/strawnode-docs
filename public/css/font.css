@@ -1,27 +1,56 @@
 
+/* Montserrat 400 + italic (self-hosted, latin subset) */
+
+@font-face {
+    font-family: "Montserrat";
+    font-style: normal;
+    font-weight: 400;
+    src: url("./fonts/Montserrat-Regular-latin.woff2") format("woff2"),
+         url("./fonts/Montserrat-Regular-latin.woff") format("woff");
+    font-display: swap;
+}
+@font-face {
+    font-family: "Montserrat";
+    font-style: italic;
+    font-weight: 400;
+    src: url("./fonts/Montserrat-Italic-latin.woff2") format("woff2"),
+         url("./fonts/Montserrat-Italic-latin.woff") format("woff");
+    font-display: swap;
+}
+
 /* Ars Maquette Pro */
 
 @font-face {
     font-family: "ARS-Maquette-Web-Pro-1";
     font-style: normal;
-    src: url("./fonts/arsmaquettewebproone-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-SH.ttf") format("truetype");
+    font-weight: 400;
+    src: url("./fonts/arsmaquettewebproone-SH.woff2") format("woff2"),
+         url("./fonts/arsmaquettewebproone-SH.woff") format("woff");
+    font-display: swap;
 }
 @font-face {
     font-family: "ARS-Maquette-Web-Pro-1";
     font-style: italic;
-    src: url("./fonts/arsmaquettewebproone-italic-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-italic-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-italic-SH.ttf") format("truetype");
+    font-weight: 400;
+    src: url("./fonts/arsmaquettewebproone-italic-SH.woff2") format("woff2"),
+         url("./fonts/arsmaquettewebproone-italic-SH.woff") format("woff");
+    font-display: swap;
 }
 @font-face {
     font-family: "ARS-Maquette-Web-Pro-1";
     font-style: normal;
     font-weight: bold;
-    src: url("./fonts/arsmaquettewebproone-bold-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-bold-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-bold-SH.ttf") format("truetype");
+    src: url("./fonts/arsmaquettewebproone-bold-SH.woff2") format("woff2"),
+         url("./fonts/arsmaquettewebproone-bold-SH.woff") format("woff");
+    font-display: swap;
 }
 @font-face {
     font-family: "ARS-Maquette-Web-Pro-1";
     font-style: italic;
     font-weight: bold;
-    src: url("./fonts/arsmaquettewebproone-bolditalic-SH.eot?iefix") format("eot"), url("./fonts/arsmaquettewebproone-bolditalic-SH.woff") format("woff"), url("./fonts/arsmaquettewebproone-bolditalic-SH.ttf") format("truetype");
+    src: url("./fonts/arsmaquettewebproone-bolditalic-SH.woff2") format("woff2"),
+         url("./fonts/arsmaquettewebproone-bolditalic-SH.woff") format("woff");
+    font-display: swap;
 }
 /**/
 /* US 101 
@@ -29,49 +58,43 @@
 @font-face {
     font-family: "U.S. 101";
     font-style: normal;
-    src: url("./fonts/us101-webfont.eot?iefix") format("eot"), url("./fonts/us101-webfont.woff") format("woff"), url("./fonts/us101-webfont.ttf") format("truetype");
+    font-weight: 400;
+    src: url("./fonts/us101-webfont.woff2") format("woff2"),
+         url("./fonts/us101-webfont.woff") format("woff");
+    font-display: swap;
 }
 @font-face {
     font-family: 'sansserifexbflfcond';
-    src: url('./fonts/sansserifexbflfcond.eot');
-    src: url('./fonts/sansserifexbflfcond.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/sansserifexbflfcond.woff') format('woff'),
-         url('./fonts/sansserifexbflfcond.ttf') format('truetype'),
-         url('./fonts/sansserifexbflfcond.svg#SaintsSquareRegular') format('svg');
+    src: url('./fonts/sansserifexbflfcond.woff2') format('woff2'),
+         url('./fonts/sansserifexbflfcond.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
+    font-display: swap;
 }
 
 @font-face{
 	font-family:'BentonSans';
-	src:url('./fonts/Bold.eot?#iefix') format('embedded-opentype'),
-		url('./fonts/Bold.woff') format('woff'),
-		url('./fonts/Bold.ttf') format('truetype'),
-		url('./fonts/Bold.svg#web') format('svg');
+	src:url('./fonts/Bold.woff2') format('woff2'),
+		url('./fonts/Bold.woff') format('woff');
 	font-weight:700;
-	font-style:normal
+	font-style:normal;
+	font-display:swap;
 }
 
 @font-face{
 	font-family:'BentonSans';
-	src:url('./fonts/Thin.eot?#iefix') format('embedded-opentype'),
-		url('./fonts/Thin.woff') format('woff'),
-		url('./fonts/Thin.ttf') format('truetype'),
-		url('./fonts/Thin.svg#web') format('svg');
+	src:url('./fonts/Thin.woff2') format('woff2'),
+		url('./fonts/Thin.woff') format('woff');
 	font-weight:100;
-	font-style:normal
+	font-style:normal;
+	font-display:swap;
 }
-
 
 @font-face {
     font-family: 'SaintsSquareRegular';
-    src: url('./fonts/saintssquare-webfont.eot');
-    src: url('./fonts/saintssquare-webfont.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/saintssquare-webfont.woff') format('woff'),
-         url('./fonts/saintssquare-webfont.ttf') format('truetype'),
-         url('./fonts/saintssquare-webfont.svg#SaintsSquareRegular') format('svg');
+    src: url('./fonts/saintssquare-webfont.woff2') format('woff2'),
+         url('./fonts/saintssquare-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
+    font-display: swap;
 }

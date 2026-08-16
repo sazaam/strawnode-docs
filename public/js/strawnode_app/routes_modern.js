@@ -256,8 +256,8 @@ module.exports = {
 			light.modern_art = lambda_deep() ;
 			light.modern_art['userData'] = {
 				slides:[
-					{url:'exhibition_01.png'},
-					{url:'exhibition_02.png', x:'20%'},
+					{url:'exhibition_01.jpg'},
+					{url:'exhibition_02.jpg', x:'20%'},
 					{url:'dummy.jpg', noslide:1},
 					{url:'dummy.jpg', noslide:1},
 					{url:'dummy.jpg', noslide:1},

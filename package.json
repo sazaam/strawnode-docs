@@ -11,7 +11,10 @@
   "scripts": {
     "start": "cross-env NODE_ENV=staging nodemon app",
     "css": "npx @tailwindcss/cli -i ./public/css/all.css -o ./public/css/allbis.css --watch",
-    "build": "cross-env NODE_ENV=production node app"
+    "build": "cross-env NODE_ENV=production node app",
+    "test": "node tests/run.mjs",
+    "test:app": "node tests/run.mjs",
+    "test:existing": "TEST_BASE=http://localhost:6446/ node tests/run.mjs"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.17",
@@ -39,6 +42,8 @@
     "node-fetch": "^2.6.0",
     "nodemailer": "^9.0.5",
     "nodemon": "^2.0.4",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4.1.17"
-  }
+  },
+  "type": "commonjs"
 }

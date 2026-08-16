@@ -257,6 +257,11 @@ window.trace = console.log;
 	}
 
 	var devMode = false;
+	var versionParam = '';
+	var versionedUrl = function (url) {
+		if (!versionParam || !url) return url;
+		return url + (/\?/.test(url) ? '&' : '?') + 'v=' + versionParam;
+	};
 	ModuleLoader.prototype.load = function load(url, cb) {
 		var r = this.request;
 		var th = this;
@@ -265,6 +270,7 @@ window.trace = console.log;
 		var url = this.url = !!url ? url : this.url;
 
 		if (devMode) url = url + (/\?/.test(url) ? '&' : '?') + '_t=' + Date.now();
+		else if (versionParam) url = versionedUrl(url);
 
 		if (url in ModuleLoader.cache) {
 			this.response = ModuleLoader.cache[url];
@@ -684,9 +690,9 @@ window.trace = console.log;
 
 		if (asType === 'file') {
 			var fileUrl = ensureExtension(ModuleLoader.concatRoot(requestedid, base));
-			resp = ModuleLoader.cache[fileUrl];
+			resp = ModuleLoader.cache[versionedUrl(fileUrl)];
 			if (!resp) {
-				tryAsyncFetch(fileUrl);
+				tryAsyncFetch(versionedUrl(fileUrl));
 				asType = 'dir';
 			}
 		}
@@ -694,15 +700,15 @@ window.trace = console.log;
 		try {
 			if (asType === 'dir') {
 				var pkgUrl = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/') + 'package.json', base);
-				resp = ModuleLoader.cache[pkgUrl];
+				resp = ModuleLoader.cache[versionedUrl(pkgUrl)];
 				var indexUrl = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/') + 'index.js', base);
 
 				if (resp && islegit(resp)) {
 					var pakageJSON = new Function('return ' + resp)();
 					var index = pakageJSON.main || pakageJSON.index || './' + DEFAULT_JS_NAME + '.js';
 					indexUrl = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/') + index, base);
-					resp = ModuleLoader.cache[indexUrl];
-					if (!resp) requireFail(indexUrl);
+					resp = ModuleLoader.cache[versionedUrl(indexUrl)];
+					if (!resp) requireFail(versionedUrl(indexUrl));
 
 					var newRoot = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/'), base);
 					ModuleLoader.setModuleRoot(newRoot);
@@ -726,8 +732,8 @@ window.trace = console.log;
 					r = simfunc(resp, modInstance, requestedid, params, indexUrl.replace(filename_r, ''));
 
 				} else {
-					resp = ModuleLoader.cache[indexUrl];
-					if (!resp) requireFail(indexUrl);
+					resp = ModuleLoader.cache[versionedUrl(indexUrl)];
+					if (!resp) requireFail(versionedUrl(indexUrl));
 					var newRoot = ModuleLoader.concatRoot(requestedid + (requestedid.charAt(requestedid.length - 1) === '/' ? '' : '/'), base);
 					ModuleLoader.setModuleRoot(newRoot);
 					if (typeExists) Type.hackpath = '';
@@ -738,8 +744,8 @@ window.trace = console.log;
 				}
 			} else if (asType === 'file') {
 				var finalFileUrl = ensureExtension(ModuleLoader.concatRoot(requestedid, base));
-				resp = ModuleLoader.cache[finalFileUrl];
-				if (!resp) requireFail(finalFileUrl);
+				resp = ModuleLoader.cache[versionedUrl(finalFileUrl)];
+				if (!resp) requireFail(versionedUrl(finalFileUrl));
 				var dirPart = requestedid.indexOf('/') !== -1 ? requestedid.replace(path_to_dirname_r, '/') : './';
 				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot(dirPart, base));
 				if (typeExists) Type.hackpath = '';
@@ -750,8 +756,8 @@ window.trace = console.log;
 			} else if (asType === 'node_mods') {
 				var modId = requestedid.indexOf('strawnode_modules/') === 0 ? requestedid.substring('strawnode_modules/'.length) : requestedid;
 				var nodeModUrl = ModuleLoader.concatRoot('./strawnode_modules/' + modId, base);
-				resp = ModuleLoader.cache[nodeModUrl];
-				if (!resp) requireFail(nodeModUrl);
+				resp = ModuleLoader.cache[versionedUrl(nodeModUrl)];
+				if (!resp) requireFail(versionedUrl(nodeModUrl));
 				ModuleLoader.setModuleRoot(ModuleLoader.concatRoot('./strawnode_modules/', base));
 				if (typeExists) Type.hackpath = '';
 
@@ -858,6 +864,7 @@ window.trace = console.log;
 
 	var startAsync = function (startId, startParams) {
 		if (startParams && startParams.dev) devMode = true;
+		if (startParams && startParams.v) versionParam = startParams.v;
 		if (!STRAWNODE) {
 			strawnodebaseparams = baseparams = getBaseParams();
 			ModuleLoader.js_root = baseparams.dirname;
