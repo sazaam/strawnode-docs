@@ -351,6 +351,23 @@ module.exports = {
 			})() ;
 
 		return docs ;
+	})(),
+	/////////// CONTACT
+	contact : (function(){
+		
+		var contact = function contact (req, res){
+			if(res.opening){
+				res.userData.urljade = '/jade/artists/contact.jade' ;
+				res.userData.urljson = 'json/section' ;
+				res.userData.parameters = {response:res} ;
+			}
+			return res ;
+		} ;
+		
+		contact['@focus'] = graphics.focus ;
+		contact['@toggle'] = graphics.toggle ;
+		
+		return contact ;
 	})()
 
 } ;

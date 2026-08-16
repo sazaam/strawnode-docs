@@ -53,7 +53,7 @@ block content
 			let startTime = Date.now();
 			let animateToggle = document.getElementById('animateToggle');
 			var am = localStorage.animMode ;
-			trace('AM', am)
+			
 			let animMode = localStorage.animMode = (isNaN(am) ? 1 : am ) || 1 ; // 1 = MetaVibrant, 2 = Prism Surge, 3 = Confetti Mosaic, 4 = Mondrian Flow, 5 = Halftone Riso, 6 = Glitch CRT, 7 = Firefly Sparks, 8 = VHS Glitch, 9 = Liquid Flow, 10 = Matrix Rain, 0 = static vector
 			const total_anims = 11 ;
 			async function init() {
@@ -267,7 +267,7 @@ block content
 						// 6. Magnetic aura outside: same field, hue-orbiting glow
 						float aura = exp(-abs(dp) * 9.0);
 						vec3 auraCol = a + b * cos(6.28318 * (c * (iTime * 0.05) + ph));
-						col = bgColor + auraCol * aura * 0.14;
+						col = bgColor + auraCol * aura * 0.014;
 
 						// Composite the emblem mask over the aura
 						float alpha = smoothstep(0.005, -0.005, dd);
@@ -725,7 +725,7 @@ block content
 			});
 	
 
-	#loadlogger.glass
+	#loadlogger
 		.loadhead
 			span.loadtitle STRAWNODE LOADER
 			span.loadpct 0%
@@ -807,52 +807,54 @@ block content
 			require.logger.emit('warn', 'Click Enter to continue...') ;
 
 			
-			i18next.init({
-				//- lng: 'en', // if you're using a language detector, do not define the lng option
-				//- debug: true,
-				fallbackLng: ["en"],
-				resources: resources[0]
+			window.DocsArticles.load(resources, function(){
+				i18next.init({
+					//- lng: 'en', // if you're using a language detector, do not define the lng option
+					//- debug: true,
+					fallbackLng: ["en"],
+					resources: resources[0]
+				}, function(){
+
+					//- trace(window.strawnodeLoadingFeedback)
+					done = true ;
+					
+					// Hide your loading screen
+					// Initialize your SPA router
+					// Do Web 3.0 things!
+					////////// Actual Start
+					var startSite = function(delayed){
+						$('.landing').remove() ;
+						return setTimeout(function(){
+							Express.app.fire('JSAddress') ;
+						}, 1) ;
+					}
+
+					if(1){
+						
+						/////////////////////////////////////////// LANDING PAGE
+						var need_landing = parseInt(localStorage.need_landing || 1) ;
+						var needs_warning = Kompat.instance.isBrave ;
+						
+						needs_warning = needs_warning || Kompat.instance.isMobile ;
+						if(need_landing){
+							$('.landing').removeClass('none') ;
+							
+							if(!needs_warning) $('.req_explain').removeClass('none') ;
+							
+							
+							$('.enterlink').on('click', function(e){
+								
+								//- window.strawlogs = $('.loadconsole').text() ;
+								$('.enterlink').remove() ;
+								
+								localStorage.need_landing = 0 ;
+								startSite(true) ;
+							})
+						}else{
+							startSite(false) ;
+						}
+					}
+				}) ;
 			}) ;
-
-
-			//- trace(window.strawnodeLoadingFeedback)
-			done = true ;
-			
-			// Hide your loading screen
-			// Initialize your SPA router
-			// Do Web 3.0 things!
-			////////// Actual Start
-			var startSite = function(delayed){
-				$('.landing').remove() ;
-				return setTimeout(function(){
-					Express.app.fire('JSAddress') ;
-				}, 1) ;
-			}
-
-			if(1){
-				
-				/////////////////////////////////////////// LANDING PAGE
-				var need_landing = parseInt(localStorage.need_landing || 1) ;
-				var needs_warning = Kompat.instance.isBrave ;
-				
-				needs_warning = needs_warning || Kompat.instance.isMobile ;
-				if(need_landing){
-					$('.landing').removeClass('none') ;
-					
-					if(!needs_warning) $('.req_explain').removeClass('none') ;
-					
-					
-					$('.enterlink').on('click', function(e){
-						
-						//- window.strawlogs = $('.loadconsole').text() ;
-						$('.enterlink').remove() ;
-						
-						localStorage.need_landing = 0 ;
-						startSite(true) ;
-					})
-				}else{
-					startSite(false) ;
-				}
-			}
 		});
 		

@@ -5,6 +5,8 @@
 require('./strawnode_modules/strawexpress') ;
 var express = Express ; 
 var routes = require('./routes') ;
+require('./contact') ;
+require('./docs') ;
 
 window.i18next = require('./strawnode_modules/strawnode_modules/i18next.js') ;
 window.LazyLoad = require('./strawnode_modules/strawnode_modules/lazyload.js') ;
