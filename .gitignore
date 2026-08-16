@@ -1,1 +1,35 @@
+# Dependencies
 node_modules/
+
+# Environment (secrets: Resend SMTP key, recipient addresses)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Test output / coverage
+coverage/
+playwright-report/
+test-results/
+
+# Generated CSS (built from all.css via tailwind watch)
+# public/css/allbis.css
+
+# Runtime data
+data/
+uploads/
+tmp/

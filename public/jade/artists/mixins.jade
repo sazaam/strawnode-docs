@@ -43,8 +43,8 @@ mixin webm(src, w, h)
 	.clear 
 		//
 
-mixin article(txtvar)
-	article.article.context
+mixin article(txtvar, klass)
+	article.article.context(class=klass)
 		- var mk = marked.marked(t(txtvar, {lang:lang}))
 		div.article_content.HpadXSm!= mk
 

@@ -12,7 +12,7 @@ console.log("Launching in ", process.env.NODE_ENV , "mode...") ;
 
 //////////////////////////////////////// ENVIRONMENT SETTINGS
 
-//require('dotenv').config();
+require('dotenv').config() ;
 //////////////////////////////////////// END ENVIRONMENT SETTINGS
 
 
@@ -413,6 +413,8 @@ let toJSON = (data) => {
 
 const resources = require('./translations') ;
 
+app.use('/docs/', express.static(path.join(__dirname, 'docs'), {index:false, fallthrough:true})) ;
+
 
 let root = async(req, res) => {
 	
@@ -541,6 +543,9 @@ app.use('/api/', async(req, res) => {
 
 let routes = require('./routes/') ;
 let tree = routes.translate() ;
+
+const contact = require('./routes/contact') ;
+app.post('/contact', contact.post) ;
 
 
 

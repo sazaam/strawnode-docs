@@ -306,6 +306,42 @@ a.justtransp{
 }
 
 
+.doc_article{
+	font-size:1em ;
+}
+.doc_article h3{
+	margin-top:1.5em ;
+	margin-bottom:1.25em ;
+	font-size:115% ;
+}
+.doc_article p{
+	margin-top:0.75em ;
+	margin-bottom:0.75em ;
+	color:rgba(255, 255, 255, .65) ;
+}
+.doc_article :not(h3){
+	color:rgba(255, 255, 255, .65) ;
+}
+.doc_article code{
+	padding:0 .5em ;
+	background:rgba(255, 255, 255, .2) ;
+
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+.doc_article pre{
+	margin:0 ;
+}
+.doc_article pre code{
+	display:block ;
+	margin:0.75em 0 ;
+	padding:0.5em .75em ;
+	background:rgba(255, 255, 255, .2) ;
+	overflow-x:auto ;
+}
+
+
 .section_home .content{
 	border-width:0px !important ;
 }
@@ -471,15 +507,15 @@ input:autofill:hover,
 input:autofill:focus {
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: #ffffff;
-	transition: background-color 5000s ease-in-out 0s;
-	box-shadow: inset 0 0 20px 20px #23232329;
+	color:white;
+	/* transition: background-color 5000s ease-in-out 0s; */
 }
 
 
 .inputs{
 	background:transparent;
 	border:0px solid #FFF !important;
-	
+	color:white;
 	font-family:inherit;
 	color:inherit;
 	outline:none;
@@ -699,7 +735,7 @@ input:autofill:focus {
 }
 
 #loadlogger .loadline.evaluated {
-	color: rgba(255, 220, 90, .95);
+	color: #62a4d3;
 }
 
 #loadlogger .loadline.error {

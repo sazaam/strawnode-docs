@@ -147,6 +147,7 @@ module.exports = {
                 about:'about',
                 intro:'intro',
                 docs:'docs',
+                contact:'contact',
                 guide:'guide',
                 tech:'tech',
                 code:'code',
@@ -208,6 +209,24 @@ module.exports = {
                     everything_is_step:`From Blueprint to Footstep`,
                     everything_is_step_desc:`Wandering, hunting and finding, are written in human's sacred intuition.<br /> You came with the Idea, the people want a path to get to it. <br /><br />Let us build together from the pioneers hidden tracks to the paladins' broadest roads.`
                 }
+            },
+            contact:{
+                title:'Work with the Vagrant',
+                intro:'Tell us about your project, your timeline, your budget — or simply say hello. We answer every message.',
+                name:'Your name',
+                name_ph:'Jane Doe',
+                email:'Your email',
+                email_ph:'jane@company.com',
+                subject:'Subject',
+                subject_ph:'A new identity, a short film, a tool...',
+                message:'Your message',
+                message_ph:'Tell us about the idea — the more specific, the better.',
+                submit:'Send',
+                sending:'Sending...',
+                success:'<div><h3 class="bold sizeLg BmarXLg">Thank you for your request!</h3><b>Message sent.</b><br>Thank you for reaching out — we will get back to you shortly.<br><br></div>',
+                error:'Something went wrong sending your message. Please try again, or write to us directly at contact@metavagrant.com.',
+                invalid:'Please fill in your name, a valid email, and a message.',
+                invalid_email:'Please enter a valid email address.',
             },
             docs:{
                 article:`## these are the Documents<br><br> *Exclusive*\n*** \n [myLink](https://metavagrant.com)\n<a href="#/{{lang}}/about/intro/" class="block clear item padding HpadXLg rel dispBlock rounded whitetranspBG undefined">Read the Introduction<span class="typo Vpadding RpadSm arrowindic abs dispNone right0 top0 bottom0">&gt;</span></a>`
@@ -436,6 +455,7 @@ module.exports = {
                 modelling:'모델링',
                 procedural:'프로시저럴',
                 tweens:'트윈',
+                contact:'문의',
             },
             vision:{
                 tagline:'하나의 비전, 무한한 표현 — 만들고, 밝히고, 이야기하는.',
@@ -466,6 +486,24 @@ module.exports = {
                     everything_is_step:`모두가 STEP 이라고 한다`,
                     everything_is_step_desc:`사용자가 거치는 탐색 과정의 각 단계는 가상 단계(Virtual Step)로 정의될 수 있습니다.<br>사용자의 각 동작은 앞으로 나아가거나 뒤로 물러서는 단계입니다.<br> 이것이 이 프레임워크의 기본이 될 것입니다.`
                 }
+            },
+            contact:{
+                title:'떠돌이와 함께 일하기',
+                intro:'프로젝트, 일정, 예산에 대해 알려주세요 — 또는 그냥 인사만 건네셔도 좋습니다. 모든 메시지에 답합니다.',
+                name:'이름',
+                name_ph:'홍길동',
+                email:'이메일',
+                email_ph:'jane@company.com',
+                subject:'제목',
+                subject_ph:'새로운 아이덴티티, 단편 영화, 도구...',
+                message:'메시지',
+                message_ph:'아이디어에 대해 알려주세요 — 구체적일수록 좋습니다.',
+                submit:'보내기',
+                sending:'보내는 중...',
+                success:'<b>메시지가 전송되었습니다.</b><br>연락 주셔서 감사합니다 — 곧 답변드리겠습니다.',
+                error:'메시지 전송 중 문제가 발생했습니다. 다시 시도하거나 contact@metavagrant.com으로 직접 연락해 주세요.',
+                invalid:'이름, 유효한 이메일, 메시지를 입력해 주세요.',
+                invalid_email:'유효한 이메일 주소를 입력해 주세요.',
             },
             works:{
                 article:`## 작업<br><br> 비전, 사물, 빛, 이야기 — 한 떠돌이의 이름 아래 모인 표현의 가족들.\n*** \n [비전](/#/{{lang}}/works/vision/)\n\n\n [만들기](/#/{{lang}}/works/make/)\n\n\n [빛](/#/{{lang}}/works/light/)\n\n\n [이야기](/#/{{lang}}/works/story/)\n\n\n [빌드](/#/{{lang}}/works/build/)`
