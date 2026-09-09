@@ -1,0 +1,11 @@
+nav.localnav.rel.txtL.sizeR.HpadSm
+    - var sections = response.alphachildren ;
+    ul 
+        - for(var s in sections) {
+            - var res = sections[s] ;
+            - var i = res.index ;
+            li(class= i < 4 ? '' : 'none')
+                a(href='#/' + lang + res.path + '/' class=i==0 ? " unselectable" : "justtransp unselectable") #{ t('sections.' + res.id) }
+        - }
+    +lr_arrows_justtransp('r', 't')
+    +ud_arrows()

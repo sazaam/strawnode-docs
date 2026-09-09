@@ -1,5 +1,12 @@
-
 // hierarchy sections descriptor object written as in 'exports' object
+
+// Members are CONFIG objects (declarative data) : `urljade` is hoisted into
+// userData, `@`-prop keys attach handlers, object values recurse as children,
+// and `parameters.response` derives from structure (a landing, id '', reports
+// its parent step). The historical function form — an open handler that sets
+// userData/parameters under `res.opening` plus `@`-props and named/`index`
+// children — remains fully supported (e.g. `section()`/`project()` factories
+// and any leaf still written by hand).
 
 var graphics = require('./graphics') ;
 
@@ -10,71 +17,34 @@ var project = sections.project ;
 // Express.app.set('liveautoremove', true) ; // erases live-generated regexp steps on close
 
 module.exports = {
-	index : (function(){
-		
-		var index = function index (req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/section.jade' ;
-				res.userData.urljson = 'json/home' ;
-				res.userData.parameters = {response:res.parentStep} ;
-			}
-			return res ;
-		} ;
-		
-		index['@focus'] = graphics.focus ;
-		index['@toggle'] = graphics.toggle ;
-		
-		return index ;
-	})(),
+	index : {
+		urljade : '/jade/structure/section.jade',
+		'@focus' : graphics.focus,
+		'@toggle' : graphics.toggle
+	},
 	/////////// ABOUT
-	about : (function(){
+	about : {
+		index : {
+			urljade : '/jade/structure/section_desc.jade',
+			'@focus' : graphics.focus,
+			'@toggle' : graphics.toggle
+		},
+		intro : {
+			urljade : '/jade/structure/section_desc.jade',
+			'@focus' : graphics.focus,
+			'@toggle' : graphics.toggle
+		}
 		
-		var about = function about (req, res){ return res.ready() } ;
-		
-		about.index = function about_index(req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/section_desc.jade' ;
-				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res.parentStep} ;
-			}
-			return res ;
-		} ;
-		
-		about.index['@focus'] = graphics.focus ;
-		about.index['@toggle'] = graphics.toggle ;
-		
-		about.intro = function about_intro(req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/section_desc.jade' ;
-				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res} ;
-			}
-			return res ;
-		} ;
-		about.intro['@focus'] = graphics.focus ;
-		about.intro['@toggle'] = graphics.toggle ;
-			
-		
-		return about ;
-	})(),
+	},
 	/////////// WORKS
-	works : (function(){
-		
-		var works = function works (req, res){ return res.ready() ; } ;
-		
-		works.index = function works_index(req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/section.jade' ;
-				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res.parentStep} ;
-			}
-			return res ;
-		} ;
-		works.index['@focus'] = graphics.focus ;
-		works.index['@toggle'] = graphics.toggle ;
-		
-		works.vision = section({}) ;
-		works.make = section({deck:true}, {
+	works : {
+		index : {
+			urljade : '/jade/structure/section.jade',
+			'@focus' : graphics.focus,
+			'@toggle' : graphics.toggle
+		},
+		vision : section({}),
+		make : section({style:'tableau'}, {
 			metavagrant : project([
 				{url:'mv-01.jpg'},
 				{url:'itFlow-01.jpg', x:'20%'},
@@ -148,8 +118,8 @@ module.exports = {
 				{url:'smythson-naja-04.jpg', x:'60%'},
 				{url:'dummy.jpg', x:'45%', noslide:1},
 			])
-		}) ;
-		works.light = section({deck:true}, {
+		}),
+		light : section({style:'tableau'}, {
 			ashina : project([
 				{url:'Ashina_BW.jpg'},
 				{url:'Ashina_02.jpg', x:'52%'},
@@ -168,8 +138,8 @@ module.exports = {
 				{url:'dummy.jpg', noslide:1},
 				{url:'dummy.jpg', noslide:1},
 			])
-		}) ;
-		works.story = section({deck:true}, {
+		}),
+		story : section({style:'tableau'}, {
 			sagong : project([
 				{url:'sagong_01.jpg', x:'25%'},
 				{url:'sagong_02.jpg', x:'60%'},
@@ -183,54 +153,28 @@ module.exports = {
 				{url:'loi_04.jpg', x:'82%'},
 				{url:'loi_03.jpg', x:'90%'},
 			])
-		}) ;
+		}),
 		
-		works.build = (function(){
-			
-			var build = function build (req, res){ return res.ready() ; } ;
-			
-			build.index = function build_index(req, res){
-				if(res.opening){
-					res.userData.urljade = '/jade/artists/section.jade' ;
-					res.userData.urljson = 'json/section' ;
-					res.userData.parameters = {response:res.parentStep} ;
-				}
-				return res ;
-			} ;
-			build.index['@focus'] = graphics.focus ;
-			build.index['@toggle'] = graphics.toggle ;
-			
-			// build.code = section({}) ;
-			// build.tech = section({}) ;
-			
-			return build ;
-		})() ;
-		
-		return works ;
-	})(),
+		// self-rendering config member (no landing): renders on visit.
+		build : {
+			urljade : '/jade/structure/section.jade',
+			'@toggle': graphics.toggle, 
+			'@focus': graphics.focus
+		}
+	},
 	/////////// DOCS
-	docs : (function(){
-		
-		var docs = function docs (req, res){ return res.ready() } ;
-		
-			docs.index = function docs_index(req, res){
-				if(res.opening){
-					res.userData.urljade = '/jade/artists/section.jade' ;
-					res.userData.urljson = 'json/section' ;
-					res.userData.parameters = {response:res.parentStep} ;
-				}
-				return res ;
-			} ;
-			docs.index['@focus'] = graphics.focus ;
-			docs.index['@toggle'] = graphics.toggle ;
+	docs : {
+		index : {
+			urljade : '/jade/structure/section.jade',
+			'@focus' : graphics.focus,
+			'@toggle' : graphics.toggle
+		},
 			
-
 
 			/*
 			docs.guide = function docs_guide(req, res){
 				if(res.opening){
-					res.userData.urljade = '/jade/artists/section.jade' ;
-					res.userData.urljson = 'json/section' ;
+					res.userData.urljade = '/jade/structure/section.jade' ;
 					res.userData.parameters = {response:res} ;
 				}
 				return res ;
@@ -240,8 +184,7 @@ module.exports = {
 
 			docs.api = function docs_api(req, res){
 				if(res.opening){
-					res.userData.urljade = '/jade/artists/section.jade' ;
-					res.userData.urljson = 'json/section' ;
+					res.userData.urljade = '/jade/structure/section.jade' ;
 					res.userData.parameters = {response:res} ;
 				}
 				return res ;
@@ -254,8 +197,7 @@ module.exports = {
 			
 				docs.examples.index = function docs_examples_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
-						res.userData.urljson = 'json/section_choose_item' ;
+						res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
 					return res ;
@@ -269,8 +211,7 @@ module.exports = {
 					docs.examples[/[0-9]+/].index = function docs_examples_numeric_index(req, res){
 						if(res.opening){
 							res.userData.autoremove = true ;
-							res.userData.urljade = '/jade/artists/section_item_numeric.jade' ;
-							res.userData.urljson = 'json/section' ;
+							res.userData.urljade = '/jade/structure/section_item_numeric.jade' ;
 							res.userData.parameters = {response:res.parentStep} ;
 						}
 						return res ;
@@ -282,8 +223,7 @@ module.exports = {
 				
 						docs.examples[/[0-9]+/].detail.index = function docs_examples_numeric_detail_index(req, res){
 							if(res.opening){
-								res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
-								res.userData.urljson = 'json/section_choose_item' ;
+								res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
 								res.userData.parameters = {response:res.parentStep} ;
 							}
 							return res ;
@@ -295,8 +235,7 @@ module.exports = {
 							
 							docs.examples[/[0-9]+/].detail[/[0-9]+/].index = function docs_examples_numeric_deep_index(req, res){
 								if(res.opening){
-									res.userData.urljade = '/jade/artists/section_item_detail.jade' ;
-									res.userData.urljson = 'json/section_item_detail' ;
+									res.userData.urljade = '/jade/structure/section_item_detail.jade' ;
 									res.userData.parameters = {response:res.parentStep} ;
 								}
 								return res ;
@@ -305,69 +244,31 @@ module.exports = {
 			docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@toggle'] = graphics.toggle ;
 			*/
 			
-			docs.code = (function(){
+			// declarative containers with mixed children: the landing inherits
+			// the viewport and auto-derives its response, named children stay
+			// expressible as `section({})` factories.
+			code : {
+				urljade : '/jade/structure/section.jade',
+				index   : { '@toggle': graphics.toggle, '@focus': graphics.focus },
+				strawnode : section({}),
+				betweenjs : section({}),
+				type      : section({})
+			},
 
-				var code = function code (req, res){ return res.ready() ; } ;
-
-				code.index = function code_index(req, res){
-					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
-						res.userData.urljson = 'json/section' ;
-						res.userData.parameters = {response:res.parentStep} ;
-					}
-					return res ;
-				} ;
-				code.index['@focus'] = graphics.focus ;
-				code.index['@toggle'] = graphics.toggle ;
-
-				code.strawnode = section({}) ;
-				code.betweenjs = section({}) ;
-				code.type = section({}) ;
-
-				return code ;
-			})() ;
-
-			docs.tech = (function(){
-
-				var tech = function tech (req, res){ return res.ready() ; } ;
-
-				tech.index = function tech_index(req, res){
-					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
-						res.userData.urljson = 'json/section' ;
-						res.userData.parameters = {response:res.parentStep} ;
-					}
-					return res ;
-				} ;
-				tech.index['@focus'] = graphics.focus ;
-				tech.index['@toggle'] = graphics.toggle ;
-
-				tech.shaders = section({}) ;
-				tech.modelling = section({}) ;
-				tech.procedural = section({}) ;
-				tech.tweens = section({}) ;
-
-				return tech ;
-			})() ;
-
-		return docs ;
-	})(),
-	/////////// CONTACT
-	contact : (function(){
-		
-		var contact = function contact (req, res){
-			if(res.opening){
-				res.userData.urljade = '/jade/artists/contact.jade' ;
-				res.userData.urljson = 'json/section' ;
-				res.userData.parameters = {response:res} ;
+			tech : {
+				urljade : '/jade/structure/section.jade',
+				index   : { '@toggle': graphics.toggle, '@focus': graphics.focus },
+				shaders    : section({}),
+				modelling  : section({}),
+				procedural : section({}),
+				tweens     : section({})
 			}
-			return res ;
-		} ;
-		
-		contact['@focus'] = graphics.focus ;
-		contact['@toggle'] = graphics.toggle ;
-		
-		return contact ;
-	})()
+	},
+	/////////// CONTACT
+	contact : {
+		urljade : '/jade/structure/contact.jade',
+		'@focus' : graphics.focus,
+		'@toggle' : graphics.toggle
+	}
 
 } ;

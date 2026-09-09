@@ -444,7 +444,7 @@ let root = async(req, res) => {
 
 }
 
-let defaultspage = async(req, res) => {
+let htmlpage = async(req, res) => {
 	
 	const imabot = isbot(req.get("user-agent")) ;
 	console.log('IS BOT >> ', imabot) ;
@@ -466,7 +466,7 @@ let defaultspage = async(req, res) => {
 
 	// response = response.id == '' ? response.parentStep : response ;
 
-	await res.render(path.join(__dirname, 'public/jade/default'), jadeparams.merge(jadeparams, {
+	await res.render(path.join(__dirname, 'public/jade/html'), jadeparams.merge(jadeparams, {
 		
 		//langs: req.langs,
 		//lang: req.i18n.language,
@@ -493,7 +493,7 @@ let tests = async(req, res) => {
 	
 	console.log('requesting TESTS >> ', req.url) ;
 	
-	await res.render(path.join(__dirname, 'public/jade/tests/tests'), jadeparams.merge(jadeparams, {
+	await res.render(path.join(__dirname, 'public/jade/tests/tests_md'), jadeparams.merge(jadeparams, {
 		
 	})) ;
 
@@ -564,7 +564,7 @@ app.use('/.well-known/appspecific/com.chrome.devtools.json', async(req, res) =>{
 }) ;
 
 app.use('/html/', async(req, res) => {
-	await defaultspage(req, res).catch(err => { console.log(err) });
+	await htmlpage(req, res).catch(err => { console.log(err) });
 }) ;
 
 app.use('/tests/', async(req, res) => {

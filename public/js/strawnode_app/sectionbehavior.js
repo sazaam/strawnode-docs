@@ -1,8 +1,8 @@
 
 
-// deck-ness is data : stamped by section({deck:true}) on the route handler's userData
-var isDeck = function(res){
-    return !!(res && res.userData && res.userData.deck) ;
+// tableau-ness is data : stamped by section({style:'tableau'}) on the route handler's userData
+var isTableau = function(res){
+    return !!(res && res.userData && res.userData.tableau) ;
 } ;
 var about_type_sliding_sections = ['about'] ;
 
@@ -78,11 +78,12 @@ module.exports = {
             var scroller = $('.vision').get(0) ;
             var obs = null ;
             var activeTw = null ;
-
+            var lastz ;
             // per-zone orbit tween, not started yet.
             // resume = true re-enters the frozen state seamlessly (same radius, resumes at the frozen angle)
             var buildOrbit = function(z, resume){
                 var tws = [] ;
+                
                 z.find('.box').each(function(ii, ell){
                     var box = $(ell) ;
                     // orbit center = the random placement applied at focus
@@ -128,6 +129,7 @@ module.exports = {
                     }) ;
                     tws.push(twbox) ;
                 })
+
                 return BJS.parallelTweens(tws) ;
             }
 
@@ -135,11 +137,24 @@ module.exports = {
                 if(!!activeTw) activeTw.stop() ;
                 activeTw = null ;
                 if(!!!z || !z.length) return ;
+
                 var resume = !!z.data('sparkplayed') ;
                 z.data('sparkplayed', true) ;
                 var tw = buildOrbit(z, resume) ;
+                
                 activeTw = tw ;
                 tw.play().stopOnComplete = 0 ;
+
+                // crossfade the block wrapper : incoming -> opacity 100, last active -> opacity 0
+                var v = z.closest('.vcentered') ;
+                if(!!v && v.length){
+                    if(!!lastz && !!lastz.length && lastz.get(0) === v.get(0)) return ;
+                    if(!!lastz && !!lastz.length){
+                        BJS.create({target:lastz, to:{opacity:0}, time:.35, ease:Linear.easeOut}).play() ;
+                    }
+                    lastz = v ;
+                    BJS.create({target:v, to:{opacity:100}, from:{opacity:0}, time:.35, ease:Linear.easeOut}).play() ;
+                }
             }
 
             // place every spark's boxes once, keeping the centers for the orbits
@@ -178,6 +193,7 @@ module.exports = {
                 if(!!obs) obs.disconnect() ;
                 if(!!activeTw) activeTw.stop() ;
                 activeTw = null ;
+                lastz = null ;
             } ;
 
             $('.vision a.prev, .vision a.next').click(function(e){
@@ -559,7 +575,7 @@ module.exports = {
     },
 
     project_hide:function project_hide(cond, res){
-        if(!isDeck(res)) return ;
+        if(!isTableau(res)) return ;
 
         if(cond){
             $('.navzoneinside, .content').removeClass('hidden') ;
@@ -728,7 +744,7 @@ module.exports = {
     ///////////////////////////////////////////////////// SLIDES FROM THE PROJECT-LEVEL STEP
     deep_slides:function deep_slides(cond, res){
         
-        if(res.depth == 1 || !res.parentStep.parentStep || !isDeck(res.parentStep.parentStep) || !(res.parentStep.userData && res.parentStep.userData.slides)) return ;
+        if(res.depth == 1 || !res.parentStep.parentStep || !isTableau(res.parentStep.parentStep) || !(res.parentStep.userData && res.parentStep.userData.slides)) return ;
 
         var tt = this ;
 
@@ -882,7 +898,7 @@ module.exports = {
     },
     ///////////////////////////////////////////////////// ENSURE THAT PROJECTS ARE WELL DISPLAYED ON SLIDE-LEVEL STEP
     ensure_slides:function ensure_slides(cond, res){
-        if(!isDeck(res.parentStep)) return ; // return if we are NOT in the right section
+        if(!isTableau(res.parentStep)) return ; // return if we are NOT in the right section
         
         if(cond){
             res.parentStep.userData.getTo(res.index) ;
@@ -946,7 +962,7 @@ module.exports = {
     /////////////////////////////////// ACTUAL PROJECTS SLIDE ENABLING
     project_slides:function project_slides(cond, res){
         
-        if(!isDeck(res)) return ;
+        if(!isTableau(res)) return ;
 
         if(cond){
             var tt = this ;
@@ -1372,56 +1388,65 @@ module.exports = {
         }else{
             var tt = this ;
 
-            // trace(Kompat.instance) ;
-            // trace(navigator.userAgent) ;
-            // trace(Kompat.instance.ES6BaseCompliant)
-            
-            BetweenJS.timeout(.1, function(){
+            // Mark immediately so subsequent calls are no-ops
+            window.shaderEnabled = true ;
+
+            // Two-tier approach:
+            //   Tier 0 (next frame): create shader list, compile FIRST shader, start animation
+            //   Tier 1 (one/frame):  pre-compile remaining shaders for smooth nav transitions
+            //
+            // The shader configs are lightweight JS objects — the expensive part is
+            // ShaderToyLite.compileProgram() which does gl.compileShader (~5s).
+            // Only one shader displays at a time; the rest compile on-demand when
+            // the user clicks next/prev. Tier 1 pre-compiles them in the background
+            // so navigation is instant.
+
+            var q = new BackgroundTaskQueue() ;
+            window.shaderQueue = q ;
+
+            // --- Tier 0: first shader (must complete before animation starts) ---
+            q.add(function(){
+
+                var allShaders = [next, simplex, crosszoom, warpy, bumpsine, matrixcity, 
+                    liquidGold,
+                    chromaticVortex,
+                    neonNebulaV2,
+                    burningPaper,
+                    frostedPlasma,
+                    holographicSilk,
+                    abstractNebula,
+                    interstellarTunnel,
+                    electricFractal,
+                    dreamyParticles,
+                    moltenGold,
+                    quantumLattice,
+                    digitalRainfall,
+                    atomicOrbits,
+                    logicLattice,
+                    resonanceGrid,
+                    axiomParticles,
+                    hypercubeProjection,
+                    synapticFlow,
+                    tesseractGrid,
+                    eventHorizonBloom,
+                    chronosFragments,
+                    etherealCurrent,
+                    dramaticVortex,
+                    fractalMembrane,
+                    neonTidal,
+                    prismDust,
+                    azureHaze,
+                    intricateMandala,
+                    clouds2D, rays_storm, siny, tuby, voids, causticball, squarevortex, twisty, meteor, rainy, shapy, voidspace] ;
 
                 var sh = shaders = {
-                    //- shaders:[next, paintedvortex, rays_storm, ],
-                    // shaders:[next, crosszoom, crossholy, paintedvortex, glowers, clouds, simplex, hsvmedusas, warpy, siny, smoky, bumpsine, matrixcity, turbuly, snaky, clouds2D, airplane, rays_storm, tuby, voids, causticball, watery, /* digitalbrain, */ twiggly, squarevortex, twisty, bubbly, voidstars, phoenix, particly, matrix, cloudyskies, meteor, marbly, rainy, shapy, laserdance, voidspace, snowy],
-                    shaders:[next, simplex, crosszoom, warpy, bumpsine, matrixcity, 
-                        liquidGold,
-                        chromaticVortex,
-                        neonNebulaV2,
-                        burningPaper,
-                        frostedPlasma,
-                        holographicSilk,
-                        abstractNebula,
-                        interstellarTunnel,
-                        electricFractal,
-                        dreamyParticles,
-                        moltenGold,
-                        quantumLattice,
-                        digitalRainfall,
-                        atomicOrbits,
-                        logicLattice,
-                        resonanceGrid,
-                        axiomParticles,
-                        hypercubeProjection,
-                        synapticFlow,
-                        tesseractGrid,
-                        eventHorizonBloom,
-                        chronosFragments,
-                        etherealCurrent,
-                        dramaticVortex,
-                        fractalMembrane,
-                        neonTidal,
-                        prismDust,
-                        azureHaze,
-                        intricateMandala,
-                        clouds2D, rays_storm, siny, tuby, voids, causticball, squarevortex, twisty, meteor, rainy, shapy, voidspace],
+                    shaders: allShaders,
                     calcCanvasSize:function calcCanvasSize() {
                         var can = $('#'+id) ;
                         var wr = can.parent() ;
                         let rect = {w:wr.width(), h:wr.height()} ;
-                        // accurate way is setting width and height as tag attribute
                         can.attr({width:rect.w, height:rect.h}) ;
-                        
-                        // redraw
                         toy.setImage({source: idshade});
-                        
                         toy.redraw() ;
                     }
                 }
@@ -1440,20 +1465,16 @@ module.exports = {
                 
 
                 var i = 0 , l = sh.shaders.length ;
-                // var startid = parseInt(Math.random() * (l-1)) ;
-                var startid = 10 ;
+                var startid = 14 ;
                 var localID = parseInt(localStorage.shaderID || startid) ;
                 i = localID ;
                 var idshade = sh.shaders[localID] ;
                 var toy = window.toy = new ShaderToyLite(id, window.isMobileDevice);
                 
                 sh.calcCanvasSize() ;
-                toy.setImage({source: idshade});
+                toy.setImage({source: idshade});    // <-- ~5s compile (first shader only)
                 localStorage.shaderID = localID ;
                 toy.play() ;
-                
-                // TODO 
-                // not add multiple EL to these
                 
                 var pp = $('.shadernav a.prev') ; 
                 var nn = $('.shadernav a.next') ; 
@@ -1471,13 +1492,11 @@ module.exports = {
 
                         idshade = sh.shaders[i] ;
                         localStorage.shaderID = i ;
-                        sh.calcCanvasSize() ;
+                        sh.calcCanvasSize() ;    // calls toy.setImage → compileProgram (on-demand)
                         tw_in.play() ;
 
                     } ;
 
-
-                    // tt.treatClass(nn, 'transp', i != l - 1) ;
                     tt.treatClass(pp, 'transp', i != 0) ;
                     
                     return false ;
@@ -1485,13 +1504,57 @@ module.exports = {
         
         
                 window.addEventListener('resize', sh.calcCanvasSize) ;
-                window.shaderEnabled = true ;
 
                 tw_in.play() ;
 
-                trace('DONE SHADERING...')
+                trace('DONE SHADERING... Tier 0 complete')
 
-            }).play() ;
+            }, 0) ;
+
+            // --- Tier 1: pre-compile remaining shaders one per frame ---
+            // Skips the first shader (already compiled in Tier 0).
+            // Each task creates a throwaway ShaderToyLite on an offscreen canvas,
+            // compiles one shader to warm the GPU/driver cache, then destroys it.
+            // This makes subsequent nav transitions instant.
+            q.add(function(done){
+                
+                var offscreen = document.createElement('canvas') ;
+                offscreen.id = 'shader-precompile' ;
+                offscreen.width = 1 ;
+                offscreen.height = 1 ;
+                offscreen.style.cssText = 'position:fixed;top:-9999px;left:-9999px;pointer-events:none' ;
+                document.body.appendChild(offscreen) ;
+
+                var localID = parseInt(localStorage.shaderID || 14) ;
+                var list = shaders.shaders ;
+                var idx = 0 ;
+                // skip the one already compiled
+                var compileNext = function(){
+                    if(idx >= list.length){
+                        // done — remove offscreen canvas
+                        offscreen.parentNode.removeChild(offscreen) ;
+                        trace('DONE SHADERING... Tier 1 precompile complete') ;
+                        done() ;
+                        return ;
+                    }
+                    // skip the currently-displayed shader
+                    if(idx == localID){ idx++ ; compileNext() ; return ; }
+                    var cfg = list[idx] ;
+                    if(cfg && cfg.source){
+                        try{
+                            var tmp = new ShaderToyLite('shader-precompile', true) ;
+                            tmp.setImage({source: cfg.source}) ;
+                            tmp = null ;   // let GC collect
+                        }catch(e){}
+                    }
+                    idx++ ;
+                    // next shader on the following frame
+                    BJS.timeout(0, compileNext).play() ;
+                } ;
+                compileNext() ;
+            }, 1) ;
+
+            q.start() ;
         }
 
     }

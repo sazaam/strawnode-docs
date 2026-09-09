@@ -27,7 +27,10 @@ playwright-report/
 test-results/
 
 # Generated CSS (built from all.css via tailwind watch)
-# public/css/allbis.css
+public/css/allbis.css
+
+# Image optimizer backups (scripts/optimize-imgs.mjs)
+img_orig_backup/
 
 # Runtime data
 data/

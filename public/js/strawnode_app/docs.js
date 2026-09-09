@@ -5,25 +5,34 @@ window.DocsArticles = {
 
 	load : function(resources, done){
 		var target = resources[0] ;
-		var pending = this._leaves.length ;
 		if(!target || !target.en) { if(done) done() ; return ; }
 
 		var self = this ;
+		var en = target.en.translation ;
+		var ko = !!target.ko ? target.ko.translation : null ;
+		var perLeaf = !!ko ? 2 : 1 ;
+		var pending = this._leaves.length * perLeaf ;
+
+		var settle = function(){
+			if(--pending === 0 && done) setTimeout(done, 0) ;
+		} ;
+
 		this._leaves.forEach(function(leaf){
-			var xhr = new XMLHttpRequest() ;
-			xhr.open('GET', '/docs/' + leaf + '.md') ;
-			xhr.onload = function(){
-				if(xhr.status === 200 && target.en.translation[leaf]){
-					target.en.translation[leaf].article = xhr.responseText ;
-					if(target.ko && target.ko.translation[leaf])
-						delete target.ko.translation[leaf].article ;
-				}
-				if(--pending === 0 && done) setTimeout(done, 0) ;
-			} ;
-			xhr.onerror = function(){
-				if(--pending === 0 && done) setTimeout(done, 0) ;
-			} ;
-			xhr.send() ;
+			var confs = ko
+				? [ {res:en, url:'/docs/' + leaf + '.md'}, {res:ko, url:'/docs/ko/' + leaf + '.md'} ]
+				: [ {res:en, url:'/docs/' + leaf + '.md'} ] ;
+			confs.forEach(function(conf){
+				var xhr = new XMLHttpRequest() ;
+				xhr.open('GET', conf.url) ;
+				xhr.onload = function(){
+					if(xhr.status === 200 && conf.res[leaf]){
+						conf.res[leaf].article = xhr.responseText ;
+					}
+					settle() ;
+				} ;
+				xhr.onerror = function(){ settle() ; } ;
+				xhr.send() ;
+			}) ;
 		}) ;
 	}
 } ;
