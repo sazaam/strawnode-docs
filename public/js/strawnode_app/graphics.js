@@ -162,7 +162,7 @@ module.exports = {
 
 		if(res.opening){
 			
-			res.render('/jade/artists/content_project.jade', res.fetch(res.userData.urljson, res.userData.parameters), function(){
+			res.render('/jade/structure/content_project.jade', res.userData.parameters, function(){
 				template_project = res.template_project = 
 					res.template
 						.addClass('zindex'+(10 - res.depth)).css({opacity:0})
@@ -256,9 +256,9 @@ module.exports = {
 		var realid = res.id == '' ? res.parentStep.id : res.id ;
 		if(res.opening){
 			
-			res.render(res.userData.urljade, res.fetch(res.userData.urljson, res.userData.parameters), function(){
+			res.render(res.userData.urljade, res.userData.parameters, function(){
 				templateA = res.templateA = res.template ;
-				res.render('/jade/artists/contenttest.jade', res.fetch(res.userData.urljson, res.userData.parameters), function(){
+				res.render('/jade/structure/content_generic.jade', res.userData.parameters, function(){
 					
 					templateB = res.templateB = res.template ;
 					templateA.addClass('section_' + (isHome ? 'home' : realid))

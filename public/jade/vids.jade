@@ -1,5 +1,5 @@
 extends ./layout
-include ./artists/mixins 
+include ./structure/mixins 
 block content
 	#back.back.abs.left0.top0.right0.bottom0.fullW.fullH.coloraddict.context(class="flex content-center" style="background:#000")
 		- let vidpath = req.path.replace(/\//gm, '') ;
@@ -11,12 +11,6 @@ block content
 						+loading
 					+yt(vidpath, null, 1, 1)
 
-
-
-				//- .controls.abs.bottom0.left0.right0 
-					.flex(class="")
-						a.block.padXXLg.VpadXLg(href='javascript:void(0)')!= '>'
-						a.block.padXXLg.VpadXLg(href='javascript:void(0)')!= '||'
 				.quit.abs.top0.left0.right0
 					.flex(class="justify-end")
 						a.block.padXXLg(href="javascript:window.close('','_parent','')")!= 'X'

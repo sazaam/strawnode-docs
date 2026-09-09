@@ -2,12 +2,15 @@
 // Structural helpers for the hierarchy routes descriptor.
 // Encodes the framework invariant "one renderer per step" :
 //  - section(opts, children) -> a viewport section, it renders itself
-//    (urljade + urljson + parameters), so it must NOT carry an 'index'
+//    (urljade + parameters), so it must NOT carry an 'index'
 //    child (that would create a defaultStep double render).
 //  - project(slides) -> a deep app leaf (lambda_deep), exposing its own
 //    'index' and '/[0-9]+/' slide children, plus userData.slides.
-// Deck-ness is data : section({deck:true}) stamps userData.deck which the
-// templates and sectionbehavior read instead of id-based regexp lists.
+// Tableau-ness is data : section({style:'tableau'}) stamps userData.tableau
+// which the templates and sectionbehavior read instead of id-based regexp lists.
+// Lexicon : Tableau = destination section (arrive, linger, pan across panes);
+// Passage = transitional section (invites a deeper path), the default;
+// motion inside = dolly (into depth) / pan (across the surface).
 // graphics handlers are injected (factory) to avoid a circular require
 // (graphics -> sections -> graphics).
 
@@ -25,8 +28,7 @@ var deep_project_toggle = graphics.deep_project_toggle ;
 var project = function(slides){
     var leaf = function leaf(req, res){
         if(res.opening){
-            res.userData.urljade = '/jade/artists/section_project.jade' ;
-            res.userData.urljson = 'json/section' ;
+            res.userData.urljade = '/jade/structure/section_project.jade' ;
             res.userData.parameters = {response:res} ;
         }
         return res ;
@@ -68,8 +70,7 @@ var section = function(opts, children){
 
     var fn = function(req, res){
         if(res.opening){
-            res.userData.urljade = '/jade/artists/section.jade' ;
-            res.userData.urljson = 'json/section' ;
+            res.userData.urljade = '/jade/structure/section.jade' ;
             res.userData.parameters = {response:res} ;
         }
         return res ;
@@ -77,7 +78,7 @@ var section = function(opts, children){
     fn['@focus'] = focus ;
     fn['@toggle'] = toggle ;
 
-    if(!!opts.deck) fn['userData'] = Object.assign(fn['userData'] || {}, {deck:true}) ;
+    if(opts.style == 'tableau') fn['userData'] = Object.assign(fn['userData'] || {}, {tableau:true}) ;
 
     for(var key in children){
         fn[key] = children[key] ;

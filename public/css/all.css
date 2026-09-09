@@ -2,7 +2,7 @@
 @import './xapp.css';
 
 @import './contents.css';
-@import './artists.css';
+@import './structure/.css';
 
 /*
 @import "./vss.css";

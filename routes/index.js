@@ -32,7 +32,7 @@ var ssection = function(){
 	var fn = function(req, res){ return res.ready() } ;
 	fn.index = function ssection_index(req, res){
 		if(res.opening){
-			res.userData.urljade = '/jade/artists/section.jade' ;
+			res.userData.urljade = '/jade/structure/section.jade' ;
 			res.userData.urljson = 'json/section' ;
 			res.userData.parameters = {response:res.parentStep} ;
 		}
@@ -65,7 +65,7 @@ module.exports = {
 		
 			var index = function index (req, res){
 				if(res.opening){
-					res.userData.urljade = '/jade/artists/section.jade' ;
+					res.userData.urljade = '/jade/structure/section.jade' ;
 					res.userData.urljson = 'json/home' ;
 					res.userData.parameters = {response:res.parentStep} ;
 				}
@@ -82,7 +82,7 @@ module.exports = {
 			
 				about.index = function about_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section_desc.jade' ;
+						res.userData.urljade = '/jade/structure/section_desc.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
@@ -92,7 +92,7 @@ module.exports = {
 				
 				about.intro = function about_intro(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section_desc.jade' ;
+						res.userData.urljade = '/jade/structure/section_desc.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -121,7 +121,7 @@ module.exports = {
 			
 				docs.index = function docs_index(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '/jade/structure/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res.parentStep} ;
 					}
@@ -130,7 +130,7 @@ module.exports = {
 				
 				docs.guide = function docs_guide(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '/jade/structure/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -139,7 +139,7 @@ module.exports = {
 
 				docs.api = function docs_api(req, res){
 					if(res.opening){
-						res.userData.urljade = '/jade/artists/section.jade' ;
+						res.userData.urljade = '/jade/structure/section.jade' ;
 						res.userData.urljson = 'json/section' ;
 						res.userData.parameters = {response:res} ;
 					}
@@ -150,7 +150,7 @@ module.exports = {
 				
 					docs.examples.index = function docs_examples_index(req, res){
 						if(res.opening){
-							res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
+							res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
 							res.userData.urljson = 'json/section_choose_item' ;
 							res.userData.parameters = {response:res.parentStep} ;
 						}
@@ -161,7 +161,7 @@ module.exports = {
 						docs.examples[/[0-9]+/].index = function docs_examples_numeric_index(req, res){
 							if(res.opening){
 								res.userData.autoremove = true ;
-								res.userData.urljade = '/jade/artists/section_item_numeric.jade' ;
+								res.userData.urljade = '/jade/structure/section_item_numeric.jade' ;
 								res.userData.urljson = 'json/section' ;
 								res.userData.parameters = {response:res.parentStep} ;
 							}
@@ -171,7 +171,7 @@ module.exports = {
 					
 							docs.examples[/[0-9]+/].detail.index = function docs_examples_numeric_detail_index(req, res){
 								if(res.opening){
-									res.userData.urljade = '/jade/artists/section_choose_item.jade' ;
+									res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
 									res.userData.urljson = 'json/section_choose_item' ;
 									res.userData.parameters = {response:res.parentStep} ;
 								}
@@ -181,7 +181,7 @@ module.exports = {
 								
 								docs.examples[/[0-9]+/].detail[/[0-9]+/].index = function docs_examples_numeric_deep_index(req, res){
 									if(res.opening){
-										res.userData.urljade = '/jade/artists/section_item_detail.jade' ;
+										res.userData.urljade = '/jade/structure/section_item_detail.jade' ;
 										res.userData.urljson = 'json/section_item_detail' ;
 										res.userData.parameters = {response:res.parentStep} ;
 									}

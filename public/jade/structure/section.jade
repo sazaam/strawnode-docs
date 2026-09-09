@@ -1,0 +1,10 @@
+extends ./base_section
+block content
+	.box
+		include ./nav
+		include ./indicator
+		
+		unless response.userData.tableau
+			include ./nav_section
+		else 
+			include ./nav_section_project
