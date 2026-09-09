@@ -1,9 +1,0 @@
-extends ./basesection
-block content
-	.box
-		include ./nav
-		include ./indicator
-		
-		.txtL.sizeR
-			a#detail.dispBlock.item.rel(href="#/#{lang}#{response.id == '' ? response.parentStep.path : response.path}/detail/")= t('sections.' + 'detail')
-				span.typo.arrowindic.abs.dispNone.left0.top0.bottom0 &gt;
