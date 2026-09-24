@@ -1463,7 +1463,7 @@ module.exports = {
 
                 var i = 0 , l = sh.shaders.length ;
                 // var startid = parseInt(Math.random() * (l-1)) ;
-                var startid = 14 ;
+                var startid = 4 ;
                 var localID = parseInt(localStorage.shaderID || startid) ;
                 i = localID ;
                 var idshade = sh.shaders[localID] ;

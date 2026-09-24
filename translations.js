@@ -168,6 +168,8 @@ module.exports = {
                 metavagrant:'MetaVagrant',
                 hexarmor:'Hexarmor',
                 mmai:'MetaMonkey AI',
+                orca:'ORCA',
+                xviii:'XVIII',
 
                 sagong:'Sagong',
                 lostinone:'Lost In One',
@@ -283,7 +285,7 @@ module.exports = {
                 slide_02:'',
                 slide_03:'A final render',
                 slide_04:'',
-                desc_04:'jade::include ./articles/smythson_01_en',
+                desc_04:'The Wifi Everything Device',
                 desc_02:'## *The NAJA Software* <br><br><br><br><div class="limited"> initializing... <br><br> Native Authentication<br>Jarvis Application<br><br><hr class="whitetranspBG"><br> Retro-LED Screen <br>displays the menu <br>but is also<br> a fingerprint <br>authentication device</div>',
             },
             dkt:{
