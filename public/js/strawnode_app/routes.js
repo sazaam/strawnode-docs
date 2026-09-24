@@ -121,7 +121,7 @@ module.exports = {
 		}),
 		light : section({style:'tableau'}, {
 			ashina : project([
-				{url:'Ashina_BW.jpg'},
+				{url:'/img/webm/fluctuations.webm', type:'video'},
 				{url:'Ashina_02.jpg', x:'52%'},
 				{url:'ashina_house_01.jpg', x:'41%'},
 				{url:'ashina_house_02.jpg', x:'41%'},
@@ -169,80 +169,7 @@ module.exports = {
 			'@focus' : graphics.focus,
 			'@toggle' : graphics.toggle
 		},
-			
-
-			/*
-			docs.guide = function docs_guide(req, res){
-				if(res.opening){
-					res.userData.urljade = '/jade/structure/section.jade' ;
-					res.userData.parameters = {response:res} ;
-				}
-				return res ;
-			} ;
-			docs.guide['@focus'] = graphics.focus ;
-			docs.guide['@toggle'] = graphics.toggle ;
-
-			docs.api = function docs_api(req, res){
-				if(res.opening){
-					res.userData.urljade = '/jade/structure/section.jade' ;
-					res.userData.parameters = {response:res} ;
-				}
-				return res ;
-			} ;
-			docs.api['@focus'] = graphics.focus ;
-			docs.api['@toggle'] = graphics.toggle ;
-			
-			
-			docs.examples = function docs_examples(req, res){ return res.ready() } ;
-			
-				docs.examples.index = function docs_examples_index(req, res){
-					if(res.opening){
-						res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
-						res.userData.parameters = {response:res.parentStep} ;
-					}
-					return res ;
-				} ;
-				docs.examples.index['@focus'] = graphics.focus ;
-				docs.examples.index['@toggle'] = graphics.toggle ;
-
-				
-				docs.examples[/[0-9]+/] = function docs_examples_numeric(req, res){ return res.ready() } ;
-					
-					docs.examples[/[0-9]+/].index = function docs_examples_numeric_index(req, res){
-						if(res.opening){
-							res.userData.autoremove = true ;
-							res.userData.urljade = '/jade/structure/section_item_numeric.jade' ;
-							res.userData.parameters = {response:res.parentStep} ;
-						}
-						return res ;
-					} ;
-					docs.examples[/[0-9]+/].index['@focus'] = graphics.focus ;
-					docs.examples[/[0-9]+/].index['@toggle'] = graphics.toggle ;
-					
-					docs.examples[/[0-9]+/].detail = function docs_examples_numeric_detail(req, res){ return res.ready() } ;
-				
-						docs.examples[/[0-9]+/].detail.index = function docs_examples_numeric_detail_index(req, res){
-							if(res.opening){
-								res.userData.urljade = '/jade/structure/section_choose_item.jade' ;
-								res.userData.parameters = {response:res.parentStep} ;
-							}
-							return res ;
-						} ;
-						docs.examples[/[0-9]+/].detail.index['@focus'] = graphics.focus ;
-						docs.examples[/[0-9]+/].detail.index['@toggle'] = graphics.toggle ;
-
-						docs.examples[/[0-9]+/].detail[/[0-9]+/] = function docs_examples_numeric_deep(req, res){ return res.ready() } ;
-							
-							docs.examples[/[0-9]+/].detail[/[0-9]+/].index = function docs_examples_numeric_deep_index(req, res){
-								if(res.opening){
-									res.userData.urljade = '/jade/structure/section_item_detail.jade' ;
-									res.userData.parameters = {response:res.parentStep} ;
-								}
-								return res ;
-							} ;
-			docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@focus'] = graphics.focus ;
-			docs.examples[/[0-9]+/].detail[/[0-9]+/].index['@toggle'] = graphics.toggle ;
-			*/
+		
 			
 			// declarative containers with mixed children: the landing inherits
 			// the viewport and auto-derives its response, named children stay

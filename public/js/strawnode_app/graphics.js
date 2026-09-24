@@ -44,11 +44,19 @@ module.exports = {
 		if(res.opening){
 			
 			imglink = $(imglinks.get(ind)) ;
-            var paneimg = imglink.clone() ;
 			
-			paneimg.addClass('paneimg') ;
-			
-			paneimg.appendTo(imgpanecont) ;
+			if(imglink.get(0).tagName == 'VIDEO'){ // video slide: play a fresh element, cloning a preloaded video never autoplays
+				paneimg = $('<video class="paneimg abs fullW fullH cover" muted loop playsinline preload="auto" style="object-fit:cover;background:#000"></video>')
+					.attr('src', imglink.attr('src')) ;
+				paneimg.appendTo(imgpanecont) ;
+				paneimg.get(0).play() ;
+			}else{
+				paneimg = imglink.clone() ;
+				paneimg.addClass('paneimg') ;
+				paneimg.appendTo(imgpanecont) ;
+			}
+
+			sectionbehavior.video_controls(true, res) ;
 
 			twws = [
 				BJS.create({
@@ -71,14 +79,16 @@ module.exports = {
 		}else{
 			paneimg = $('.paneimg') ;
 			
-			if(paneimg.attr('loaded')){ // ensures next time if loaded we dont go thru the loading process
-				
-				res.parentStep.userData.slides[ind].loaded = 1 ;
-				var num = paneimg.attr('childindex') ;
-				imglink = $('.imglink[childindex='+num+']')
-				imglink.css('background-image', paneimg.css('background-image')) ;
-				imglink.children().remove() ;
-
+			if(!!paneimg.length){
+				if(paneimg.get(0).tagName == 'VIDEO'){ // stop the video so leaving the slide doesn't leave it playing
+					try{ var pv = paneimg.get(0) ; pv.pause() ; pv.currentTime = 0 ; }catch(e){}
+				}else if(paneimg.attr('loaded')){ // ensures next time if loaded we dont go thru the loading process
+					res.parentStep.userData.slides[ind].loaded = 1 ;
+					var num = paneimg.attr('childindex') ;
+					imglink = $('.imglink[childindex='+num+']')
+					imglink.css('background-image', paneimg.css('background-image')) ;
+					imglink.children().remove() ;
+				}
 			}
 
 			twws = [
@@ -90,9 +100,10 @@ module.exports = {
 				})
 			] ;
 
-			BJS.serialTweens(
+		BJS.serialTweens(
 				twws
 			).play().onComplete = function(){
+				sectionbehavior.video_controls(false, res) ;
 				sectionbehavior.verify_toggle(false, res) ;
 				paneimg.remove() ;
 				

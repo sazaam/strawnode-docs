@@ -109,6 +109,13 @@ mixin lr_arrows_top_justtransp(lr, tb, extra, href1, href2)
 		span.unselectable= "     "
 		a.next.unselectable(href=href2)= ">"
 
+mixin videoplaycontrols(extra)
+	.videoplaycontrols.abs.typo.white.unselectable.zi10(class=extra style="left:0;right:0;bottom:0;display:none;align-items:center;padding:0 60px")
+		a.playpause.block.padding.white(href="javascript:void(0)")= ">"
+		span.unselectable= "  "
+		.vprogress.rel.whitetranspBG(style="height:8px;border-radius:4px;cursor:pointer;flex:1;overflow:hidden")
+			.vfill.abs.left0.top0.bottom0(style="width:0%;background:#fff")
+
 mixin ud_arrows(extra)
 	- var cl = extra || 'right0' ;
 	- var st = !!extra ? 'margin-left:20px;bottom:20px' : 'margin-right:13px;top:40px;' ;

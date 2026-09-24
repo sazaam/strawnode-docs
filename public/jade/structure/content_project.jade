@@ -1,4 +1,4 @@
-div.abs.top0.left0.right0.bottom0.fullW.fullH(class="justify-center justify-items-center self-center")
+div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-items-center self-center")
 	include ./mixins 
 	- var res = response ;
 	
@@ -15,9 +15,10 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class="justify-center justify-item
 					for el, i in res.userData.slides
 						- var xpos = '0%' ;
 						- var loaded = el['loaded'] ;
-						- var iurl = _webp ? ('/img/' + el.url).replace(/\.(jpe?g|png)$/i, '.webp') : '/img/' + el.url ;
-						
-						- if(loaded){
+						- var iurl = el.type == 'video' ? el.url : (_webp ? ('/img/' + el.url).replace(/\.(jpe?g|png)$/i, '.webp') : '/img/' + el.url) ;
+						- if(el.type == 'video'){
+							video.imglink.abs.fullW.fullH.cover.zi0(childindex=i muted loop playsinline preload="auto" style="object-fit:cover;background:#000" src=iurl)
+						- }else if(loaded){
 							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + iurl + ");background-position-x:" + xpos + ";")
 						- }else{
 							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:none;background-position-x:" + xpos + ";")
@@ -33,6 +34,9 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class="justify-center justify-item
 		.whitetransp.context(style="bottom:2px;" class="border-l-1 grow justify-start justify-items-start self-end")
 			.textes.txtL.mist.marXXXXXLg.VpadXXLg
 				+lr_arrows('r', 'b', 'projectsectionpanesnav BmarXXXXXLg white sizeM RmarXLg Rpad bottommed')
+				- var hasvideo = !!res.userData.slides && res.userData.slides.length && (function(){ for(var i = 0 ; i < res.userData.slides.length ; i++){ if(res.userData.slides[i].type == 'video') return true ; } return false })() ;
+				if hasvideo
+					+videoplaycontrols()
 				.HmarLg.montserrat
 					//- .info.Bmar.rel(style="height:1em")
 						a.block.abs.fullH.floatL.clear(href="javascript:void(0)")
