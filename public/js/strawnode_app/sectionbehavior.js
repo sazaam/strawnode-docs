@@ -83,7 +83,6 @@ module.exports = {
             // resume = true re-enters the frozen state seamlessly (same radius, resumes at the frozen angle)
             var buildOrbit = function(z, resume){
                 var tws = [] ;
-                
                 z.find('.box').each(function(ii, ell){
                     var box = $(ell) ;
                     // orbit center = the random placement applied at focus
@@ -128,8 +127,7 @@ module.exports = {
                         }
                     }) ;
                     tws.push(twbox) ;
-                })
-
+                }) ;
                 return BJS.parallelTweens(tws) ;
             }
 
@@ -137,14 +135,11 @@ module.exports = {
                 if(!!activeTw) activeTw.stop() ;
                 activeTw = null ;
                 if(!!!z || !z.length) return ;
-
                 var resume = !!z.data('sparkplayed') ;
                 z.data('sparkplayed', true) ;
                 var tw = buildOrbit(z, resume) ;
-                
                 activeTw = tw ;
                 tw.play().stopOnComplete = 0 ;
-
                 // crossfade the block wrapper : incoming -> opacity 100, last active -> opacity 0
                 var v = z.closest('.vcentered') ;
                 if(!!v && v.length){
@@ -1445,7 +1440,9 @@ module.exports = {
                         var can = $('#'+id) ;
                         var wr = can.parent() ;
                         let rect = {w:wr.width(), h:wr.height()} ;
+                        // accurate way is setting width and height as tag attribute
                         can.attr({width:rect.w, height:rect.h}) ;
+                        // redraw
                         toy.setImage({source: idshade});
                         toy.redraw() ;
                     }
@@ -1465,6 +1462,7 @@ module.exports = {
                 
 
                 var i = 0 , l = sh.shaders.length ;
+                // var startid = parseInt(Math.random() * (l-1)) ;
                 var startid = 14 ;
                 var localID = parseInt(localStorage.shaderID || startid) ;
                 i = localID ;
@@ -1475,6 +1473,9 @@ module.exports = {
                 toy.setImage({source: idshade});    // <-- ~5s compile (first shader only)
                 localStorage.shaderID = localID ;
                 toy.play() ;
+                
+                // TODO 
+                // not add multiple EL to these
                 
                 var pp = $('.shadernav a.prev') ; 
                 var nn = $('.shadernav a.next') ; 
@@ -1496,7 +1497,6 @@ module.exports = {
                         tw_in.play() ;
 
                     } ;
-
                     tt.treatClass(pp, 'transp', i != 0) ;
                     
                     return false ;
@@ -1504,7 +1504,7 @@ module.exports = {
         
         
                 window.addEventListener('resize', sh.calcCanvasSize) ;
-
+                
                 tw_in.play() ;
 
                 trace('DONE SHADERING... Tier 0 complete')
@@ -1557,5 +1557,66 @@ module.exports = {
             q.start() ;
         }
 
-    }
+    },
+    
+    ///////////////////////////////////////////////////////// VIDEO SLIDE CUSTOM CONTROLS (play/pause + progress bar)
+    // paired to the ONE active player of THIS project's template (res.parentStep.template_project),
+    // so any number of other players elsewhere stay untouched
+    video_controls : function video_controls(cond, res){
+        var scope = (res.parentStep && res.parentStep.template_project) || $('.project_zone') ;
+        var ctl = scope.find('.videoplaycontrols') ;
+        if(!ctl.length) return ;
+        var vid = scope.find('.paneimg').get(0) ;
+        var isVideo = !!vid && vid.tagName == 'VIDEO' ;
+
+        var syncUI = function(){
+            if(!vid || vid.tagName != 'VIDEO') return ;
+            var d = vid.duration || 0 ;
+            var pct = (isFinite(d) && d > 0) ? (vid.currentTime / d) * 100 : 0 ;
+            ctl.find('.vfill').css('width', pct + '%') ;
+            ctl.find('.playpause').text(vid.paused ? '>' : '||') ;
+        } ;
+
+        var onVisibility = function(){
+            if(document.hidden){
+                try{ if(vid && vid.tagName == 'VIDEO' && !vid.paused) vid.pause() ; }catch(e){}
+            }
+        } ;
+
+        if(cond){
+            if(!isVideo){ ctl.css('display','none') ; return ; }
+            ctl.css('display','flex') ;
+            $(vid).off('.vcl')
+                .on('timeupdate.vcl loadedmetadata.vcl play.vcl pause.vcl', syncUI) ;
+            $(document).off('visibilitychange.vcl').on('visibilitychange.vcl', onVisibility) ;
+            ctl.find('.playpause').off('.vcl').on('click.vcl', function(e){
+                if(!vid || vid.tagName != 'VIDEO') return false ;
+                if(vid.paused) vid.play() ; else vid.pause() ;
+                return false ;
+            }) ;
+            ctl.find('.vprogress').off('.vcl').on('click.vcl', function(e){
+                if(!vid || vid.tagName != 'VIDEO') return false ;
+                var d = vid.duration || 0 ;
+                if(!(d > 0)) return false ;
+                var rect = this.getBoundingClientRect() ;
+                var pct = (e.clientX - rect.left) / rect.width ;
+                pct = Math.max(0, Math.min(1, pct)) ;
+                vid.currentTime = pct * d ;
+                ctl.find('.vfill').css('width', pct * 100 + '%') ;
+                return false ;
+            }) ;
+            syncUI() ;
+        }else{
+            if(isVideo){
+                $(vid).off('.vcl') ;
+                try{ vid.pause() ; vid.currentTime = 0 ; }catch(e){}
+            }
+            $(document).off('visibilitychange.vcl') ;
+            ctl.find('.playpause, .vprogress').off('.vcl') ;
+            ctl.css('display','none') ;
+            ctl.find('.vfill').css('width', '0%') ;
+            ctl.find('.playpause').text('>') ;
+        }
+    },
+
 }
