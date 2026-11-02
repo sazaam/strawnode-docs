@@ -197,3 +197,62 @@ Getting Started with StrawNode
 =
 
 ... to be continued real soon.
+
+
+StrawExpress route descriptors — Landing vs Host
+=
+
+`public/js/strawnode_app/routes.js` exports the whole site as one object; every
+member is either a **config member** (declarative data) or a function (the
+historical open-handler form — still fully supported).
+
+A config member:
+
+- `urljade` (any plain value) → hoisted into `userData`
+- `@toggle`/`@focus`/`@open`/`@close` (any `@`-prop) → attached as lifecycle handlers
+- an object value → recursed as a child route (`index` → the landing step)
+- a function value → a plain child route, so `section({…})` / `project([…])` factories compose the same way
+- with no `@`-renderer key it synthesizes a pure container (completes via `res.ready()`)
+
+`parameters.response` auto-derives from structure, and a landing (`index`)
+inherits its section's `urljade` when it declares none. That leaves exactly two
+**route roles**:
+
+| Role | Has `index`? | Behavior |
+|---|---|---|
+| **Landing section** | yes | closes before its children open; the landing renders, then tears down as a child takes the surface |
+| **Host section** | no (self-rendering / non-child) | opens its own surface and stays; children open within it as panes/slides (e.g. a Tableau: `section({style:'tableau'})`) |
+
+```js
+// Landing section — `index` child renders the section's landing
+docs : {
+  urljade : '/jade/structure/section.jade',
+  index   : { '@toggle': graphics.toggle, '@focus': graphics.focus }
+},
+
+// Host section — self-rendering, no index
+contact : {
+  urljade : '/jade/structure/contact.jade',
+  '@toggle' : graphics.toggle,
+  '@focus' : graphics.focus
+}
+```
+
+Phrasing to remember: *does a section own an `index`? No → Host (children open
+inside it). Yes → Landing (children close it first).*
+
+Lexicon (see dotS `strawexpress.s @lexicon`): **Landing / Host** = structure,
+**Tableau / Passage** = kind (destination vs threshold), **pan / dolly** =
+motion. A Tableau is `section({style:'tableau'})`; a Passage is the default.
+Cornerstone: *you pan across a Tableau; you dolly along a Passage.*
+
+
+Testing
+=
+
+Playwright E2E suite under `tests/` (runs against a throwaway server on port 6466,
+or any running server via `TEST_BASE`):
+
+    npm test
+
+One-off/legacy debug probes live in `tests/probes/` and are not part of the suite.

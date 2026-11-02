@@ -45,12 +45,12 @@ module.exports = {
 		},
 		vision : section({}),
 		make : section({style:'tableau'}, {
-			metavagrant : project([
+			/* metavagrant : project([
 				{url:'mv-01.webp'},
 				{url:'itFlow-01.webp', x:'20%'},
 				{url:'itFlow-02.webp', x:'82%'},
 				{url:'itFlow-03.webp', x:'90%'},
-			]),
+			]), */
 			europa : project([
 				{url:'europa-02.webp', x:'85%'},
 				{url:'europa-03.webp', x:'22%'},
@@ -68,6 +68,35 @@ module.exports = {
 				{url:'inifinite_real_04.webp'},
 				{url:'inifinite_real_05.webp'},
 				{url:'infinite-02.webp', x:'54%'},
+			]),
+			smythson : project([
+				{url:'smythson-naja-01.webp', x:'25%'},
+				{url:'smythson-naja-02.webp', x:'45%'},
+				{url:'smythson-naja-03.webp', x:'65%'},
+				{url:'smythson-naja-04.webp', x:'60%'},
+				{url:'/img/webm/cute_talkie.webm', type:'video', x:'25%'},
+				{url:'/img/webm/cute_radio.webm', type:'video', x:'25%'}
+			]),
+			orca : project([
+				{url:'orca_01.webp', x:'25%'},
+				{url:'orca_02.webp', x:'45%'},
+				{url:'orca_03.webp', x:'65%'},
+				{url:'orca_04.webp', x:'60%'},
+				{url:'orca_06.webp', x:'60%'},
+				{url:'orca_07.webp', x:'60%'},
+				{url:'orca_08.webp', x:'60%'},
+				{url:'orca_09.webp', x:'60%'},
+				{url:'orca_11.webp', x:'60%'}
+			]),
+			xviii : project([
+				{url:'/img/webm/xviii.webm', type:'video', x:'25%'},
+				{url:'xviii_01.webp', x:'25%'},
+				{url:'xviii_02.webp', x:'45%'},
+				{url:'xviii_03.webp', x:'65%'},
+				{url:'xviii_04.webp', x:'60%'},
+				{url:'xviii_05.webp', x:'60%'},
+				{url:'xviii_06.webp', x:'60%'},
+				{url:'xviii_07.webp', x:'60%'}
 			]),
 			dkt : project([
 				{url:'dkt-01.webp', x:'5%'},
@@ -110,35 +139,6 @@ module.exports = {
 				{url:'mmai_005.webp', x:'50%'},
 				{url:'mmai_006.webp', x:'50%'},
 				{url:'mmai_007.webp', x:'50%'},
-			]),
-			smythson : project([
-				{url:'smythson-naja-01.webp', x:'25%'},
-				{url:'smythson-naja-02.webp', x:'45%'},
-				{url:'smythson-naja-03.webp', x:'65%'},
-				{url:'smythson-naja-04.webp', x:'60%'},
-				{url:'/img/webm/cute_talkie.webm', type:'video', x:'25%'},
-				{url:'/img/webm/cute_radio.webm', type:'video', x:'25%'}
-			]),
-			orca : project([
-				{url:'orca_01.webp', x:'25%'},
-				{url:'orca_02.webp', x:'45%'},
-				{url:'orca_03.webp', x:'65%'},
-				{url:'orca_04.webp', x:'60%'},
-				{url:'orca_06.webp', x:'60%'},
-				{url:'orca_07.webp', x:'60%'},
-				{url:'orca_08.webp', x:'60%'},
-				{url:'orca_09.webp', x:'60%'},
-				{url:'orca_11.webp', x:'60%'}
-			]),
-			xviii : project([
-				{url:'/img/webm/xviii.webm', type:'video', x:'25%'},
-				{url:'xviii_01.webp', x:'25%'},
-				{url:'xviii_02.webp', x:'45%'},
-				{url:'xviii_03.webp', x:'65%'},
-				{url:'xviii_04.webp', x:'60%'},
-				{url:'xviii_05.webp', x:'60%'},
-				{url:'xviii_06.webp', x:'60%'},
-				{url:'xviii_07.webp', x:'60%'}
 			])
 		}),
 		light : section({style:'tableau'}, {

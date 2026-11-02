@@ -235,7 +235,10 @@ mixin extra_panes(response)
 			- var left = (i + 1 ) *  100 ; 
 			.innerpane.abs.fullW.fullH(style="left:" + left + "%;top:0")
 				div.abs.cover.left0.right0.whitetransp(class="border-1" style="top:0px;bottom:0px;background:transparent no-repeat center")
-					+lazyimg("/img/" + el.url)
+					- var url = el.url ;
+					//- Hack to replace vignettes of .webm video files
+					- if(/[.]webm$/.test(url)) url = url.replace('/img/webm/', '').replace('.webm', '.webp')
+					+lazyimg("/img/" + url)
 	- }
 			//- +yt("TJORWNcMoU8", "PHa7_EzqBICBXSi5&amp", 0, 1)
 

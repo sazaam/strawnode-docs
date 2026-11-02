@@ -53,7 +53,7 @@ module.exports = {
                 ex_10_text:`<b>Principle : </b> patience is a capability. Mastery is not rushed into existence.
                 <br><br><b>For you</b>, you are hiring depth, not speed theater. The work arrives when it is worthy, not when a timer says so.`,
                 
-                ex_11:`"When you are the best, at what you do, be ready to concede, ready to lose..."<br>
+                ex_11:`"When you became the best at what you do, it is because you were ready to concede, ready to lose..."<br>
                 <i class="sizeM">The Vagabond</i>`,
                 ex_11_text:`<b>Principle : </b> the work serves your vision, not our ego. We will argue for the frame, then yield to the one who owns the vision.
                 <br><br><b>For you</b>, a partner secure enough to say when we are wrong — and to make your success the metric.`,
@@ -127,10 +127,10 @@ module.exports = {
                 <i class="bold">faster</i> than you..."
                 
                 <span class='sizeSm block txtR RmarLg'>-- The Vagabond</span>`,
-                quote_11:`"When you are the <b>best</b>,
+                quote_11:`"When you became the <b>best</b>,
                 at what you do,
                 
-                be ready to <i class="bold">concede</i>, ready to <i class="bold">lose</i>..."
+                it's because you were ready to <i class="bold">concede</i>, ready to <i class="bold">lose</i>..."
                 
                 <span class='sizeSm block txtR RmarLg'>-- The Vagabond</span>`
             },
@@ -165,7 +165,6 @@ module.exports = {
                 infinite:'Infinite',
                 smythson:'Smythson Strikefare',
                 dkt:'DKT',
-                metavagrant:'MetaVagrant',
                 hexarmor:'Hexarmor',
                 mmai:'MetaMonkey AI',
                 orca:'ORCA',
@@ -269,24 +268,32 @@ module.exports = {
             europa:{
                 cat:'Concept Car Design',
                 slide_00:'An effort towards elegance.',
-                desc_02:'## *A stylish way* <br><br><br><br> By Tim Rhodes',
-                desc_01:'## *You never know* <br><br><br><br> 164 x 190 <br> Oil on Canvas',
-                slide_01:'A front View.'
+                desc_02:'## *Europa brings the Road Nostalgia* <br> for us Wanderers <br><br><br><a class="extlink" target="_blank" href="/vids/zIqgJs_Dzp4/">Watch</a>',
+                desc_01:'## *Thin line between future and past.* <br><br><br><a class="extlink" target="_blank" href="/vids/zIqgJs_Dzp4/">Watch</a>',
+                slide_01:'Branded for Citroen',
+                slide_02:'Implications of Presence.'
             },
             infinite:{
                 cat:'Concept Car Design',
                 slide_00:'The Shape of a Luxury Speedster.',
-                desc_01:'## *You never know* <br><br><br><br> 164 x 190 <br> Oil on Canvas<br><br><br> <a class="extlink" target="_blank" href="/vids/zIqgJs_Dzp4/">Watch</a>',
+                desc_01:'## *Spacious...*',
+                desc_02:'## *... And with a sense of Pride*',
+                desc_03:'## *Built-in Robustness and Power*',
+                desc_04:'## *Adherence mixed with a light feel*',
+                desc_05:'## *Concieved for high speeds*',
             },
             smythson:{
                 cat:'Tech Design',
                 slide_00:'Warfare on-Field Enhancements Suggestions.',
-                slide_01:'',
-                slide_02:'',
-                slide_03:'A final render',
-                slide_04:'',
-                desc_04:'The Wifi Everything Device',
-                desc_02:'## *The NAJA Software* <br><br><br><br><div class="limited"> initializing... <br><br> Native Authentication<br>Jarvis Application<br><br><hr class="whitetranspBG"><br> Retro-LED Screen <br>displays the menu <br>but is also<br> a fingerprint <br>authentication device</div>',
+                slide_01:'The Sol-Air Missile support Pinpointing device',
+                desc_01:'Enables Ranked Auth <br>for direct Missile Launch on Target. <br> 2-step Auth with USB Encrypted SSH passphrase <br>+ Fingerprint of ranked official.<br><br>Location pinpointed by Laser,<br> send exact coordinates to Sol-Air API for instant support.',
+                slide_02:'Embedded Software',
+                slide_03:'A closed state for minimal space requirements',
+                slide_04:'The BWE Scan & Penetration Device',
+                slide_05:'The PRM 23 Jam & Unjammer',
+                desc_05:'<div class="limited clear">Stay Connected while Blocking Others<br><br> <hr class="whitetranspBG" /> <br><br> Establish huge constant seed-changing Noise Patterns in area in standalone mode. <br> In Modular mode, knows the pattern to decrypt noise emitted by the other friendly jamming utilities. <br><br>Always has a passthrough for connectivity and encrypts all data transactions on 4 different frequencies.<br><br><br><a class="extlink" target="_blank" href="www.artstation.com/artwork/dyWxgJ">See Project</a></div>',
+                desc_04:'<div class="limited clear">The Wifi-BLE Everything Device<br><br> <hr class="whitetranspBG" /><br><br> Supports up to 16 MicroSD drives <br> scans Bluetooth and wifi connections<br> can launch from single scripts to full OS setups on distant devices,   <br><br><br><a class="extlink" target="_blank" href="/vids/ojpnDPKO_rY/">Watch Features</a><br><br><br><br><a class="extlink" target="_blank" href="/vids/Ti-9K-NXEqA/">Watch Concept Process</a></div>',
+                desc_02:'## *The NAJA Software* <br><br><br><br><div class="limited"> initializing... <br><br> Handles Native Authentication<br>+ Targeting and Support Service Modes<br><br><hr class="whitetranspBG" /><br> Retro-LED Screen <br>for Menu display<br>but also<br> for Fingerprint <br>Authentication</div>',
             },
             dkt:{
                 cat:'Industrial Machinery Design',
@@ -296,13 +303,17 @@ module.exports = {
                 cat:'Interior Design',
                 slide_00:"Designing Hexarmor Showroom",
             },
-            metavagrant:{
-                cat:'Brand Design',
-                slide_00:'The Image branding process of a Vagrant.'
-            },
             mmai:{
                 cat:'Advertisement - CGI',
                 slide_00:'Promoting a Cryptocurrency Metaverse Mall.'
+            },
+            orca:{
+                cat:'Concept Design',
+                slide_00:'A Submarine Search & Rescue Implement'
+            },
+            xviii:{
+                cat:'Concept Design',
+                slide_00:'An Enforcer - Riot Control Vehicle'
             },
             sagong:{
                 cat:'Independant Short Movie',
@@ -441,7 +452,6 @@ module.exports = {
                 infinite:'Infinite',
                 smythson:'Smythson Strikefare',
                 dkt:'DKT',
-                metavagrant:'MetaVagrant',
                 hexarmor:'Hexarmor',
                 mmai:'MetaMonkey AI',
 
