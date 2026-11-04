@@ -169,6 +169,7 @@ module.exports = {
                 mmai:'MetaMonkey AI',
                 orca:'ORCA',
                 xviii:'XVIII',
+                legends:'Anthology',
 
                 sagong:'Sagong',
                 lostinone:'Lost In One',
@@ -315,6 +316,14 @@ module.exports = {
                 cat:'Concept Design',
                 slide_00:'An Enforcer - Riot Control Vehicle'
             },
+            legends:{
+                cat:'Modelling Practice',
+                slide_00:'Remaking Anthological Designs',
+                desc_00:'## *Alfa Romeo* Carabo 1968 <br><br><hr class="whitetranspBG" style="width:360px;float:right;clear:both;" /><br> *Designed by Marcello Gandini at Studios Bertone* <br><br>',
+                desc_04:'## *DMC* DeLorean 1980 <br><br><hr class="whitetranspBG" style="width:360px;float:right;clear:both;" /><br> *Designed by Giorgetto Giugiaro at DeLorean Motors Company*<br><br>',
+                desc_05:'## *DMC* DeLorean 1980 <br><br><hr class="whitetranspBG" style="width:360px;float:right;clear:both;" /><br> *Designed by Giorgetto Giugiaro at DeLorean Motors Company*<br><br>',
+                desc_06:'## *DMC* DeLorean 1980 <br><br><hr class="whitetranspBG" style="width:360px;float:right;clear:both;" /><br> *Designed by Giorgetto Giugiaro at DeLorean Motors Company*<br><br>',
+            },
             sagong:{
                 cat:'Independant Short Movie',
                 slide_00:'The Ferrymaster',
@@ -330,7 +339,7 @@ module.exports = {
             ashina:{
                 cat:'3D Generation',
                 slide_00:'Asian Architecture Tool',
-                desc_01:'## *All Procedural* <br><br><br><br> Blender Geometry Nodes',
+                desc_01:'## *All Procedural* <br><br><br><br> Made with Blender Geometry Nodes, <br>as a tool to help with complex roof structures. <br> Design Blocks can be replaced with custom assets, <br> but structure remains, and adapt. ',
                 desc_02:'## *A all-style rooftops <br> 3D building tool* <br><br><br><br> whether you want japanese<br> straight roof lines,<br> pagoda-types, monastery <br>or even castle types, <br>sino-korean roof curvatures,<br> wooden structures and tiling <br> are all dynamic',
             },
             modern_art:{
