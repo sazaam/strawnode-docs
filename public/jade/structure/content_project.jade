@@ -13,15 +13,15 @@ div.abs.top0.left0.right0.bottom0.fullW.fullH(class=" justify-center justify-ite
 				.none.imageslinks
 					- var _webp = (function(){ try{ return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') == 0 ; }catch(e){ return false } })()
 					for el, i in res.userData.slides
-						- var xpos = '0%' ;
+						- var xpos = '50%' ;
 						- var loaded = el['loaded'] ;
 						- var iurl = el.type == 'video' ? el.url : (_webp ? ('/img/' + el.url).replace(/\.(jpe?g|png)$/i, '.webp') : '/img/' + el.url) ;
 						- if(el.type == 'video'){
-							video.imglink.abs.fullW.fullH.cover.zi0(childindex=i muted loop playsinline preload="auto" style="object-fit:cover;background:#000" src=iurl)
+							video.imglink.abs.fullW.fullH.cover.zi0(childindex=i muted loop playsinline preload="auto" style="object-fit:cover;background:#000" src=iurl data-src=iurl data-type="video")
 						- }else if(loaded){
-							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + iurl + ");background-position-x:" + xpos + ";")
+							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:url(" + iurl + ");background-position-x:" + xpos + ";" data-src=iurl data-type="image")
 						- }else{
-							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:none;background-position-x:" + xpos + ";")
+							.imglink.abs.fullW.fullH.cover.zi0(childindex=i style="background-image:none;background-position-x:" + xpos + ";" data-src=iurl data-type="image")
 								+lazyimg(iurl)
 						- }
 		

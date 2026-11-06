@@ -26,6 +26,10 @@ var preloadImage = function(url){
     i.src = webpUrl(url) ;
 } ;
 
+var project_open_state = false ;
+var active_pano = null ;
+var shader_sync = null ;
+
 var GestureManager = require('./strawnode_modules/gesture') ;
 var KeyboardManager = require('./strawnode_modules/keyboard') ;
 var Reactive = require('./strawnode_modules/reactive') ;
@@ -40,6 +44,12 @@ module.exports = {
         if(cond) el.removeClass(cl) ;
         else el.addClass(cl) ;
         return el ;
+    },
+
+    set_project_open : function(open){
+        project_open_state = !!open ;
+        if(project_open_state && active_pano) active_pano.stop() ;
+        if(shader_sync) shader_sync() ;
     },
 
     ///////////////////////////////////////////////////// CHECKS & VERIFIES AT STEP LEVEL FOR FOCUS AND TOGGLE EVENTS
@@ -805,15 +815,16 @@ module.exports = {
 
             var is_slide = !noslide ;
             
+            
+
             if(is_slide){
                 paneimg.css('background-position-x', '0%') ;
                 
                 var pW = paneimg.width() ;
                 var pH = paneimg.height() ;
-
+                
                 /// SKIP X-SCROLL ON ASPECT RATIO
-                if(pW / pH <= cineratio) {
-
+                if(project_open_state && (pW / pH <= cineratio)) {
                     var tw_back = BJS.create({
                         target:paneimg,
                         to:{'background-position-x::%':100},
@@ -821,11 +832,13 @@ module.exports = {
                         time:5,
                         ease:Physical.uniform(.3)
                     }) ;
+                    
                     var tw_pano = res.userData.tw_pano = BJS.serial(
                         BJS.delay(tw_back, 0, 2), BJS.delay(BJS.reverse(tw_back), 0, 2)) ;
                     tw_pano.stopOnComplete = 0 ;
+
                     tw_pano.restart() ;
-                    
+                    active_pano = tw_pano ;
                 }
                 project_zone.addClass('touch-action') ;
             }else{
@@ -873,6 +886,7 @@ module.exports = {
 			var tw_pano = res.userData.tw_pano ;
 			if(!!tw_pano) {
 				tw_pano.stop() ;
+				if(active_pano === tw_pano) active_pano = null ;
 			}
 			
 			paneimg.css('background-position-x', '0%') ;
@@ -1473,6 +1487,34 @@ module.exports = {
                 toy.setImage({source: idshade});    // <-- ~5s compile (first shader only)
                 localStorage.shaderID = localID ;
                 toy.play() ;
+
+                var shader_paused = false ;
+                var shader_window_blurred = false ;
+                var sync_shader = function(){
+                    var should_pause = document.hidden || shader_window_blurred || project_open_state ;
+                    if(should_pause){
+                        if(shader_paused) return ;
+                        shader_paused = true ;
+                        try{ toy.pause() ; }catch(e){}
+                    }else{
+                        if(!shader_paused) return ;
+                        shader_paused = false ;
+                        try{ toy.play() ; }catch(e){}
+                    }
+                } ;
+                shader_sync = sync_shader ;
+                $(window).off('.shaderbg')
+                    .on('blur.shaderbg', function(){
+                        shader_window_blurred = true ;
+                        sync_shader() ;
+                    })
+                    .on('focus.shaderbg', function(){
+                        shader_window_blurred = false ;
+                        sync_shader() ;
+                    }) ;
+                $(document).off('visibilitychange.shaderbg')
+                    .on('visibilitychange.shaderbg', sync_shader) ;
+                sync_shader() ;
                 
                 // TODO 
                 // not add multiple EL to these
