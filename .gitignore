@@ -36,3 +36,8 @@ img_orig_backup/
 data/
 uploads/
 tmp/
+
+
+
+#heavy files
+public/img/webm/

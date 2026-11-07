@@ -170,6 +170,7 @@ module.exports = {
                 orca:'ORCA',
                 xviii:'XVIII',
                 legends:'Anthology',
+                patterns:'Patterns',
 
                 sagong:'Sagong',
                 lostinone:'Lost In One',
