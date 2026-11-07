@@ -52,6 +52,14 @@ module.exports = {
         if(shader_sync) shader_sync() ;
     },
 
+    is_project_open : function(){
+        return project_open_state ;
+    },
+
+    on_activity_resume : function(was_project_open){
+        if(shader_sync) shader_sync() ;
+    },
+
     ///////////////////////////////////////////////////// CHECKS & VERIFIES AT STEP LEVEL FOR FOCUS AND TOGGLE EVENTS
 
 
@@ -1513,7 +1521,10 @@ module.exports = {
                         sync_shader() ;
                     }) ;
                 $(document).off('visibilitychange.shaderbg')
-                    .on('visibilitychange.shaderbg', sync_shader) ;
+                    .on('visibilitychange.shaderbg', function(){
+                        if(!document.hidden) shader_window_blurred = false ;
+                        sync_shader() ;
+                    }) ;
                 sync_shader() ;
                 
                 // TODO 

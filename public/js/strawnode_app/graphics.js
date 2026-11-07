@@ -595,7 +595,7 @@ module.exports = {
 		var template_project ;
 
 		var dims = res.userData.dims = {
-			start:{ 'width::%':80, 'height::%':80, 'margin-left::%':10, 'margin-top::%':5, 'alpha':0},
+			start:{ 'width::%':80, 'height::%':80, 'margin-left::%':5, 'margin-top::%':5, 'alpha':0},
 			end:{'width::%':100, 'height::%':100, 'margin-left::%':0, 'margin-top::%':0, 'alpha':100}
 		} ;
 		

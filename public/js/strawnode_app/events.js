@@ -3,6 +3,7 @@
 (function() {
 	// trace('EVENT MODULE LOADED');
 	var options = module.params || {} ;
+	var sectionbehavior = require('./sectionbehavior') ;
     
 	
 	
@@ -238,20 +239,50 @@
 
 
 
-    var halted = false;
+    var manualPaused = false;
+    var windowBlurred = false;
+    var documentHidden = !!document.hidden;
+    var bjsWasActive = false;
+    var projectWasOpen = false;
 
-    var pauseBetween = function() {
-        var AT = BetweenJS.$.AnimationTicker ;
-        if (!!AT.started) {
-            if (!!AT.HALT) {
-                halted = false;
-                AT.restoreSystem();
-            } else {
-                AT.haltSystem();
-                halted = true;
+    var animationTicker = function() {
+        return BetweenJS.$ && BetweenJS.$.AnimationTicker;
+    };
+
+    var bjsIsStarted = function() {
+        var AT = animationTicker();
+        return !!(AT && AT.started);
+    };
+
+    var bjsIsHalted = function() {
+        var AT = animationTicker();
+        return !!(AT && AT.HALT);
+    };
+
+    var shouldHalt = function() {
+        return manualPaused || windowBlurred || documentHidden;
+    };
+
+    var syncActivity = function() {
+        if (shouldHalt()) {
+            if (!bjsWasActive) {
+                bjsWasActive = BJS.isPlaying();
+                projectWasOpen = sectionbehavior.is_project_open();
             }
+            if (bjsIsStarted() && !bjsIsHalted()) {
+                BJS.pause();
+            }
+            return;
         }
-    }
+
+        if (bjsIsHalted() && bjsIsStarted()) {
+            BJS.resume();
+            sectionbehavior.on_activity_resume(projectWasOpen);
+        }
+
+        bjsWasActive = false;
+        projectWasOpen = false;
+    };
 
     // SPACEBAR
 
@@ -261,21 +292,29 @@
 		var shift = e.shiftKey ;
         
         if (shift && keycode == 32) {
-            pauseBetween() ;
+            manualPaused = !manualPaused;
+            syncActivity() ;
         }
     })
 
 
 
     $(window).on('blur', function(e) {
-        var AT = BetweenJS.$.AnimationTicker;
-        if (!!AT.started && !halted) AT.haltSystem();
+        windowBlurred = true;
+        syncActivity();
     })
 
     $(window).on('focus', function(e) {
-        var AT = BetweenJS.$.AnimationTicker;
-        if (!!AT.started && !halted) AT.restoreSystem();
-    }) 	
+        windowBlurred = false;
+        if (documentHidden) return;
+        syncActivity();
+    })
+
+    $(document).on('visibilitychange', function(e) {
+        documentHidden = !!document.hidden;
+        if (!documentHidden) windowBlurred = false;
+        syncActivity();
+    })
 	
     
 	

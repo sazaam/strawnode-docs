@@ -342,6 +342,10 @@ module.exports = {
                 desc_01:'## *All Procedural* <br><br><br><br> Made with Blender Geometry Nodes, <br>as a tool to help with complex roof structures. <br> Design Blocks can be replaced with custom assets, <br> but structure remains, and adapt. ',
                 desc_02:'## *A all-style rooftops <br> 3D building tool* <br><br><br><br> whether you want japanese<br> straight roof lines,<br> pagoda-types, monastery <br>or even castle types, <br>sino-korean roof curvatures,<br> wooden structures and tiling <br> are all dynamic',
             },
+            patterns:{
+                cat:'Generative Art',
+                slide_00:'Mathematical Shaping for VFX',
+            },
             modern_art:{
                 cat:'2D Generation',
                 slide_00:'Remake 1960~70 ',

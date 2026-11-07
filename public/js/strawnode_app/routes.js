@@ -163,6 +163,14 @@ module.exports = {
 				{url:'/img/webm/Ashina_final.webm', type:'video'},
 				{url:'/img/webm/Ashina_all_tweaks.webm', type:'video'},
 			]),
+			patterns : project([
+				{url:'/img/webm/mounts.webm', type:'video'},
+				{url:'/img/webm/circles.webm', type:'video'},
+				{url:'/img/webm/stainglass.webm', type:'video'},
+				{url:'/img/webm/psychic.webm', type:'video'},
+				{url:'/img/webm/stainglass_smooth.webm', type:'video'},
+				{url:'/img/webm/first.webm', type:'video'},
+			]),
 			modern_art : project([
 				{url:'exhibition_01.webp'},
 				{url:'exhibition_02.webp', x:'20%'},
