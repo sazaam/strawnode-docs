@@ -1630,10 +1630,25 @@ module.exports = {
             ctl.find('.playpause').text(vid.paused ? '>' : '||') ;
         } ;
 
+        var wasPlaying = false ;
+
+        var stopPlayback = function(){
+            if(!vid || vid.tagName != 'VIDEO' || vid.paused) return ;
+            wasPlaying = true ;
+            try{ vid.pause() ; }catch(e){}
+        } ;
+
+        var resumePlayback = function(){
+            if(document.hidden || !wasPlaying || !vid || vid.tagName != 'VIDEO' || !vid.paused) return ;
+            wasPlaying = false ;
+            try{
+                var playing = vid.play() ;
+                if(playing && playing.catch) playing.catch(function(){}) ;
+            }catch(e){}
+        } ;
+
         var onVisibility = function(){
-            if(document.hidden){
-                try{ if(vid && vid.tagName == 'VIDEO' && !vid.paused) vid.pause() ; }catch(e){}
-            }
+            if(document.hidden) stopPlayback() ; else resumePlayback() ;
         } ;
 
         if(cond){
@@ -1642,8 +1657,12 @@ module.exports = {
             $(vid).off('.vcl')
                 .on('timeupdate.vcl loadedmetadata.vcl play.vcl pause.vcl', syncUI) ;
             $(document).off('visibilitychange.vcl').on('visibilitychange.vcl', onVisibility) ;
+            $(window).off('blur.vcl focus.vcl')
+                .on('blur.vcl', stopPlayback)
+                .on('focus.vcl', resumePlayback) ;
             ctl.find('.playpause').off('.vcl').on('click.vcl', function(e){
                 if(!vid || vid.tagName != 'VIDEO') return false ;
+                wasPlaying = false ;
                 if(vid.paused) vid.play() ; else vid.pause() ;
                 return false ;
             }) ;
@@ -1664,7 +1683,9 @@ module.exports = {
                 $(vid).off('.vcl') ;
                 try{ vid.pause() ; vid.currentTime = 0 ; }catch(e){}
             }
+            wasPlaying = false ;
             $(document).off('visibilitychange.vcl') ;
+            $(window).off('blur.vcl focus.vcl') ;
             ctl.find('.playpause, .vprogress').off('.vcl') ;
             ctl.css('display','none') ;
             ctl.find('.vfill').css('width', '0%') ;
