@@ -10,7 +10,8 @@ window.DocsArticles = {
 		var self = this ;
 		var en = target.en.translation ;
 		var ko = !!target.ko ? target.ko.translation : null ;
-		var perLeaf = !!ko ? 2 : 1 ;
+		var ja = !!target.ja ? target.ja.translation : null ;
+		var perLeaf = 1 + (ko ? 1 : 0) + (ja ? 1 : 0) ;
 		var pending = this._leaves.length * perLeaf ;
 
 		var settle = function(){
@@ -18,9 +19,9 @@ window.DocsArticles = {
 		} ;
 
 		this._leaves.forEach(function(leaf){
-			var confs = ko
-				? [ {res:en, url:'/docs/' + leaf + '.md'}, {res:ko, url:'/docs/ko/' + leaf + '.md'} ]
-				: [ {res:en, url:'/docs/' + leaf + '.md'} ] ;
+			var confs = [ {res:en, url:'/docs/' + leaf + '.md'} ] ;
+			if(ko) confs.push({res:ko, url:'/docs/ko/' + leaf + '.md'}) ;
+			if(ja) confs.push({res:ja, url:'/docs/ja/' + leaf + '.md'}) ;
 			confs.forEach(function(conf){
 				var xhr = new XMLHttpRequest() ;
 				xhr.open('GET', conf.url) ;
