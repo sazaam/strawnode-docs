@@ -264,6 +264,7 @@
     };
 
     var syncActivity = function() {
+		
         if (shouldHalt()) {
             if (!bjsWasActive) {
                 bjsWasActive = BJS.isPlaying();
@@ -274,8 +275,8 @@
             }
             return;
         }
-
-        if (bjsIsHalted() && bjsIsStarted()) {
+		
+        if (bjsIsHalted()) {
             BJS.resume();
             sectionbehavior.on_activity_resume(projectWasOpen);
         }
@@ -305,17 +306,18 @@
     })
 
     $(window).on('focus', function(e) {
+		trace('RETURNED') ;
         windowBlurred = false;
-        if (documentHidden) return;
+        // if (documentHidden) return;
         syncActivity();
     })
-
+/* 
     $(document).on('visibilitychange', function(e) {
         documentHidden = !!document.hidden;
         if (!documentHidden) windowBlurred = false;
         syncActivity();
     })
-	
+	 */
     
 	
 

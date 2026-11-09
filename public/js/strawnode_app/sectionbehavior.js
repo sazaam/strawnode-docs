@@ -826,26 +826,28 @@ module.exports = {
             
 
             if(is_slide){
-                paneimg.css('background-position-x', '0%') ;
+
+                // paneimg.css('background-position-x', '0%') ;
                 
                 var pW = paneimg.width() ;
                 var pH = paneimg.height() ;
-                
+
+
                 /// SKIP X-SCROLL ON ASPECT RATIO
                 if(project_open_state && (pW / pH <= cineratio)) {
                     var tw_back = BJS.create({
                         target:paneimg,
                         to:{'background-position-x::%':100},
                         from:{'background-position-x::%':0},
-                        time:5,
+                        // time:5,
                         ease:Physical.uniform(.3)
                     }) ;
                     
                     var tw_pano = res.userData.tw_pano = BJS.serial(
                         BJS.delay(tw_back, 0, 2), BJS.delay(BJS.reverse(tw_back), 0, 2)) ;
                     tw_pano.stopOnComplete = 0 ;
-
-                    tw_pano.restart() ;
+                    tw_pano.update(2.8) ;
+                    tw_pano.play() ;
                     active_pano = tw_pano ;
                 }
                 project_zone.addClass('touch-action') ;

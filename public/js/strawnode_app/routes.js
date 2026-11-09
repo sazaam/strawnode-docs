@@ -115,7 +115,6 @@ module.exports = {
 				{url:'dkt-05.webp', x:'60%'},
 				{url:'dkt-06.webp', x:'0%'},
 				{url:'dkt-07.webp', x:'75%'},
-				{url:'dummy.webp', x:'45%', noslide:1},
 			]),
 			hexarmor : project([
 				{url:'hex-01.webp', x:'50%'},
@@ -133,7 +132,6 @@ module.exports = {
 				{url:'hex-plan-05.webp', x:'60%'},
 				{url:'hex-plan-06.webp', x:'60%'},
 				{url:'hex-plan-07.webp', x:'50%'},
-				{url:'dummy.webp', x:'45%', noslide:1},
 			]),
 			mmai : project([
 				{url:'mmai_01.webp'},

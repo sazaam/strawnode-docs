@@ -81,6 +81,15 @@ mixin gen_alpha_link_r(txt, href, cl)
 	a.block.floatR.clear.item.padding.HpadXLg.rel.dispBlock(class="rounded whitetranspBG "+ cl, href=href)= txt
 		span.typo.Vpadding.RpadSm.arrowindic.abs.dispNone.right0.top0.bottom0 &gt;
 
+mixin lr_arrows_shaders(lr, tb, extra, cl_btn)
+	- cl = lr == 'r' ? 'right0 RmarSm' : 'left0 LmarSm' ;
+	- cl += ' ' + (tb == 't' ? 'top0' : 'bottom0') ;
+	- cl += ' ' + extra ;
+	.abs.lr_arrows.flex-row.typo(class=cl)
+		a.prev.transp.unselectable(class=cl_btn href="javascript:void(0)")= "<"
+		span.unselectable= "     "
+		a.next.unselectable(class=cl_btn href="javascript:void(0)")= ">"
+
 mixin lr_arrows(lr, tb, extra)
 	- cl = lr == 'r' ? 'right0 RmarSm' : 'left0 LmarSm' ;
 	- cl += ' ' + (tb == 't' ? 'top0' : 'bottom0') ;
