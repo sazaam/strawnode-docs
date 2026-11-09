@@ -640,12 +640,17 @@ module.exports = {
         var saz = block ;
 
         var saztw_in = saz.data('int_in') ;
-        var saztw_out = saz.data('int_in') ;
+        var saztw_out = saz.data('int_out') ;
         if(!!saztw_in) clearInterval(saztw_in) ;
         if(!!saztw_out) clearInterval(saztw_out) ;
         newtxt = newtxt.trim() ;
         var sss = saz.html().trim() ;
         var sss2 = newtxt ;
+        if(sss2.indexOf('<') > -1){
+            var norm = document.createElement('div') ;
+            norm.innerHTML = sss2 ;
+            sss2 = norm.innerHTML.trim() ;
+        }
         var thres = 3 ;
         
         thres = Kompat.instance.isBrave ? 3 : 3 ;
