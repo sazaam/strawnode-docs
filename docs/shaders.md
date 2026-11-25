@@ -32,9 +32,3 @@ void main(){
 - **Background programs** — the shaders you see on this page, switched through the navigation.
 - **Transitions & surfaces** — effects layered over content sections.
 - **Export** — same GLSL ideas carry over to real-time engines and renderers.
-
-### Full documentation
-
-The shader system source and programs live with the site:
-
-- [WebGL2 shader system on GitHub](https://github.com/sazaam)

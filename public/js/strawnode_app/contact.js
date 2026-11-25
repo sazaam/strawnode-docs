@@ -7,6 +7,15 @@ window.Contact = {
 		var $success = $form.siblings('.contact_success') ;
 		var tt = window.i18next.t ;
 
+		var $pl_name = $form.find('input[name=name]') ;
+		var $pl_email = $form.find('input[name=email]') ;
+		var $pl_message = $form.find('input[name=message]') ;
+
+		var sames = arg1 => arg1.prop('value').toLowerCase() == arg1.prop('placeholder').toLowerCase() ;
+		
+		if(sames($pl_email) || sames($pl_name)) return ;
+		if($pl_message.prop('value') == '') return ;
+
 		if($form.find('input[name=website]').val()){
 			$form.hide() ;
 			$success.html(tt('contact.success')).removeClass('none') ;

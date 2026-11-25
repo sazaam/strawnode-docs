@@ -34,9 +34,3 @@ for seed in range(10):
 - **Ashina** — the rooftop generator: architectural rules as data.
 - **Shaders** — shaders themselves are procedural: the fragment program *is* the rule that generates the pixels.
 - **Works** — series that explore a form family rather than a single object.
-
-### Full documentation
-
-The procedural tools and generators live with the source:
-
-- [Ashina on GitHub](https://github.com/sazaam)

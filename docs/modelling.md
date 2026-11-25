@@ -29,9 +29,3 @@ Modelling is where every work on this site begins — a roof form, a body line, 
 - **Works** — the car, the rooftops, the concept pieces all start as modelled geometry.
 - **Procedural** — some shapes are generated instead of hand-built, then surfaced and textured through the same pipeline.
 - **Shaders** — the final mesh is what a shader runs on; topology and UVs decide how materials land.
-
-### Full documentation
-
-The modelling sources and scene files live with the projects:
-
-- [Modelling on GitHub](https://github.com/sazaam)
